@@ -1,0 +1,112 @@
+
+# Arduino SAM Core and platform.
+#
+# For more info:
+# https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
+
+name=Arduino ARM (32-bits) Boards
+version=1.6.1
+
+# Ameba compile variables
+# ----------------------
+
+compiler.path={runtime.ide.path}/hardware/tools/gcc-arm-none-eabi-4.8.3-2014q1/bin/
+compiler.c.cmd=arm-none-eabi-gcc
+#compiler.c.flags=-c -g -w -mcpu=cortex-m3 -mthumb -O2 -fno-short-enums -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -MMD -MP
+compiler.c.flags=-c -g -w -mcpu=cortex-m3 -mthumb -O2 -fno-short-enums -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-short-enums -MMD -MP
+compiler.c.elf.cmd=arm-none-eabi-gcc
+compiler.c.elf.flags= -O2 -Wl,--gc-sections -mcpu=cortex-m3 -mthumb --specs=nano.specs 
+compiler.S.flags=-c -g -x assembler-with-cpp
+compiler.cpp.cmd=arm-none-eabi-g++
+#compiler.cpp.flags=-c -g -w -O2 -mcpu=cortex-m3 -mthumb -fno-short-enums -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-rtti -MMD -MP
+compiler.cpp.flags=-c -g -w -O2 -mcpu=cortex-m3 -mthumb -fno-short-enums -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-rtti -fno-short-enums -MMD -MP
+
+compiler.ar.cmd=arm-none-eabi-ar
+compiler.ar.flags=rcs
+compiler.strip.cmd=arm-none-eabi-strip
+compiler.nm.cmd=arm-none-eabi-nm
+compiler.objcopy.cmd=arm-none-eabi-objcopy
+compiler.objcopy.eep.flags=-O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0
+compiler.elf2hex.flags=-O binary
+compiler.elf2hex.cmd=
+compiler.ldflags=
+compiler.size.cmd=arm-none-eabi-size
+compiler.define=-DARDUINO=
+
+# this can be overriden in boards.txt
+build.extra_flags=
+
+# These can be overridden in platform.local.txt
+compiler.c.extra_flags=
+#compiler.c.elf.extra_flags= -Wl,--cref -Wl,--gc-sections -Wl,--entry=Reset_Handler -Wl,--unresolved-symbols=report-all -Wl,--warn-common 
+compiler.c.elf.extra_flags= -Wl,--cref -Wl,--gc-sections  -Wl,--entry=Reset_Handler -Wl,--no-enum-size-warning
+compiler.cpp.extra_flags=
+compiler.ar.extra_flags=
+compiler.elf2hex.extra_flags=
+
+compiler.ameba.libpath = {build.system.path}/libameba
+
+compiler.ameba.c.include1 = "-I{compiler.ameba.libpath}/include" "-I{compiler.ameba.libpath}/targets/cmsis" "-I{compiler.ameba.libpath}/sw/lib/sw_lib/mbed/hal" 
+compiler.ameba.c.include2 = "-I{compiler.ameba.libpath}/sw/lib/net/lwip" "-I{compiler.ameba.libpath}/sw/lib/net/lwip/include" 
+compiler.ameba.c.include3 = "-I{compiler.ameba.libpath}/sw/lib/net/lwip/include/ipv4" "-I{compiler.ameba.libpath}/sw/lib/net/lwip-sys" "-I{compiler.ameba.libpath}/sw/lib/wifi"
+compiler.ameba.c.include4 = "-I{compiler.ameba.libpath}/sw/os" "-I{compiler.ameba.libpath}/sw/os/os_dep/include" "-I{compiler.ameba.libpath}/sw/os/rtx/include" "-I{compiler.ameba.libpath}/sw/lib/rtl_std_lib/include"
+
+compiler.ameba.c.flags = {compiler.ameba.c.include1} {compiler.ameba.c.include2} {compiler.ameba.c.include3} {compiler.ameba.c.include4}
+
+sys_obj_files = "{build.variant.path}/startup.o"
+
+# USB Flags
+# ---------
+build.usb_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid} -DUSBCON '-DUSB_MANUFACTURER={build.usb_manufacturer}' '-DUSB_PRODUCT={build.usb_product}'
+
+# Default usb manufacturer will be replaced at compile time using
+# numeric vendor ID if available or by board's specific value. 
+build.usb_manufacturer="Unknown"
+
+
+# Ameba compile patterns
+# ---------------------
+
+## Compile c files
+recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -mcpu={build.mcu} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.c.extra_flags} {build.extra_flags} {compiler.ameba.c.flags} {includes} "{source_file}" -o "{object_file}"
+
+## Compile c++ files
+recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -mcpu={build.mcu} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.cpp.extra_flags} {build.extra_flags} {compiler.ameba.c.flags} {includes} "{source_file}" -o "{object_file}"
+
+## Create archives
+recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{build.path}/{archive_file}" "{object_file}"
+
+## Combine gc-sections, archives, and objects
+#recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} "-L{build.variant.path}/linker_scripts/gcc" "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map={build.path}/{build.project_name}.map" {compiler.c.elf.extra_flags} -o "{build.path}/{build.project_name}.axf" "-L{build.path}" -Wl,--start-group {object_files} {sys_obj_files}"{build.path}/{archive_file}" "{build.variant.path}/{build.variant_system_lib}"  -Wl,--end-group -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} "-L{build.variant.path}/linker_scripts/gcc" "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map={build.path}/{build.project_name}.map" {compiler.c.elf.extra_flags} -o "{build.path}/target.axf" "-L{build.path}" -Wl,--start-group {object_files} {sys_obj_files}  -Wl,--end-group "{build.path}/{archive_file}" "{build.variant.path}/{build.variant_system_lib}" -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+
+## Create nm map
+recipe.nm.pattern=cp "{build.path}/{build.project_name}.axf" "{build.path}/target.axf"
+
+## Create strip
+recipe.strip.pattern="{compiler.path}{compiler.strip.cmd}" "{build.path}/{build.project_name}.axf"
+
+## Make ram_1.bin / ram_2.bin
+recipe.objcopy.eep.pattern=
+
+## Create hex
+#recipe.objcopy.hex.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.axf" "{build.path}/{build.project_name}.bin"
+recipe.objcopy.hex.pattern=
+
+## Compute size
+recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/target.axf"
+#recipe.size.regex=\.text\s+([0-9]+).*
+recipe.size.regex=^(?:\.ram_image1.text|\.ram_image2.text|\.image3)\s+([0-9]+).*
+
+
+# Ameba Uploader tools
+# -------------------
+
+tools.mbed.cmd=bash
+tools.mbed.cmd.windows=bash.exe
+tools.mbed.path={runtime.ide.path}/hardware/tools
+
+tools.mbed.upload.params.verbose=
+tools.mbed.upload.params.quiet=
+tools.mbed.upload.pattern= "{cmd}" "{path}/makebin/makebin.sh" {upload.verbose} 
+

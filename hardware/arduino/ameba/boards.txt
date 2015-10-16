@@ -1,0 +1,20 @@
+
+arduino_ameba.name=Arduino Ameba
+arduino_ameba.vid.0=0x2341
+arduino_ameba.pid.0=0x003d
+arduino_ameba.upload.tool=mbed
+arduino_ameba.upload.protocol=usb
+arduino_ameba.upload.maximum_size=2499639
+arduino_ameba.upload.use_1200bps_touch=false
+arduino_ameba.upload.wait_for_upload_port=false
+arduino_ameba.upload.native_usb=false
+arduino_ameba.build.mcu=cortex-m3
+arduino_ameba.build.f_cpu=166000000L
+arduino_ameba.build.usb_product="Arduino Ameba"
+arduino_ameba.build.board=AMEBA
+arduino_ameba.build.core=arduino
+arduino_ameba.build.extra_flags=-mthumb {build.usb_flags}
+arduino_ameba.build.ldscript=linker_scripts/gcc/rlx8195A.ld
+arduino_ameba.build.variant=arduino_ameba
+arduino_ameba.build.variant_system_lib=librt_ameba_gcc_rel.a
+
