@@ -21,7 +21,7 @@ $ ant run
 The best place to ask questions related to this core is Realtek Ameba community forum: http://amebaforum.com/forums/.
 
 If you encounter an issue, you are welcome to submit it here on Github: https://github.com/Ameba8195/Arduino/issues.
-Please provide as much context as possible: version which you are using (you can check it in Boards Manager), your sketch code, serial output, board model, IDE settings (board selection, flash size, etc).
+Please provide as much context as possible: version which you are using , your sketch code, serial output, board model, IDE settings (board selection, flash size, etc).
 
 Also can email to neo_jou@realtek.com , any suggestion or advice would be appreciated. 
 
