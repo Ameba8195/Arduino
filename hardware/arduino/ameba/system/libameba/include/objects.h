@@ -42,6 +42,8 @@ struct gpio_s {
     PinMode mode;
     PinDirection direction;
     HAL_GPIO_PIN hal_pin;
+    uint8_t hal_port_num;
+    uint8_t hal_pin_num;	
 };
 
 typedef struct gpio_s gpio_t;

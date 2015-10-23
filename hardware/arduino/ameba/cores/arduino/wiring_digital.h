@@ -23,6 +23,8 @@
  extern "C" {
 #endif
 
+#define TOTAL_GPIO_PIN_NUM	19
+
 /**
  * \brief Configures the specified pin to behave either as an input or an output. See the description of digital pins for details.
  *
@@ -66,6 +68,8 @@ extern int digitalRead( uint32_t ulPin ) ;
 extern void digital_isr( uint32_t ulPin, void* handler, void* data);
 
 extern u8 gpio_get_pin_num(uint32_t ulPin);
+
+extern void digital_change_dir( uint32_t ulPin, uint8_t direction);
 
 
 #ifdef __cplusplus

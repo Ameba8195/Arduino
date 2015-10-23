@@ -271,59 +271,26 @@ uint32_t OneWire::get_pin_name(uint32_t chip_pin)
 
 uint8_t OneWire::direct_read()
 {
-	uint8_t pin_status;
-	u32 value;
-
-
-	//pinMode(this->pin, INPUT);
-	
-    value =  HAL_READ32(GPIO_REG_BASE, pin_addr);
-    if (value & (1<<pin_num)) {
-        pin_status = 1;
-    }
-    else {
-        pin_status = 0;
-    }
-
-	// open_drain	
-	pin_status = !(pin_status & 0x01);
-
-	
-	//DiagPrintf(" direct_read, pin_status = 0x%x \r\n", pin_status); 
+	return (uint8_t)digitalRead(this->pin);
 }
 
 
 uint8_t OneWire::direct_write(uint8_t pin_state)
 {
-	uint32_t value;
 
-
-
-	
-	//pinMode(this->pin, OPEN_DRAIN);
-
-	value =	HAL_READ32(GPIO_REG_BASE, _GPIO_SWPORT_DR_TBL[port_num]);
-	value &= ~(1 << pin_num);
-	value |= ((pin_state&0x01)<< pin_num);
-	HAL_WRITE32(GPIO_REG_BASE, _GPIO_SWPORT_DR_TBL[port_num], value);				
-
-	
+	digitalWrite(this->pin, pin_state);
 }
 
 
 
-OneWire::OneWire() 
-{
-}
-
-void OneWire::set_wire_pin(uint8_t pin1)
+OneWire::OneWire(uint8_t pin1)
 {
 	PinName pin_name;
 
 	DiagPrintf("OneWire : pin = %d \r\n", pin1);
 	this->pin = pin1;
 	
-	pinMode(this->pin, OPEN_DRAIN);
+	pinMode(this->pin, INPUT_PULLUP);
 
 	pin_name = pin_name_tbl[this->pin];
 	this->pin_num = get_pin_name(pin_name);
@@ -332,7 +299,9 @@ void OneWire::set_wire_pin(uint8_t pin1)
 	DiagPrintf("OneWire : pin = 0x%x, pin_num = 0x%x, port_num = 0x%x, pin_addr = 0x%x \r\n", 
 		this->pin, this->pin_num, this->port_num, this->pin_addr);
 	
+#if ONEWIRE_SEARCH
 	reset_search();
+#endif
 }
 
 
@@ -345,32 +314,33 @@ void OneWire::set_wire_pin(uint8_t pin1)
 uint8_t OneWire::reset(void)
 {
 	uint8_t r;
-	uint8_t retries = 125;
+	uint32_t retries = 125;
 
 	noInterrupts();	
-	pinMode(this->pin, OPEN_DRAIN);
+	pinMode(this->pin, INPUT);
 	interrupts();
 	
 	// wait until the wire is high... just in case
 	do {
-		if (--retries == 0) return 0;
+		if (--retries == 0) {
+			DiagPrintf("%s timeout \r\n", __FUNCTION__);
+			return 0;
+		}
 		delayMicroseconds(2);
 	} while ( !direct_read());
 
-	noInterrupts();
-	//pinMode(this->pin, OUTPUT);
+	noInterrupts();	
+	digital_change_dir(this->pin,OUTPUT);
 	direct_write(0);
 	interrupts();
-	
-	delayMicroseconds(480);
-	
+	delayMicroseconds(468); // 12 us 
 	noInterrupts();
-	//pinMode(this->pin, INPUT);
-	delayMicroseconds(70);
+	digital_change_dir(this->pin,INPUT); //8 us
+	delayMicroseconds(62);
 	r = !direct_read();
 	interrupts();
 	
-	delayMicroseconds(410);
+	delayMicroseconds(410); 
 	
 	return r;
 }
@@ -379,25 +349,26 @@ uint8_t OneWire::reset(void)
 // Write a bit. Port and bit is used to cut lookup time and provide
 // more certain timing.
 //
+IMAGE2_TEXT_SECTION
 void OneWire::write_bit(uint8_t v)
 {
 
 	if (v & 1) {
 		noInterrupts();
-		//pinMode(this->pin, OUTPUT);
+		digital_change_dir(this->pin, OUTPUT);
 		direct_write(0);
-		delayMicroseconds(10);
+		//delayMicroseconds(6);
 		direct_write(1);
 		interrupts();
 		delayMicroseconds(55);
 	} else {
 		noInterrupts();
-		//pinMode(this->pin, OUTPUT);
+		digital_change_dir(this->pin, OUTPUT); 
 		direct_write(0);
-		delayMicroseconds(65);
+		delayMicroseconds(52);
 		direct_write(1);
 		interrupts();
-		delayMicroseconds(5);
+		delayMicroseconds(1);
 	}
 }
 
@@ -410,14 +381,12 @@ uint8_t OneWire::read_bit(void)
 	uint8_t r;
 
 	noInterrupts();
-	//pinMode(this->pin, OUTPUT);
+	digital_change_dir(this->pin,OUTPUT); // 8 us
 	direct_write(0);
-	delayMicroseconds(3);
-	//pinMode(this->pin, INPUT);
-	delayMicroseconds(10);
+	digital_change_dir(this->pin,INPUT); // 8 us
 	r = direct_read();
 	interrupts();
-	delayMicroseconds(53);
+	delayMicroseconds(45);
 	return r;
 }
 
@@ -428,6 +397,7 @@ uint8_t OneWire::read_bit(void)
 // go tri-state at the end of the write to avoid heating in a short or
 // other mishap.
 //
+IMAGE2_TEXT_SECTION
 void OneWire::write(uint8_t v, uint8_t power) {
     uint8_t bitMask;
 
@@ -436,8 +406,7 @@ void OneWire::write(uint8_t v, uint8_t power) {
     }
     if ( !power) {
 		noInterrupts();
-		//pinMode(this->pin, OUTPUT);
-		direct_write(0);
+		pinMode(this->pin, INPUT_PULLDN);
 		interrupts();
     }
 }
@@ -447,8 +416,7 @@ void OneWire::write_bytes(const uint8_t *buf, uint16_t count, bool power) {
     write(buf[i]);
   if (!power) {
     noInterrupts();
-	//pinMode(this->pin, OUTPUT);
-	direct_write(0);
+	pinMode(this->pin, INPUT);
     interrupts();
   }
 }
@@ -562,6 +530,7 @@ uint8_t OneWire::search(uint8_t *newAddr)
          LastDiscrepancy = 0;
          LastDeviceFlag = FALSE;
          LastFamilyDiscrepancy = 0;
+		 DiagPrintf("%s reset failed \r\n", __FUNCTION__);
          return FALSE;
       }
 

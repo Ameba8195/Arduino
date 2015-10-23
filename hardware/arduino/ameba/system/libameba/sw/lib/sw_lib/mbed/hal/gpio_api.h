@@ -44,6 +44,10 @@ void gpio_init_out(gpio_t* gpio, PinName pin);
 void gpio_init_out_ex(gpio_t* gpio, PinName pin, int value);
 void gpio_init_inout(gpio_t* gpio, PinName pin, PinDirection direction, PinMode mode, int value);
 
+void gpio_change_dir(gpio_t *obj, PinDirection direction);
+void gpio_direct_write(gpio_t *obj, BOOL value);
+void gpio_pull_ctrl(gpio_t *obj, PinMode pull_type);
+
 #ifdef __cplusplus
 }
 #endif

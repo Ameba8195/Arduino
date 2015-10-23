@@ -47,7 +47,7 @@ void __libc_init_array(void);
  * Pins descriptions
  */
 IMAGE2_DATA_SECTION 
-PinDescription g_APinDescription[]=
+PinDescription g_APinDescription[TOTAL_GPIO_PIN_NUM]=
 {
   
   {PA_6, NOT_INITIAL, NOT_INITIAL}, //D0

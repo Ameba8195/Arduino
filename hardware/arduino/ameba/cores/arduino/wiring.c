@@ -44,23 +44,7 @@ void delay( uint32_t ms )
 IMAGE2_TEXT_SECTION
 void delayMicroseconds(uint32_t us)
 {
-#if 1
-
 	rtw_udelay_os(us);
-#else
-	uint32_t ms;
-	uint32_t us_tick_start; 
-	volatile uint32_t cur_tick;
-	volatile uint32_t delta_time;
-
-	if ( us == 0 ) return;
-
-	us_tick_start = us_ticker_read();
-	do {
-		cur_tick = us_ticker_read();
-		delta_time = cur_tick - us_tick_start;
-	} while ( delta_time < us );
-#endif
 }
 
 

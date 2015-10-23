@@ -1,9 +1,15 @@
 #ifndef OneWire_h
 #define OneWire_h
 
+
 #include <inttypes.h>
 
+#if ARDUINO >= 100
 #include "Arduino.h"       // for delayMicroseconds, digitalPinToBitMask, etc
+#else
+#include "WProgram.h"      // for delayMicroseconds
+#include "pins_arduino.h"  // for digitalPinToBitMask, etc
+#endif
 
 // You can exclude certain features from OneWire.  In theory, this
 // might save some space.  In practice, the compiler automatically
@@ -14,6 +20,11 @@
 // and redesign your program to not need them!  ONEWIRE_CRC8_TABLE
 // is the exception, because it selects a fast but large algorithm
 // or a small but slow algorithm.
+
+// you can exclude onewire_search by defining that to 0
+#ifndef ONEWIRE_SEARCH
+#define ONEWIRE_SEARCH 1
+#endif
 
 
 // You can exclude CRC checks altogether by defining this to 0
@@ -60,9 +71,7 @@ class OneWire
 	uint8_t direct_write(uint8_t pin_state);
 
   public:
-    OneWire();
-
-	void set_wire_pin(uint8_t pin1);
+	  OneWire( uint8_t pin);
 
     // Perform a 1-Wire reset cycle. Returns 1 if a device responds
     // with a presence pulse.  Returns 0 if there is no device or the
@@ -95,6 +104,7 @@ class OneWire
     // Read a bit.
     uint8_t read_bit(void);
 
+#if ONEWIRE_SEARCH
 
     // Clear the search state so that if will start from the beginning again.
     void reset_search();
@@ -110,6 +120,7 @@ class OneWire
     // get garbage.  The order is deterministic. You will always get
     // the same devices in the same order.
     uint8_t search(uint8_t *newAddr);
+#endif
 
 #if ONEWIRE_CRC
     // Compute a Dallas Semiconductor 8 bit CRC, these are used in the

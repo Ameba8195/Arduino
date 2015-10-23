@@ -23,10 +23,12 @@
  extern "C" {
 #endif
 
+
 #include "PinNames.h"
 #include "objects.h"
 #include "hal_gpio.h"
 #include "section_config.h"
+
 
 
 static const u8 _GPIO_SWPORT_DR_TBL[] = {
@@ -52,7 +54,7 @@ typedef struct {
 
 
 IMAGE2_DATA_SECTION
-gpio_pin_t gpio_pin_struct[14];
+gpio_pin_t gpio_pin_struct[TOTAL_GPIO_PIN_NUM];
 
 
 IMAGE2_TEXT_SECTION
@@ -67,7 +69,7 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
 
 
 	//DiagPrintf("[pinMode] ulPin=%d, ulMode=%d\r\n", ulPin, ulMode);
-	if ( ulPin < 0 || ulPin > 18 ) return;
+	if ( ulPin < 0 || ulPin > TOTAL_GPIO_PIN_NUM ) return;
 
 	pGpio_pin_t = &gpio_pin_struct[ulPin];
 	pGpio_t = &gpio_pin_struct[ulPin].sGpio_t;
@@ -81,7 +83,13 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
 	if ( g_APinDescription[ulPin].ulPinType != PIO_GPIO ) {
 		pinname = g_APinDescription[ulPin].pinname;
 		//pinname = digital_pinMap[ulPin];
-		gpio_init(pGpio_t, pinname);
+		//gpio_init(pGpio_t, pinname);
+		
+		pGpio_t->pin = pinname;
+		pGpio_t->mode = PullNone;
+		pGpio_t->direction = PIN_INPUT;
+		pGpio_t->hal_pin.pin_name = gpio_set(pinname); // get the IP pin name
+		pGpio_t->hal_pin.pin_mode = DIN_PULL_NONE;
 		g_APinDescription[ulPin].ulPinType = PIO_GPIO;
 	}
 
@@ -89,40 +97,59 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
 	switch ( ulMode )
 	{
 		case INPUT:
-			gpio_dir(pGpio_t, PIN_INPUT);	// Direction: Input
-			gpio_mode(pGpio_t, PullNone); 	// No pull
+			pGpio_t->direction = PIN_INPUT;
+			pGpio_t->mode = PullNone;
+			//gpio_dir(pGpio_t, PIN_INPUT);	// Direction: Input
+			//gpio_mode(pGpio_t, PullNone); 	// No pull
+
 			break ;
 
 		case INPUT_PULLUP:
-			gpio_dir(pGpio_t, PIN_INPUT);	// Direction: Input
-			gpio_mode(pGpio_t, PullUp); 	// Pull Up
+			pGpio_t->direction = PIN_INPUT;
+			pGpio_t->mode = PullUp;
+			//gpio_dir(pGpio_t, PIN_INPUT);	// Direction: Input
+			//gpio_mode(pGpio_t, PullUp); 	// Pull Up
+			break ;
+
+		case INPUT_PULLDN:
+			pGpio_t->direction = PIN_INPUT;
+			pGpio_t->mode = PullDown;
 			break ;
 
 		case OUTPUT:
-			gpio_dir(pGpio_t, PIN_OUTPUT);	// Direction: Output
-			gpio_mode(pGpio_t, PullNone); 	// No pull
+			pGpio_t->direction = PIN_OUTPUT;
+			pGpio_t->mode = PullNone;
+			//gpio_dir(pGpio_t, PIN_OUTPUT);	// Direction: Output
+			//gpio_mode(pGpio_t, PullNone); 	// No pull
 		break ;
 
-		case OPEN_DRAIN:
-			gpio_dir(pGpio_t, PIN_OUTPUT);	// Direction: Output
-			gpio_mode(pGpio_t, OpenDrain); 	// No pull
+		case OUTPUT_OPENDRAIN:
+			pGpio_t->direction = PIN_OUTPUT;
+			pGpio_t->mode = OpenDrain;
+			//gpio_dir(pGpio_t, PIN_OUTPUT);	// Direction: Output
+			//gpio_mode(pGpio_t, OpenDrain); 	// No pull
 
 		break;
 
 		default:
 		break ;
 	}
+
+	gpio_set_hal_pin_mode(pGpio_t);
+	HAL_GPIO_Init(&(pGpio_t->hal_pin));
+    pGpio_t->hal_port_num = HAL_GPIO_GET_PORT_BY_NAME(pHal_gpio_pin->pin_name);
+    pGpio_t->hal_pin_num = HAL_GPIO_GET_PIN_BY_NAME(pHal_gpio_pin->pin_name);
 	
 	g_APinDescription[ulPin].ulPinMode = ulMode;
 
 	//
 	
-	pGpio_pin_t->pin_num = HAL_GPIO_GET_PIN_BY_NAME(pHal_gpio_pin->pin_name);
-	pGpio_pin_t->port_num = HAL_GPIO_GET_PORT_BY_NAME(pHal_gpio_pin->pin_name);
+	pGpio_pin_t->pin_num = pGpio_t->hal_pin_num;
+	pGpio_pin_t->port_num = pGpio_t->hal_port_num;
 	pGpio_pin_t->port_write = _GPIO_SWPORT_DR_TBL[pGpio_pin_t->port_num];
 	pGpio_pin_t->port_read = _GPIO_EXT_PORT_TBL[pGpio_pin_t->port_num];
 
-	DiagPrintf(" %s : pin_num = %d \r\n", __FUNCTION__, pGpio_pin_t->pin_num);
+	//DiagPrintf(" %s : pin_num = %d \r\n", __FUNCTION__, pGpio_pin_t->pin_num);
 }
 
 
@@ -134,7 +161,7 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 	gpio_t *pGpio_t;
     u32 RegValue;
 
-	if ( ulPin < 0 || ulPin > 18 ) return;
+	if ( ulPin < 0 || ulPin > TOTAL_GPIO_PIN_NUM ) return;
 
 	/* Handle */
 	if ( g_APinDescription[ulPin].ulPinType != PIO_GPIO )
@@ -146,9 +173,6 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 
 	pGpio_t = &gpio_pin_struct[ulPin].sGpio_t;
 
-	#if 0
-	gpio_write(pGpio_t, ulVal);
-	#else
 	{
 	    u8 port_num;
 	    u8 pin_num;
@@ -163,7 +187,6 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 		RegValue |= ((ulVal&0x01)<< pin_num);
 		HAL_WRITE32(GPIO_REG_BASE, port_write, RegValue);			
 	}
-	#endif
 
 }
 
@@ -174,20 +197,18 @@ int digitalRead( uint32_t ulPin )
 	gpio_t *pGpio_t;	
     u32 RegValue;
 	
-	if ( ulPin < 0 || ulPin > 18 ) return;
+	if ( ulPin < 0 || ulPin > TOTAL_GPIO_PIN_NUM ) return -1;
 
 	/* Handle */
 	if ( g_APinDescription[ulPin].ulPinType != PIO_GPIO )
 	{
-	  return ;
+	  return -1;
 	}
 
 	pGpio_pin_t = &gpio_pin_struct[ulPin];
 
 	pGpio_t = &gpio_pin_struct[ulPin].sGpio_t;
 
-	//NeoJou
-	#if 1
 	{
 	    u8 port_num;
 	    u8 pin_num;
@@ -200,7 +221,7 @@ int digitalRead( uint32_t ulPin )
 		
 
     	RegValue =  HAL_READ32(GPIO_REG_BASE, port_read);
-	    if (RegValue & (1<<pin_num)) {
+	    if (RegValue & ((u32)(1)<<pin_num)) {
     	    pin_status = GPIO_PIN_HIGH;
     	}
     	else {
@@ -208,12 +229,34 @@ int digitalRead( uint32_t ulPin )
     	}
 
 		return pin_status;
+	}	
+	
+}
+
+
+// direction : 0 - input, 1 - output
+IMAGE2_TEXT_SECTION
+void digital_change_dir( uint32_t ulPin, uint8_t direction)
+{
+
+	gpio_pin_t *pGpio_pin_t;
+	gpio_t *pGpio_t;
+    u32 RegValue;
+
+	if ( ulPin < 0 || ulPin > TOTAL_GPIO_PIN_NUM ) return;
+
+	/* Handle */
+	if ( g_APinDescription[ulPin].ulPinType != PIO_GPIO )
+	{
+	  return ;
 	}
-	#else
-	return gpio_read(pGpio_t);
-	#endif
-	
-	
+
+	pGpio_pin_t = &gpio_pin_struct[ulPin];
+
+	pGpio_t = &gpio_pin_struct[ulPin].sGpio_t;
+
+	gpio_change_dir(pGpio_t, (PinDirection)direction);
+
 }
 
 void digital_isr( uint32_t ulPin, void* handler, void* data)
@@ -223,7 +266,7 @@ void digital_isr( uint32_t ulPin, void* handler, void* data)
     u32 RegValue;
 	HAL_GPIO_PIN *pHal_gpio_pin;
 
-	if ( ulPin < 0 || ulPin > 18 ) return;
+	if ( ulPin < 0 || ulPin > TOTAL_GPIO_PIN_NUM ) return;
 
 	/* Handle */
 	if ( g_APinDescription[ulPin].ulPinType != PIO_GPIO )
@@ -256,20 +299,19 @@ u8 gpio_get_pin_num(uint32_t ulPin)
 
 	u8 pin_num;
 
-	if ( ulPin < 0 || ulPin > 18 ) return;
+	if ( ulPin < 0 || ulPin > 18 ) return 0xFF;
 
 	/* Handle */
 	if ( g_APinDescription[ulPin].ulPinType != PIO_GPIO )
 	{
 		DiagPrintf(" %s : not GPIO pin \r\n", __FUNCTION__);
-	  return ;
+	  return 0xFF ;
 	}
 
 	pGpio_pin_t = &gpio_pin_struct[ulPin];
 
 	pin_num = pGpio_pin_t->pin_num;
 
-	DiagPrintf("%s : pin_num=%d \r\n", __FUNCTION__, pin_num);
 	return pin_num;
 } 
 
