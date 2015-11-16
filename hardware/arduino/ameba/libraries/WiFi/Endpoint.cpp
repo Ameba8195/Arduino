@@ -20,7 +20,7 @@
 #include <cstring>
 #include <cstdio>
 
-//NeoJou
+
 extern "C" {
 #define _LONG_CALL_     __attribute__ ((long_call))
 extern _LONG_CALL_ uint32_t DiagPrintf(const char *fmt, ...);

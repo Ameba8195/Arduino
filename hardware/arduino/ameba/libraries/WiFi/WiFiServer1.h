@@ -29,7 +29,6 @@ private:
   uint16_t _port;
   void*     pcb;
 
-  //NeoJou
   TCPSocketServer _server;
   TCPSocketConnection tcpSock;
 public:

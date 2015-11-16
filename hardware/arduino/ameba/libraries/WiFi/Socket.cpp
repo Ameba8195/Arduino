@@ -18,7 +18,7 @@
 #include "Socket.h"
 #include <cstring>
 
-//NeoJou
+
 extern "C" {
 #define _LONG_CALL_     __attribute__ ((long_call))
 extern _LONG_CALL_ uint32_t DiagPrintf(const char *fmt, ...);
