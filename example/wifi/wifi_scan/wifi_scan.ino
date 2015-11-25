@@ -1,4 +1,4 @@
-#include "wifi1.h"
+#include "WiFi1.h"
 
 void setup() {
   // initialize serial and wait for the port to open:

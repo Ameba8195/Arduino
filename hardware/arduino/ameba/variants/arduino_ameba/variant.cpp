@@ -34,7 +34,7 @@ analogin_t   adc3;
 
 } // extern C
 
-//#include "WiFi1.h"
+#include "WiFi1.h"
 
 
 extern "C" {
@@ -127,8 +127,7 @@ void init_hal_adc(void)
 {
     analogin_init(&adc1, AD_1);
     analogin_init(&adc2, AD_2);
-    analogin_init(&adc3, AD_3);
-		
+    analogin_init(&adc3, AD_3);		
 }
 
 
@@ -138,11 +137,11 @@ DACClass1 DAC0;
 
 
 // WiFi
-//IMAGE2_TEXT_SECTION
-//void init_hal_wifi(void)
-//{
-//	WiFi1.init();
-//}
+IMAGE2_TEXT_SECTION
+void init_hal_wifi(void)
+{
+	WiFi1.init();
+}
 // ----------------------------------------------------------------------------
 
 IMAGE2_TEXT_SECTION
@@ -165,8 +164,8 @@ void init( void )
 	__libc_init_array();
 	
 	init_hal_uart();
-	//init_hal_adc();
-	//init_hal_wifi();
+	init_hal_adc();
+	init_hal_wifi();
 	//us_ticker_init();
 
 

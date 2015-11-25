@@ -22,10 +22,12 @@ void ticker_set_handler(const ticker_data_t *const data, ticker_event_handler ha
 
     data->queue->event_handler = handler;
 	
-	DiagPrintf(" %s event_handler : 0x%x\r\n", __FUNCTION__, data->queue->event_handler);
+	//DiagPrintf(" %s event_handler : 0x%x\r\n", __FUNCTION__, data->queue->event_handler);
 }
 
 void ticker_irq_handler(const ticker_data_t *const data) {
+	static uint32_t last_time=1;
+	
     data->interface->clear_interrupt();
 
     /* Go through all the pending TimerEvents */
@@ -38,6 +40,17 @@ void ticker_irq_handler(const ticker_data_t *const data) {
         }
 
         if (data->queue->head->timestamp <= data->interface->read()) {
+
+			//Neo+++
+			if ( (data->queue->head->timestamp < last_time) &&
+				 (last_time <= data->interface->read()) ) {
+				data->interface->set_interrupt(data->queue->head->timestamp);
+				return;				 
+			}
+
+			last_time = data->queue->head->timestamp;
+			// Neo---
+			
             // This event was in the past:
             //      point to the following one and execute its handler
             ticker_event_t *p = data->queue->head;

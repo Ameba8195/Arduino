@@ -213,10 +213,19 @@ typedef struct _HAL_GPIO_ADAPTER_ {
 }HAL_GPIO_ADAPTER, *PHAL_GPIO_ADAPTER;
 
 
-u32 
-HAL_GPIO_GetPinName(
+extern u32
+HAL_GPIO_GetIPPinName_8195a(
     u32 chip_pin
 );
+
+static inline u32 
+HAL_GPIO_GetPinName(
+	u32 chip_pin
+)
+{
+	return HAL_GPIO_GetIPPinName_8195a((u32)chip_pin);
+}
+
 
 VOID 
 HAL_GPIO_PullCtrl(
