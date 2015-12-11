@@ -1,0 +1,32 @@
+1.  Pack core file.
+
+    After modified core files in hardware folder, we need compress the core files into one of these format: "tar.gz", "tar.bz2", "zip".
+    We choose "tar.gz":
+        $ tar -zcf ameba-3.4.2.tar.gz ameba/
+    The 1.0.0 correspond to ameba SDK version 3.4b.
+
+2.  Calculate the checksum.
+
+    Arduino support "SHA-256", "SHA-1", and "MD5".
+    We choose "SHA-256":
+        $ sha256sum ameba-1.0.0.tar.gz
+        bd3ad553fe624c31f7bf055e291fd4e9174caed91d66ae2441321b54353221ba  ameba-1.0.0.tar.gz
+
+3.  Update json file.
+
+    Modify "package_realtek.com_ameba_index.json"
+
+    Check "version", "url", "archiveFileName", "checksum", "size".
+
+4.  Deployment.
+
+    Place "package_realtek.com_ameba_index.json" and "ameba-1.0.0.tar.gz" to correspond URL.
+
+    Here we use github public link:
+        https://github.com/Ameba8195/Arduino/raw/master/release/package_realtek.com_ameba_index.json
+
+
+Reference:
+    https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.6.x-package_index.json-format-specification
+
+
