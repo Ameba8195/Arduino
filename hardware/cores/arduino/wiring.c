@@ -43,7 +43,7 @@ void delayMicroseconds(uint32_t us)
 uint32_t millis( void )
 {
     // OS_TICK = 1000, so the same as ticks
-    return rt_time_get() ;
+    return osKernelSysTick();
 }
 
 uint32_t micros( void ) 
