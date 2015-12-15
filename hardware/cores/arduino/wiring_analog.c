@@ -100,7 +100,7 @@ uint32_t analogRead(uint32_t ulPin)
 	case AD_3:
         if (g_adc_enabled[2] == false)
         {
-            analogin_init(&adc2, AD_3);
+            analogin_init(&adc3, AD_3);
             g_adc_enabled[2] = true;
         }
 		ret = analogin_read_u16(&adc3);
