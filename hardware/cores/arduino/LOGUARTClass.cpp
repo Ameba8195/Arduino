@@ -23,18 +23,32 @@
 #include <string.h>
 #include "LOGUARTClass.h"
 
+#define LOG_UART_MODIFIABLE_BAUD_RATE 0
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "log_uart_api.h"
 
-log_uart_t uobj;
+log_uart_t log_uart_obj;
 
 #ifdef __cplusplus
 }
 #endif
 
+RingBuffer rx_buffer0;
+
+void arduino_loguart_irq_handler(uint32_t id, LOG_UART_INT_ID event)
+{
+    char c;
+    RingBuffer *pRxBuffer = (RingBuffer *)id;
+
+    if (event == IIR_RX_RDY || IIR_CHAR_TIMEOUT) {
+        c = log_uart_getc(&log_uart_obj);
+        pRxBuffer->store_char(c);
+    }
+}
 
 LOGUARTClass::LOGUARTClass(IRQn_Type dwIrq, RingBuffer* pRx_buffer )
 {
@@ -70,15 +84,24 @@ void LOGUARTClass::IrqHandler( void )
 
 void LOGUARTClass::begin( const uint32_t dwBaudRate )
 {
-    //log_uart_init(&uobj, dwBaudRate, 8, ParityNone, 1);
+#if LOG_UART_MODIFIABLE_BAUD_RATE
+    /* log uart initialize in 38400 baud rate.
+     * If we change baud rate here, Serail Monitor would not detect this change and show nothing on screen.
+     */
+    log_uart_init(&log_uart_obj, dwBaudRate, 8, ParityNone, 1);
+#else
+    log_uart_init(&log_uart_obj, 38400, 8, ParityNone, 1);
+#endif
+    log_uart_irq_set(&log_uart_obj, IIR_RX_RDY, 1);
+    log_uart_irq_handler(&log_uart_obj, arduino_loguart_irq_handler, (uint32_t)_rx_buffer);
 }
 
 void LOGUARTClass::end( void )
 {
+    // clear any received data
+    _rx_buffer->_iHead = _rx_buffer->_iTail ;
 
-  // clear any received data
-  _rx_buffer->_iHead = _rx_buffer->_iTail ;
-
+    log_uart_free(&log_uart_obj);
 }
 
 int LOGUARTClass::available( void )
@@ -121,8 +144,9 @@ void LOGUARTClass::flush( void )
 
 size_t LOGUARTClass::write( const uint8_t uc_data )
 {
-	HalSerialPutcRtl8195a(uc_data);
+    log_uart_putc(&log_uart_obj, uc_data);
   	return 1;
 }
 
+LOGUARTClass Serial(UART_LOG_IRQ, &rx_buffer0);
 

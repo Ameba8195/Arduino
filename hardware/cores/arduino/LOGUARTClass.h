@@ -55,4 +55,6 @@ class LOGUARTClass : public HardwareSerial
 
 };
 
+extern LOGUARTClass Serial;
+
 #endif // _LOGUART_CLASS_

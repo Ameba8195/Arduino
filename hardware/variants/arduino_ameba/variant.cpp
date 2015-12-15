@@ -59,12 +59,6 @@ analogin_t   adc3;
 } // extern C
 #endif
 
-
-// LogUart
-static RingBuffer rx_buffer0;
-
-LOGUARTClass Serial(UART_LOG_IRQ, &rx_buffer0);
-
 void serialEvent() __attribute__((weak));
 void serialEvent() { }
 
