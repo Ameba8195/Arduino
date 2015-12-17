@@ -44,7 +44,7 @@ http://arduiniana.org.
 class SoftwareSerial : public Stream
 {
 private:
-  serial_t* pUART;
+  void* pUART;
   uint8_t receivePin;
   uint8_t transmitPin;
   long speed;
@@ -59,10 +59,10 @@ private:
   static SoftwareSerial *active_object;
 
   // static methods
-  static void handle_interrupt(uint32_t id, SerialIrq event);
+  static void handle_interrupt(uint32_t id, uint32_t event);
 
   // private methods
-  void recv(uint32_t id, SerialIrq event);
+  void recv(uint32_t id, uint32_t event);
 
 public:
   // public methods

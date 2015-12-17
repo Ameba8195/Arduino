@@ -21,6 +21,8 @@
 extern "C" {
 #endif
 
+#include "PinNames.h"
+
 void __libc_init_array(void);
 
 /*
@@ -50,10 +52,6 @@ PinDescription g_APinDescription[TOTAL_GPIO_PIN_NUM]=
   {PE_5, NOT_INITIAL, NOT_INITIAL}  //D18 :
 
 };
-
-analogin_t   adc1;
-analogin_t   adc2;
-analogin_t   adc3;
 
 #ifdef __cplusplus
 } // extern C

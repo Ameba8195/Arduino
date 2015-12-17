@@ -24,29 +24,6 @@
 
 #include <stdarg.h>
 
-// C structure
-#ifdef __cplusplus
-extern "C"{
-#endif // __cplusplus
-
-#include "rtl8195a.h"
-#include "log_uart_api.h"
-#include "i2c_api.h"
-#include "serial_api.h"
-#include "wiring_pulse.h"
-
-// ADC
-#include "analogin_api.h"
-extern analogin_t   adc1;
-extern analogin_t   adc2;
-extern analogin_t   adc3;
-
-
-#ifdef __cplusplus
-}
-#endif // __cplusplus
-
-
 // only for C++
 
 #ifdef __cplusplus

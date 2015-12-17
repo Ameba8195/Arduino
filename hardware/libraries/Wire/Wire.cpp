@@ -26,6 +26,8 @@ extern "C" {
 #endif
 
 #include <string.h>
+#include "PinNames.h"
+#include "i2c_api.h"
 
 i2c_t i2cwire1;
 extern PinDescription g_APinDescription[];
@@ -37,10 +39,10 @@ extern PinDescription g_APinDescription[];
 TwoWire::TwoWire(uint32_t dwSDAPin, uint32_t dwSCLPin) {
 	DiagPrintf("TwoWire initializing \r\n");
 
-	this->SDA_pin = (PinName)dwSDAPin;
-	this->SCL_pin = (PinName)dwSCLPin;
+	this->SDA_pin = dwSDAPin;
+	this->SCL_pin = dwSCLPin;
 
-    this->pI2C = &i2cwire1;
+    this->pI2C = (void *)&i2cwire1;
 }
 
 void TwoWire::begin() {
@@ -53,8 +55,8 @@ void TwoWire::begin() {
 	this->status = UNINITIALIZED;
 	this->twiClock = this->TWI_CLOCK;
 
-	i2c_init( this->pI2C, (PinName)this->SDA_pin, (PinName)this->SCL_pin );
-    i2c_frequency( this->pI2C,this->twiClock );
+	i2c_init( (i2c_t *)this->pI2C, (PinName)this->SDA_pin, (PinName)this->SCL_pin );
+    i2c_frequency( (i2c_t *)this->pI2C,this->twiClock );
 
     status = MASTER_IDLE;
 }
@@ -69,10 +71,10 @@ void TwoWire::begin(uint8_t address = 0) {
 	this->status = UNINITIALIZED;
 	this->twiClock = this->TWI_CLOCK;
 
-	i2c_init( this->pI2C, (PinName)this->SDA_pin, (PinName)this->SCL_pin );
-    i2c_frequency( this->pI2C, this->twiClock );
-    i2c_slave_address( this->pI2C, 0, address, 0xFF );
-    i2c_slave_mode( this->pI2C, 1 );
+	i2c_init( (i2c_t *)this->pI2C, (PinName)this->SDA_pin, (PinName)this->SCL_pin );
+    i2c_frequency( (i2c_t *)this->pI2C, this->twiClock );
+    i2c_slave_address( (i2c_t *)this->pI2C, 0, address, 0xFF );
+    i2c_slave_mode( (i2c_t *)this->pI2C, 1 );
 
 	status = SLAVE_IDLE;
 }
@@ -83,7 +85,7 @@ void TwoWire::begin(int address) {
 
 void TwoWire::setClock(uint32_t frequency) {
 	twiClock = frequency;
-    i2c_frequency( this->pI2C, this->twiClock );
+    i2c_frequency( (i2c_t *)this->pI2C, this->twiClock );
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop) {
@@ -93,7 +95,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop
 		quantity = BUFFER_LENGTH;
 
 	// perform blocking read into buffer
-	readed = i2c_read( this->pI2C, (int)address, (char*)&this->rxBuffer[0], (int)quantity, (int)sendStop );
+	readed = i2c_read( (i2c_t *)this->pI2C, (int)address, (char*)&this->rxBuffer[0], (int)quantity, (int)sendStop );
 
 	// i2c_read error;
 	if ( readed != quantity ) {
@@ -148,7 +150,7 @@ void TwoWire::beginTransmission(int address) {
 uint8_t TwoWire::endTransmission(uint8_t sendStop) {
 	uint8_t error = 0;
 	
-    error = i2c_write( this->pI2C, (int)this->txAddress, (const char*)&this->txBuffer[0], (int)this->txBufferLength, (int)sendStop );
+    error = i2c_write( (i2c_t *)this->pI2C, (int)this->txAddress, (const char*)&this->txBuffer[0], (int)this->txBufferLength, (int)sendStop );
 
 	txBufferLength = 0;		// empty buffer
 	status = MASTER_IDLE;

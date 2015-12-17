@@ -140,66 +140,6 @@ void digitalChangeDir( uint32_t ulPin, uint8_t direction)
     gpio_dir( pGpio_t, direction );
 }
 
-void digital_isr( uint32_t ulPin, void* handler, void* data)
-{
-#if 0
-	gpio_pin_t *pGpio_pin_t;
-	gpio_t *pGpio_t;
-    u32 RegValue;
-	HAL_GPIO_PIN *pHal_gpio_pin;
-
-	if ( ulPin < 0 || ulPin > TOTAL_GPIO_PIN_NUM ) return;
-
-	/* Handle */
-	if ( g_APinDescription[ulPin].ulPinType != PIO_GPIO )
-	{
-		DiagPrintf(" %s : not GPIO pin \r\n", __FUNCTION__);
-	  return ;
-	}
-
-	pGpio_pin_t = &gpio_pin_struct[ulPin];
-
-	pGpio_t = &gpio_pin_struct[ulPin].sGpio_t;
-
-	pGpio_t->hal_pin.pin_mode = INT_FALLING;
-
-
-    HAL_GPIO_Irq_Init(&(pGpio_t->hal_pin));
-    HAL_GPIO_UserRegIrq(&(pGpio_t->hal_pin), (void*)handler, (void*) data);
-	
-    HAL_GPIO_IntCtrl(&(pGpio_t->hal_pin), _TRUE);
-
-	
-    HAL_GPIO_UnMaskIrq(&(pGpio_t->hal_pin));
-#endif
-}
-
-u8 gpio_get_pin_num(uint32_t ulPin)
-{
-#if 0
-	gpio_pin_t *pGpio_pin_t;	
-	gpio_t *pGpio_t;	
-
-	u8 pin_num;
-
-	if ( ulPin < 0 || ulPin > 18 ) return 0xFF;
-
-	/* Handle */
-	if ( g_APinDescription[ulPin].ulPinType != PIO_GPIO )
-	{
-		DiagPrintf(" %s : not GPIO pin \r\n", __FUNCTION__);
-	  return 0xFF ;
-	}
-
-	pGpio_pin_t = &gpio_pin_struct[ulPin];
-
-	pin_num = pGpio_pin_t->pin_num;
-
-	return pin_num;
-#endif
-	return 0;  // dummy code
-} 
-
 #ifdef __cplusplus
 }
 #endif

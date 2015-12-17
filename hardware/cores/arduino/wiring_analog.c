@@ -22,8 +22,13 @@
 extern "C" {
 #endif
 
+#include "analogin_api.h"
 #include "pwmout_api.h"
 #include "gpio_ex_api.h"
+
+analogin_t   adc1;
+analogin_t   adc2;
+analogin_t   adc3;
 
 static const uint32_t ulPwmPinList[] = { 3, 4, 8, 9, 10, 11, 12, 13 };
 
@@ -83,13 +88,13 @@ uint32_t analogRead(uint32_t ulPin)
   float	   adc_value;
 
   switch ( ulPin ) {
-  	case AD_1:
+  	case A0:
         if (g_adc_enabled[0] == false)
         {
             analogin_init(&adc1, AD_1);
             g_adc_enabled[0] = true;
         }
-	case AD_2:
+	case A1:
         if (g_adc_enabled[1] == false)
         {
             analogin_init(&adc2, AD_2);
@@ -97,7 +102,7 @@ uint32_t analogRead(uint32_t ulPin)
         }
 		ret = analogin_read_u16(&adc2);
 		break;
-	case AD_3:
+	case A2:
         if (g_adc_enabled[2] == false)
         {
             analogin_init(&adc3, AD_3);

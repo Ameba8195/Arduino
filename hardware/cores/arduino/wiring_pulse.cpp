@@ -29,16 +29,7 @@ extern "C" {
 #include "gpio_api.h"
 #include "us_ticker_api.h"
 
-typedef struct {
-	gpio_t 	sGpio_t;
-	u8		pin_num;
-	u8		port_num;
-	u8 		port_write;
-	u8 		port_read;
-} gpio_pin_t;
-
-
-extern gpio_pin_t gpio_pin_struct[];
+extern gpio_t gpio_pin_struct[];
 
 /* Measures the length (in microseconds) of a pulse on the pin; state is HIGH
  * or LOW, the type of pulse to measure.  Works on pulses from 2-3 microseconds
@@ -49,9 +40,7 @@ extern uint32_t pulseIn( uint32_t ulPin, uint32_t state, uint32_t timeout )
 	// cache the port and bit of the pin in order to speed up the
 	// pulse width measuring loop and achieve finer resolution.  calling
 	// digitalRead() instead yields much coarser resolution.
-	PinDescription p = g_APinDescription[ulPin];
 	gpio_t *pGpio_t;
-	gpio_pin_t *pGpio_pin_t;
 
 	uint32_t start_ticks, cur_ticks;
 
@@ -60,14 +49,11 @@ extern uint32_t pulseIn( uint32_t ulPin, uint32_t state, uint32_t timeout )
 	/* Handle */
 	if ( g_APinDescription[ulPin].ulPinType != PIO_GPIO )
 	{
-	  return 0;
+        return 0;
 	}
 
-	pGpio_pin_t = &gpio_pin_struct[ulPin];
+	pGpio_t = &gpio_pin_struct[ulPin];
 
-	pGpio_t = &gpio_pin_struct[ulPin].sGpio_t;
-
-	
 	// wait for any previous pulse to end
 	start_ticks = us_ticker_read();
 	while (gpio_read(pGpio_t) == state) {
@@ -76,7 +62,6 @@ extern uint32_t pulseIn( uint32_t ulPin, uint32_t state, uint32_t timeout )
 	}
 
 	// wait for the pulse to start
-	
 	while (gpio_read(pGpio_t) != state) {
 		cur_ticks = us_ticker_read();
 		if ( cur_ticks - start_ticks > timeout ) return 0;
@@ -95,7 +80,7 @@ extern uint32_t pulseIn( uint32_t ulPin, uint32_t state, uint32_t timeout )
 	// to be 52 clock cycles long and have about 16 clocks between the edge
 	// and the start of the loop. There will be some error introduced by
 	// the interrupt handlers.
-	return cur_ticks-start_ticks;
+	return cur_ticks - start_ticks;
 }
 
 #ifdef __cplusplus

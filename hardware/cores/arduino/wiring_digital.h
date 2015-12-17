@@ -64,11 +64,6 @@ extern void digitalWrite( uint32_t dwPin, uint32_t dwVal ) ;
  */
 extern int digitalRead( uint32_t ulPin ) ;
 
-
-extern void digital_isr( uint32_t ulPin, void* handler, void* data);
-
-extern u8 gpio_get_pin_num(uint32_t ulPin);
-
 extern void digital_change_dir( uint32_t ulPin, uint8_t direction);
 
 

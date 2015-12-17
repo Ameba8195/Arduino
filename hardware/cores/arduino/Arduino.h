@@ -29,13 +29,7 @@
 extern "C" {
 #endif // __cplusplus
 
-#include "PinNames.h"
 #include "wiring_constants.h"
-#include "basic_types.h"
-#include "diag.h"
-#include "cmsis_os.h"
-#include "rtl_lib.h"
-#include "main.h"
 
 extern uint32_t SystemCoreClock;
 
@@ -45,9 +39,7 @@ extern uint32_t SystemCoreClock;
 
 void yield(void);
 
-extern
-_LONG_CALL_ u32
-DiagPrintf(const char *fmt, ...);
+extern uint32_t DiagPrintf(const char *fmt, ...);
 
 /* sketch */
 extern void setup( void );
@@ -71,6 +63,13 @@ extern PinDescription g_APinDescription[];
 
 #ifdef __cplusplus
 } // extern "C"
+
+#include "WCharacter.h"
+#include "WString.h"
+#include "WMath.h"
+#include "HardwareSerial.h"
+#include "wiring_pulse.h"
+
 #endif // __cplusplus
 
 #ifndef DEFAULT_STACK_SIZE

@@ -22,14 +22,10 @@
 #include "HardwareSerial.h"
 #include "RingBuffer.h"
 
-extern "C" {
-#include "hal_irqn.h"
-}
-
 class LOGUARTClass : public HardwareSerial
 {
   public:
-    LOGUARTClass(IRQn_Type dwIrq, RingBuffer* pRx_buffer );
+    LOGUARTClass(int dwIrq, RingBuffer* pRx_buffer );
 
     void begin(const uint32_t dwBaudRate);
     void end(void);
@@ -51,7 +47,7 @@ class LOGUARTClass : public HardwareSerial
 
     RingBuffer *_rx_buffer;
 
-    IRQn_Type _dwIrq;
+    int _dwIrq;
 
 };
 

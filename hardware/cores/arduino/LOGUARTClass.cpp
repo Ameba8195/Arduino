@@ -30,6 +30,7 @@ extern "C" {
 #endif
 
 #include "log_uart_api.h"
+#include "hal_irqn.h"
 
 log_uart_t log_uart_obj;
 
@@ -50,7 +51,7 @@ void arduino_loguart_irq_handler(uint32_t id, LOG_UART_INT_ID event)
     }
 }
 
-LOGUARTClass::LOGUARTClass(IRQn_Type dwIrq, RingBuffer* pRx_buffer )
+LOGUARTClass::LOGUARTClass(int dwIrq, RingBuffer* pRx_buffer )
 {
     _rx_buffer = pRx_buffer;
     _dwIrq = dwIrq;

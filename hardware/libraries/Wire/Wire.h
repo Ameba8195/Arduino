@@ -92,10 +92,10 @@ private:
 	// Called after deinitialization
 	void (*onEndCallback)(void);
 
-	PinName SDA_pin;
-	PinName SCL_pin;
+	uint32_t SDA_pin;
+	uint32_t SCL_pin;
 
-	i2c_t*	pI2C;
+	void*	pI2C;
 
 	// TWI state
 	enum TwoWireStatus {

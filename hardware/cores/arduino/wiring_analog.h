@@ -24,9 +24,9 @@ extern "C" {
 #endif
 
 /* Analog pin mapping */
-#define A0 AD_1
-#define A1 AD_2
-#define A2 AD_3
+#define A0 1
+#define A1 2
+#define A2 3
 
 /*
  * \brief SAM3 products have only one reference for ADC

@@ -39,6 +39,8 @@ http://arduiniana.org.
 extern "C" {
 #endif
 
+#include "serial_api.h"
+
 serial_t sobj;
 extern PinDescription g_APinDescription[];
 
@@ -55,9 +57,9 @@ SoftwareSerial *SoftwareSerial::active_object = NULL;
 // Private methods
 //
 
-void SoftwareSerial::handle_interrupt(uint32_t id, SerialIrq event) {
+void SoftwareSerial::handle_interrupt(uint32_t id, uint32_t event) {
     if (active_object != NULL) {
-        active_object->recv(id, event);
+        active_object->recv(id, (SerialIrq)event);
     }
 }
 
@@ -73,13 +75,13 @@ bool SoftwareSerial::listen()
         ret = true;
     }
 
-    serial_init(pUART, (PinName)g_APinDescription[transmitPin].pinname, (PinName)g_APinDescription[receivePin].pinname);
-    serial_baud(pUART, speed);
-    serial_format(pUART, 8, ParityNone, 1);
+    serial_init((serial_t *)pUART, (PinName)g_APinDescription[transmitPin].pinname, (PinName)g_APinDescription[receivePin].pinname);
+    serial_baud((serial_t *)pUART, speed);
+    serial_format((serial_t *)pUART, 8, ParityNone, 1);
 
-    serial_irq_handler(pUART, handle_interrupt, (uint32_t)pUART);
-    serial_irq_set(pUART, RxIrq, 1);
-    serial_irq_set(pUART, TxIrq, 1);
+    serial_irq_handler((serial_t *)pUART, (uart_irq_handler)handle_interrupt, (uint32_t)pUART);
+    serial_irq_set((serial_t *)pUART, RxIrq, 1);
+    serial_irq_set((serial_t *)pUART, TxIrq, 1);
     active_object = this;
 
     return ret;
@@ -88,7 +90,7 @@ bool SoftwareSerial::listen()
 // Stop listening. Returns true if we were actually listening.
 bool SoftwareSerial::stopListening()
 {
-    serial_free(pUART);
+    serial_free((serial_t *)pUART);
     pUART = NULL;
     return true;
 }
@@ -96,13 +98,13 @@ bool SoftwareSerial::stopListening()
 //
 // The receive routine called by the interrupt handler
 //
-void SoftwareSerial::recv(uint32_t id, SerialIrq event)
+void SoftwareSerial::recv(uint32_t id, uint32_t event)
 {
     volatile char d = 0;
     uint8_t next;
 
-    if(event == RxIrq) {
-        d = serial_getc(pUART);
+    if((SerialIrq)event == RxIrq) {
+        d = serial_getc((serial_t *)pUART);
         next = (_receive_buffer_tail + 1) % _SS_MAX_RX_BUFF;
         if (next != _receive_buffer_head) {
             _receive_buffer[_receive_buffer_tail] = d; // save new byte
@@ -138,7 +140,7 @@ SoftwareSerial::~SoftwareSerial()
 
 void SoftwareSerial::begin(long speed)
 {
-    pUART = &sobj;
+    pUART = (void *)&sobj;
     this->speed = speed;
     listen();
 }
@@ -176,7 +178,7 @@ int SoftwareSerial::available()
 
 size_t SoftwareSerial::write(uint8_t b)
 {
-    serial_putc(pUART, b);
+    serial_putc((serial_t *)pUART, b);
   
     return 1;
 }
