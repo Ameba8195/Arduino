@@ -174,6 +174,25 @@ struct i2s_s {
 
 #endif
 
+#ifdef CONFIG_DAC_EN
+/** \file objects.h
+  *  \brief A Documented file.
+  *
+  *  A documented file.
+*/
+
+/** \struct dac_s objects.h "rtl8195a/objects.h"
+ *   \brief This is a dac_s structure.
+ *
+ *  For analogout APIs, a pointer to dac_s is used as an input paras.
+ *  A DAC initial data structure is the major element of dac_s.
+ */
+struct dac_s {
+   HAL_DAC_INIT_DAT DACpara;
+};
+#endif
+
+
 #ifdef __cplusplus
 }
 #endif

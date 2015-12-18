@@ -153,7 +153,11 @@ in lwip_opt.h for support uart adapter*/
 
 #endif
 
-/**/
+/*******************************************************************************/
+
+/**
+ * For Ameba on Arduion IDE configurations
+ */
 
 #ifdef ARDUINO_SDK
 

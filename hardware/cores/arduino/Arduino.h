@@ -45,17 +45,26 @@ extern uint32_t DiagPrintf(const char *fmt, ...);
 extern void setup( void );
 extern void loop( void );
 
-#define NOT_INITIAL	0
-#define PIO_GPIO	1
-#define PIO_PWM		2
-#define PIO_I2C		3
+#define NOT_INITIAL (1UL<<0)
+#define PIO_GPIO    (1UL<<1)
+#define PIO_PWM	    (1UL<<2)
+#define PIO_I2C	    (1UL<<3)
+#define PIO_ADC     (1UL<<4)
+#define PIO_DAC     (1UL<<5)
 
 /* Types used for the tables below */
 typedef struct _PinDescription
 {
+
+  // HW PinNames
   uint32_t 	pinname;
+
+  // Current Pin Type
   uint32_t 	ulPinType;
-  uint32_t  ulPinMode;
+
+  // Supported Pin Function
+  uint32_t  ulPinAttribute;
+
 } PinDescription ;
 
 /* Pins table to be instanciated into variant.cpp */

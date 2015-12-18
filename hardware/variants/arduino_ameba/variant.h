@@ -20,15 +20,35 @@
 #define _VARIANT_ARDUINO_AMEBA_
 
 
+
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
+
 #include "Arduino.h"
-
 #include <stdarg.h>
+#ifdef __cplusplus
+#include "LOGUARTClass.h"
+#endif
 
-// only for C++
+#ifdef __cplusplus
+extern "C"{
+#endif // __cplusplus
+
+/*----------------------------------------------------------------------------
+ *        Pins
+ *----------------------------------------------------------------------------*/
+
+#ifdef __cplusplus
+}
+#endif
+
+/*----------------------------------------------------------------------------
+ *        Arduino objects - C++ only
+ *----------------------------------------------------------------------------*/
 
 #ifdef __cplusplus
 
-#include "LOGUARTClass.h"
 extern LOGUARTClass Serial;
 //extern USARTClass Serial1;
 //extern USARTClass Serial2;

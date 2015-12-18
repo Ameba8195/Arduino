@@ -87,6 +87,12 @@ typedef enum {
 #define STDIO_UART_RX  PA_7
 #define STDIO_UART     UART0
 
+typedef enum {
+    DAC_0 = 0,
+    DAC_1
+} DACName;
+
+
 #ifdef __cplusplus
 }
 #endif

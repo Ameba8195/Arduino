@@ -96,10 +96,10 @@
 #include "rtl8195a_dac.h"
 #endif
 
-
+#ifdef CONFIG_ADC_EN
 #include "hal_adc.h"
 #include "rtl8195a_adc.h"
-
+#endif
 
 #ifdef CONFIG_SDR_EN
 #endif

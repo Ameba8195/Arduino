@@ -23,16 +23,31 @@ extern "C" {
 #endif
 
 #include "analogin_api.h"
+#include "analogout_api.h"
 #include "pwmout_api.h"
 #include "gpio_ex_api.h"
 
+/* ADC */
 analogin_t   adc1;
 analogin_t   adc2;
 analogin_t   adc3;
 
-static const uint32_t ulPwmPinList[] = { 3, 4, 8, 9, 10, 11, 12, 13 };
+static const float ADC_slope1 = (3.12)/(3410.0-674.0);
+static const float ADC_slope2 = (3.3-3.12)/(3454.0-3410.0);
 
+bool g_adc_enabled[] = {
+    false, false, false
+};
+
+/* PWM */
 pwmout_t pwm_pins[14];
+
+/* DAC */
+dac_t dac0;
+
+bool g_dac_enabled[] = {
+    false
+};
 
 extern gpio_t gpio_pin_struct[];
 
@@ -66,13 +81,6 @@ void analogReference(eAnalogReference ulMode)
 {
 	analog_reference = ulMode;
 }
-
-static const float ADC_slope1 = (3.12)/(3410.0-674.0);
-static const float ADC_slope2 = (3.3-3.12)/(3454.0-3410.0);
-
-bool g_adc_enabled[] = {
-    false, false, false
-};
 
 uint32_t analogRead_for_random()
 {
@@ -143,33 +151,29 @@ void analogOutputInit(void) {
 // to digital output.
 void analogWrite(uint32_t ulPin, uint32_t ulValue) 
 {
-    uint32_t i;
-    bool bValidPin;
 	pwmout_t *pObj;
 
-    bValidPin = false;
-    for ( i=0; i < ( sizeof(ulPwmPinList) / sizeof(ulPwmPinList[0]) ); i++ ) {
-        if (ulPwmPinList[i] == ulPin) {
-            bValidPin = true;
-            break;
-        }
+    if ((g_APinDescription[ulPin].ulPinAttribute & PIO_PWM) == PIO_PWM) {
+    	/* Handle */
+    	if ( g_APinDescription[ulPin].ulPinType != PIO_PWM )
+    	{
+    	    if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO ) {
+                gpio_deinit(&gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname);
+            }
+    	    pwmout_init(&pwm_pins[ulPin], g_APinDescription[ulPin].pinname);
+            pwmout_period_us(&pwm_pins[ulPin], 20000);
+    		g_APinDescription[ulPin].ulPinType = PIO_PWM;
+    	}
+        pwmout_write(&pwm_pins[ulPin], ulValue / 256.0);
     }
-    if (!bValidPin) {
-        return;
-    }
-
-	/* Handle */
-	if ( g_APinDescription[ulPin].ulPinType != PIO_PWM )
-	{
-	    if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO ) {
-            gpio_deinit(&gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname);
+    else if (ulPin == DAC0) {
+        if (g_dac_enabled[0] == false) {
+            analogout_init(&dac0, DA_0);
+            g_dac_enabled[0] = true;
         }
-	    pwmout_init(&pwm_pins[ulPin], g_APinDescription[ulPin].pinname);
-        pwmout_period_us(&pwm_pins[ulPin], 20000);
-		g_APinDescription[ulPin].ulPinType = PIO_PWM;
-	}
-
-    pwmout_write(&pwm_pins[ulPin], ulValue / 256.0);
+        ulValue %= (1<<_writeResolution);
+        analogout_write(&dac0, ulValue * 1.0 / (1<<_writeResolution) );       
+    }
 }
 
 #ifdef __cplusplus

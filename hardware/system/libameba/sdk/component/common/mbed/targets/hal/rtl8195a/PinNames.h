@@ -22,6 +22,7 @@ typedef enum {
     PORT_K = 10,
 
     PORT_V = 11,
+    PORT_U = 12,
     PORT_MAX
 } GPIO_PORT;
 
@@ -145,7 +146,9 @@ typedef enum {
     AD_1  = (PORT_V<<4|1),
     AD_2  = (PORT_V<<4|2),
     AD_3  = (PORT_V<<4|3),
-    
+
+    DA_0  = (PORT_U<<4|0),
+    DA_1  = (PORT_U<<4|1),
     // Arduino connector namings
 /*
     A0          = PA_0,

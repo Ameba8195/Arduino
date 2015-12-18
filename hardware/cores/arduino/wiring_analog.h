@@ -28,6 +28,9 @@ extern "C" {
 #define A1 2
 #define A2 3
 
+/* DAC pin mapping */
+#define DAC0 36
+
 /*
  * \brief SAM3 products have only one reference for ADC
  */

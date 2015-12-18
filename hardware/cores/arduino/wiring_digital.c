@@ -35,7 +35,7 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
         return;
     }
 
-    if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO && g_APinDescription[ulPin].ulPinMode == ulMode )
+    if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO )
     {
         return;
     }
