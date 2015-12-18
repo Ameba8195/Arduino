@@ -10,8 +10,6 @@
  * It means the echo pin needs level shift from 5V to 3.3V.
  * We can either use a level converter or use resister to devide the level.
  *
- * http://ameba-arduino.blogspot.com/2015/12/ameba-arduino-gpio-hc-sr04-ameba.html
- *
  **/
 
 const int trigger_pin = 12;

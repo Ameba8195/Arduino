@@ -1,8 +1,8 @@
 How to add realtek ameba core files:
 
-You can reference below link to get start. (For Traditional Chinese only now):
+You can reference below link to get start:
 
-	http://ameba-arduino.blogspot.tw/2015/12/ameba-arduino-getting-started.html
+	http://www.amebaiot.com/ameba-arduino-getting-started/
 
 Or you can follow steps to setup.
 
