@@ -36,7 +36,7 @@
             {
               "packager": "realtek",
               "name": "ameba_tools",
-              "version": "1.0.0"
+              "version": "1.0.1"
             }
           ]
         },
@@ -106,6 +106,19 @@
                  "size":"51029223"
               }
            ]
+        },
+        {
+          "name": "ameba_tools",
+          "version": "1.0.1",
+          "systems": [
+            {
+              "host": "i686-mingw32",
+              "archiveFileName": "ameba_tools-1.0.1.tar.gz",
+              "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba_tools-1.0.1.tar.gz",
+              "checksum": "SHA-256:cb5115f389896786995b6d6d9edd9c25408310700dc6bed267325a02b1dc3e90",
+              "size": "5108076"
+            }
+          ]
         },
         {
           "name": "ameba_tools",
