@@ -15,7 +15,7 @@ extern "C" {
 #include "wifi_structures.h"
 #include "lwip_netconf.h"
 #include "lwip/err.h"
-#include "lwip/ip_addr.h"
+#include "lwip/api.h"
 
 extern struct netif xnetif[NET_IF_NUM]; 
 
@@ -330,11 +330,14 @@ int WiFiDrv::getHostByName(const char* aHostname, IPAddress& aResult)
 {
 	ip_addr_t ip_addr;
 	err_t err;
+	
 	err = netconn_gethostbyname(aHostname, &ip_addr);
 
 	if (err != ERR_OK) {
-	  	return WL_FAILURE;
+		return WL_FAILURE;
 	}
-		
-	return WL_SUCCESS;
+	else{		
+		aResult = ip_addr.addr;
+		return WL_SUCCESS;
+	}
 }

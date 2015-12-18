@@ -20,35 +20,50 @@ WiFiClient::WiFiClient(uint8_t sock) {
 
 uint8_t WiFiClient::connected() {
   	if (_sock == 255) {
-    		return 0;
+		_is_connected = false;
+    	return 0;
   	}
 	else {
 		if(_is_connected)
 			return 1;
-		else
+		else{
+			stop();
 			return 0;
+		}
 	}
 }
 
 int WiFiClient::available() {
+	int ret = 0;
+	if(!_is_connected)
+		return 0;
   	if (_sock != 255)
   	{	
-      		return clientdrv.availData(_sock);
+      	ret = clientdrv.availData(_sock);
+		if(ret == 0){
+			_is_connected = false;
+			return 0;
+		}
+		else{
+			return 1;
+		}
+			
   	}
-   
-  	return 0;
 }
 
 int WiFiClient::read() {
   	uint8_t b[1];
 	
   	if (!available())
-    		return -1;
+    	return -1;
 
-  	clientdrv.getData(_sock, b);
-  	return b[1];
+  	if(clientdrv.getData(_sock, b))
+  		return b[0];
+	else{
+		_is_connected = false;
+	}
+	return -1;
 }
-
 
 int WiFiClient::read(uint8_t* buf, size_t size) {
 
@@ -64,7 +79,7 @@ int WiFiClient::read(uint8_t* buf, size_t size) {
 void WiFiClient::stop() {
 
   	if (_sock == 255)
-    		return;
+    	return;
 
   	clientdrv.stopClient(_sock);
   	WiFiClass::_state[_sock] = NA_STATE;
@@ -86,14 +101,14 @@ size_t WiFiClient::write(const uint8_t *buf, size_t size) {
   	if (size==0)
   	{
 	  	setWriteError();
-      		return 0;
+      	return 0;
   	}
 
   	if (!clientdrv.sendData(_sock, buf, size))
   	{
 	  	setWriteError();
 		_is_connected = false;
-      		return 0;
+      	return 0;
   	}
 	
   	return size;
@@ -115,24 +130,24 @@ int WiFiClient::connect(const char* host, uint16_t port) {
 
 int WiFiClient::connect(IPAddress ip, uint16_t port) {
 	_sock = getFirstSocket();
+	_is_connected = false;
 	if (_sock != NO_SOCKET_AVAIL)
-    	{
-    		int ret = clientdrv.startClient(uint32_t(ip), port, _sock);
-    		WiFiClass::_state[_sock] = _sock;
+    {
+    	int ret = clientdrv.startClient(ip.get_address(), port, _sock);
+    	WiFiClass::_state[_sock] = _sock;
 		if(ret == 0)
 			_is_connected = true;
-		else
+		else{
+			_is_connected = false;
 			return 0;
+		}
 
-    	}else{
-    		printf("No Socket available");
-    		return 0;
-    	}
-    	return 1;
+    }else{
+    	return 0;
+    }
+    return 1;
 }
 
-
-// Private Methods
 uint8_t WiFiClient::getFirstSocket()
 {
     for (int i = 0; i < MAX_SOCK_NUM; i++) {

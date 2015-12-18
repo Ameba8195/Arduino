@@ -58,7 +58,6 @@
 {
 	int ret = 0;
 	ret = lwip_read(sock, data, length);
-	printf("\r\nRead data: %s\r\n", data);
 	return ret;
 }
 
@@ -75,7 +74,7 @@
     	return ret ;
 }
 
-int  start_client(uint32_t ipAddress, uint16_t port, uint8_t sock, uint8_t protMode)
+int  start_client(char* ipAddress, uint16_t port, uint8_t sock, uint8_t protMode)
 {
 	if(protMode == 0)//tcp
 		sock = lwip_socket(AF_INET, SOCK_STREAM, 0);

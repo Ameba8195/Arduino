@@ -40,6 +40,7 @@ void loop() {
   WiFiClient client = server.available();
   
      while (true) {
+        memset(buffer, 0, 256);
         int n = client.read((uint8_t*)(&buffer[0]), sizeof(buffer));
         if (n <= 0) break;
         
