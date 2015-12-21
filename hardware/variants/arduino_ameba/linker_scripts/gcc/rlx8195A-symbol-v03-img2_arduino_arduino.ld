@@ -64,6 +64,15 @@ SECTIONS
     __tcm_end__ = .;
   } > TCM
 
+  .sdr_data : 
+  {
+    __sdram_data_start__ = .;
+    *(.sdram.data*)
+    *(.mon.ram.text*)
+    INCLUDE "sdram_obj_list.txt"
+    __sdram_data_end__ = .;
+  } > SDRAM_RAM
+
   .image2.start.table :
   {
     .image2.start.table1$$Base = .;
@@ -101,7 +110,6 @@ SECTIONS
     PROVIDE (__fini_array_end = .);
 
     *(.rodata*)
-    *(.mon.ram.text*)
     *(.hal.flash.text*)    
     *(.hal.sdrc.text*)
     *(.hal.gpio.text*)
@@ -148,13 +156,6 @@ SECTIONS
     __buffer_data_end2__ = .;
     
   } > RECY_RAM
-
-  .sdr_data : 
-  {
-    __sdram_data_start__ = .;
-    *(.sdram.data*)
-    __sdram_data_end__ = .;
-  } > SDRAM_RAM
 
  .heap :
  {
