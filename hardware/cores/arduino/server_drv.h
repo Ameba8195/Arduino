@@ -27,20 +27,28 @@ typedef enum eProtMode {TCP_MODE, UDP_MODE}tProtMode;
 class ServerDrv
 {
 public:
-	void startServer(uint16_t port, uint8_t sock, uint8_t protMode=TCP_MODE);
-	uint8_t getAvailable(uint8_t sock);
-	static int startClient(char* ipAddress, uint16_t port, uint8_t sock, uint8_t protMode=TCP_MODE);
+	int startServer(uint16_t port, uint8_t protMode=TCP_MODE);
+	int getAvailable(int sock);
+    int startClient(uint32_t ipAddress, uint16_t port, uint8_t protMode=TCP_MODE);
 	void stopClient(uint8_t sock);
-	bool getData(uint8_t sock, uint8_t *data, uint8_t peek = 0);
-	int getDataBuf(uint8_t sock, uint8_t *_data, uint16_t _dataLen);
-	bool sendData(uint8_t sock, const uint8_t *data, uint16_t len);
-	uint16_t availData(uint8_t sock);
-	
-private:    	
-	uint8_t _readchar[1];	
-	bool _readchar_set;
-};
+	bool getData(int sock, uint8_t *data, uint8_t peek = 0);
+	int getDataBuf(int sock, uint8_t *_data, uint16_t _dataLen);
 
-extern ServerDrv serverDrv;
+    /* Usually used by TCP */
+	bool sendData(int sock, const uint8_t *data, uint16_t len);
+
+    /* Usually used by UDP */
+	bool sendtoData(int sock, const uint8_t *data, uint16_t len, uint32_t peer_ip, uint16_t peer_port);
+
+	uint16_t availData(int sock);
+	
+	void getRemoteData(int sock, uint32_t *ip, uint16_t *port);
+
+private:    	
+	bool _available;
+
+	uint32_t _peer_addr;
+	uint16_t _peer_port;
+};
 
 #endif

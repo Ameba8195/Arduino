@@ -22,12 +22,19 @@
 
 #include <Udp.h>
 
+#include "server_drv.h"
+
 #define UDP_TX_PACKET_MAX_SIZE 24
 
 class WiFiUDP : public UDP {
 private:
-  uint8_t _sock;  // socket ID for Wiz5100
+  int _sock;  // socket ID
   uint16_t _port; // local port to listen on
+  ServerDrv serverDrv; // socket driver
+
+  int _client_sock;
+  uint32_t peer_ip;
+  uint32_t peer_port;
 
 public:
   WiFiUDP();  // Constructor
@@ -49,6 +56,9 @@ public:
   virtual size_t write(uint8_t);
   // Write size bytes from buffer into the packet
   virtual size_t write(const uint8_t *buffer, size_t size);
+
+  // Send packet immediately from buffer
+  size_t writeImmediately(const uint8_t *buffer, size_t size);
   
   using Print::write;
 

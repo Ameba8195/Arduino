@@ -6,40 +6,41 @@ extern "C" {
 #include "platform_stdlib.h"
 }
 #endif
+
 // Start server TCP on port specified
-void ServerDrv::startServer(uint16_t port, uint8_t sock, uint8_t protMode)
+int ServerDrv::startServer(uint16_t port, uint8_t protMode)
 {
-	start_server(port, sock, protMode);
-	if(protMode == TCP_MODE)
-		tcp_listen(sock, 1);
+    int sock;
+
+	sock = start_server(port, protMode);
+    if (sock >= 0) {
+    	if(protMode == TCP_MODE)
+    		sock_listen(sock, 1);
+    }
+
+    return sock;
 }
 
-uint8_t ServerDrv::getAvailable(uint8_t sock)
+int ServerDrv::getAvailable(int sock)
 {
-	uint8_t newsock;
-	newsock  = get_available(sock);
-	if(newsock != -1){
-		return newsock;
-	}
-	else{
-		return 255;
-	}
+	return get_available(sock);
 }
 
-uint16_t ServerDrv::availData(uint8_t sock)
+uint16_t ServerDrv::availData(int sock)
 {
 	int ret;
-	
-	if (sock == 255)		
+    uint8_t c;
+
+	if (sock < 0)		
 		return 0;
 	
-	if(_readchar_set)
+	if(_available) {
 		return 1;
-	else{
-		memset(_readchar, 0, 1);
-		ret = get_receive(sock, _readchar, 1);	
-		if ( ret == 1 ) {		
-			_readchar_set = true;		
+	} else {
+        // flag = MSG_PEEK
+		ret = get_receive(sock, &c, 1, 1, &_peer_addr, &_peer_port);
+		if ( ret == 1 ) {
+			_available = true;
 			return 1;	
 		} 	
 		else{
@@ -48,73 +49,85 @@ uint16_t ServerDrv::availData(uint8_t sock)
 	}
 }
 
-bool ServerDrv::getData(uint8_t sock, uint8_t *data, uint8_t peek)
+bool ServerDrv::getData(int sock, uint8_t *data, uint8_t peek)
 {
 	int ret = 0;
+	int flag = 0;
+
+    if (peek) {
+        flag |= 1;
+    }
+
+	ret = get_receive(sock, data, 1, flag, &_peer_addr, &_peer_port);
 	
-	if ( _readchar_set ) {
-		memcpy(data, _readchar, 1);
-		memset(_readchar, 0, 1);
-		_readchar_set = false;	
-		return true;
-	} 
-	else {		
-		ret = get_receive(sock, data, 1);
-	}
-	
-	if (ret == 1){
+	if (ret == 1) {
 		return true;
 	}
  
 	return false;
 }
 
-int ServerDrv::getDataBuf(uint8_t sock, uint8_t *_data, uint16_t _dataLen)
+int ServerDrv::getDataBuf(int sock, uint8_t *_data, uint16_t _dataLen)
 {
-  	uint16_t _size;
-	int ret; 
-	int n; 
-	_size = _dataLen;  
-	n = 0;    
-	if ( _readchar_set ) {
-		_data[0] = _readchar[0];		
-		_readchar_set = false;	
-		_data = _data+1;		
-		_size = _size - 1;	
-		n = 1;		
-		if ( _size ==0 ) 	
-			return true;
-	}  	
-	ret = get_receive(sock, _data, _size);
+	int ret;
+
+    _available = false;
+
+	ret = get_receive(sock, _data, _dataLen, 0, &_peer_addr, &_peer_port);
+
 	return ret;
 }
 
 void ServerDrv::stopClient(uint8_t sock)
 {
 	stop_socket(sock);
-	memset(_readchar, 0, 1);
-	_readchar_set = false;	
+    _available = false;
 }
 
-bool ServerDrv::sendData(uint8_t sock, const uint8_t *data, uint16_t len)
+bool ServerDrv::sendData(int sock, const uint8_t *data, uint16_t len)
 {
-	if (sock < 0)
-		return false;        	
-	int ret;
-	ret = send_data(sock, data, len);
-	
-	 if (ret == 0) {  
-		//_is_connected = false;     
-		return false;
-	 }
-	return true;
+    int ret;
+
+    if (sock < 0)
+        return false;        	
+
+    ret = send_data(sock, data, len);
+
+    if (ret == 0) {  
+        return false;
+    }
+
+    return true;
 }
 
-int ServerDrv::startClient(char* ipAddress, uint16_t port, uint8_t sock, uint8_t protMode)
+bool ServerDrv::sendtoData(int sock, const uint8_t *data, uint16_t len, uint32_t peer_ip, uint16_t peer_port)
 {
-	int ret;
-	ret = start_client(ipAddress, port, sock, protMode);
+    int ret;
 
-	return ret;
+    if (sock < 0)
+        return false;        	
+
+    ret = sendto_data(sock, data, len, peer_ip, peer_port);
+
+    if (ret == 0) {  
+        return false;
+    }
+
+    return true;
 }
-ServerDrv serverDrv;
+
+int ServerDrv::startClient(uint32_t ipAddress, uint16_t port, uint8_t protMode)
+{
+    int sock;
+
+    sock = start_client(ipAddress, port, protMode);
+
+    return sock;
+}
+
+void ServerDrv::getRemoteData(int sock, uint32_t *ip, uint16_t *port)
+{
+    // TODO: These data may be outdated?
+    *ip = _peer_addr;
+    *port = _peer_port;
+}

@@ -9,11 +9,13 @@ class WiFiClient;
 class WiFiServer : public Server {
 private:
   	uint16_t _port;
-  	uint8_t _sock_ser;
+  	int _sock_ser;
 	ServerDrv serverfd;
 public:
   	WiFiServer(uint16_t);
+
   	WiFiClient available(uint8_t* status = NULL);
+
   	void begin();
   	virtual size_t write(uint8_t b);
   	virtual size_t write(const uint8_t *buf, size_t size);

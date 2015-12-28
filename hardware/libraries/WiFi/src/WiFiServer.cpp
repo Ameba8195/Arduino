@@ -30,55 +30,41 @@ WiFiServer::WiFiServer(uint16_t port)
 
 void WiFiServer::begin()
 {
-    uint8_t _sock_ser = WiFiClass::getSocket();
-    if (_sock_ser != NO_SOCKET_AVAIL)
-    {
-        serverfd.startServer(_port, _sock_ser);
-        WiFiClass::_server_port[_sock_ser] = _port;
-        WiFiClass::_state[_sock_ser] = _sock_ser;
-    }
+    _sock_ser = serverfd.startServer(_port);
 }
 
 WiFiClient WiFiServer::available(uint8_t* status)
 {
-	uint8_t ret = 255;
-    	for (uint8_t sock = 0; sock < MAX_SOCK_NUM; sock++)
-    	{
-        	if (WiFiClass::_server_port[sock] == _port)
-        	{
-			uint8_t newsock;
-			if( newsock = serverfd.getAvailable(sock)) {
-                		return WiFiClient(newsock); 
-			}
-        	}
-    	}
+    int client_fd;
 
-    	return WiFiClient(ret);
+    client_fd = serverfd.getAvailable(_sock_ser);
+
+    return WiFiClient(client_fd);
 }
 
 size_t WiFiServer::write(uint8_t b) {
-	  return write(&b, 1);
+    return write(&b, 1);
 }
 
 size_t WiFiServer::write(const uint8_t *buf, size_t size) {
-  	if (_sock_ser >= MAX_SOCK_NUM)
-  	{
-	  	setWriteError();
-	  	return 0;
-  	}
-  	if (size==0)
-  	{
-	  	setWriteError();
-      		return 0;
-  	}
+    if (_sock_ser < 0)
+    {
+        setWriteError();
+        return 0;
+    }
+    if (size == 0)
+    {
+        setWriteError();
+        return 0;
+    }
 
-  	if (!serverfd.sendData(_sock_ser, buf, size))
-  	{
-	  	setWriteError();
-      		return 0;
-  	}
-	
-  	return size;
+    if (!serverfd.sendData(_sock_ser, buf, size))
+    {
+        setWriteError();
+        return 0;
+    }
+
+    return size;
 }
 #if 0
 uint8_t WiFiServer::status() {
@@ -93,13 +79,13 @@ size_t WiFiServer::write(uint8_t b)
 
 size_t WiFiServer::write(const uint8_t *buffer, size_t size)
 {
-	size_t n = 0;
+    size_t n = 0;
 
     for (int sock = 0; sock < MAX_SOCK_NUM; sock++)
     {
         if (WiFiClass::_server_port[sock] != 0)
         {
-        	WiFiClient client(sock);
+            WiFiClient client(sock);
 
             if (WiFiClass::_server_port[sock] == _port &&
                 client.status() == ESTABLISHED)

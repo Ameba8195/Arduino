@@ -1,18 +1,21 @@
 #ifndef ARD_SOCKET_H
 #define ARD_SOCKET_H
 #include "main.h"
-	int start_server(uint16_t port, uint8_t sock, uint8_t protMode);
 
-	int tcp_listen(uint8_t sock, int max);
+int start_server(uint16_t port, uint8_t protMode);
 
-	uint8_t get_available(uint8_t sock);
+int sock_listen(int sock, int max);
 
-	int get_receive(uint8_t sock, uint8_t* data, int length);
+int get_available(int sock);
 
-	void stop_socket(uint8_t sock);
+int get_receive(int sock, uint8_t* data, int length, int flag, uint32_t *peer_addr, uint16_t *peer_port);
 
-	int send_data(uint8_t sock, const uint8_t *data, uint16_t len);
+void stop_socket(int sock);
 
-	int  start_client(char* ipAddress, uint16_t port, uint8_t sock, uint8_t protMode);
+int send_data(int sock, const uint8_t *data, uint16_t len);
+
+int sendto_data(int sock, const uint8_t *data, uint16_t len, uint32_t peer_ip, uint16_t peer_port);
+
+int start_client(uint32_t ipAddress, uint16_t port, uint8_t protMode);
 
 #endif

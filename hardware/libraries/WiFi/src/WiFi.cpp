@@ -24,9 +24,6 @@
 #include "wifi_drv.h"
 #include "wiring.h"
 
-int16_t 	WiFiClass::_state[MAX_SOCK_NUM] = { NA_STATE, NA_STATE, NA_STATE, NA_STATE };
-uint16_t 	WiFiClass::_server_port[MAX_SOCK_NUM] = { 0, 0, 0, 0 };
-
 WiFiClass::WiFiClass()
 {
 
@@ -191,18 +188,6 @@ uint8_t WiFiClass::encryptionType(uint8_t networkItem)
 uint8_t WiFiClass::status()
 {
     return WiFiDrv::getConnectionStatus();
-}
-
-uint8_t WiFiClass::getSocket()
-{
-    for (uint8_t i = 0; i < MAX_SOCK_NUM; ++i)
-    {
-        if (WiFiClass::_server_port[i] == 0)
-        {
-             return i;
-        }
-    }
-    return NO_SOCKET_AVAIL;
 }
 
 int WiFiClass::hostByName(const char* aHostname, IPAddress& aResult)

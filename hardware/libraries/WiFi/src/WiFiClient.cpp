@@ -10,16 +10,17 @@ extern "C" {
 #include "server_drv.h"
 
 WiFiClient::WiFiClient() : _sock(MAX_SOCK_NUM) {
+    _is_connected = false;
 }
 
 WiFiClient::WiFiClient(uint8_t sock) {
-	_sock = sock;
-	if(sock != 255)
-		_is_connected = true;
+    _sock = sock;
+    if(sock >= 0)
+        _is_connected = true;
 }
 
 uint8_t WiFiClient::connected() {
-  	if (_sock == 255) {
+  	if (_sock < 0) {
 		_is_connected = false;
     	return 0;
   	}
@@ -37,7 +38,7 @@ int WiFiClient::available() {
 	int ret = 0;
 	if(!_is_connected)
 		return 0;
-  	if (_sock != 255)
+  	if (_sock >= 0)
   	{	
       	ret = clientdrv.availData(_sock);
 		if(ret == 0){
@@ -47,7 +48,6 @@ int WiFiClient::available() {
 		else{
 			return 1;
 		}
-			
   	}
 }
 
@@ -78,14 +78,13 @@ int WiFiClient::read(uint8_t* buf, size_t size) {
 
 void WiFiClient::stop() {
 
-  	if (_sock == 255)
+  	if (_sock < 0)
     	return;
 
   	clientdrv.stopClient(_sock);
-  	WiFiClass::_state[_sock] = NA_STATE;
 	_is_connected = false;
 	
-  	_sock = 255;
+  	_sock = -1;
 }
 
 size_t WiFiClient::write(uint8_t b) {
@@ -93,7 +92,7 @@ size_t WiFiClient::write(uint8_t b) {
 }
 
 size_t WiFiClient::write(const uint8_t *buf, size_t size) {
-  	if (_sock >= MAX_SOCK_NUM)
+  	if (_sock < 0)
   	{
 	  	setWriteError();
 	  	return 0;
@@ -115,7 +114,7 @@ size_t WiFiClient::write(const uint8_t *buf, size_t size) {
 }
 
 WiFiClient::operator bool() {
-  	return _sock != 255;
+  	return _sock >= 0;
 }
 
 int WiFiClient::connect(const char* host, uint16_t port) {
@@ -129,42 +128,29 @@ int WiFiClient::connect(const char* host, uint16_t port) {
 }
 
 int WiFiClient::connect(IPAddress ip, uint16_t port) {
-	_sock = getFirstSocket();
+
 	_is_connected = false;
-	if (_sock != NO_SOCKET_AVAIL)
-    {
-    	int ret = clientdrv.startClient(ip.get_address(), port, _sock);
-    	WiFiClass::_state[_sock] = _sock;
-		if(ret == 0)
-			_is_connected = true;
-		else{
-			_is_connected = false;
-			return 0;
-		}
 
-    }else{
-    	return 0;
+	_sock = clientdrv.startClient(ip, port, _sock);
+
+    if (_sock < 0) {
+        _is_connected = false;
+        return 0;
+    } else {
+        _is_connected = true;
     }
+
     return 1;
-}
-
-uint8_t WiFiClient::getFirstSocket()
-{
-    for (int i = 0; i < MAX_SOCK_NUM; i++) {
-      if (WiFiClass::_state[i] == NA_STATE)
-      {
-          return i;
-      }
-    }
-    return SOCK_NOT_AVAIL;
 }
 
 int WiFiClient::peek() {
 	uint8_t b;
+
 	if (!available())
 		return -1;
 
 	clientdrv.getData(_sock, &b, 1);
+
 	return b;
 }
 

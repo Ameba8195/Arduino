@@ -1,3 +1,10 @@
+/**** from arduino core ****/
+*b64.o(.text*)
+*itoa.o(.text*)
+*WMath.o(.text*)
+*WString.o(.text*)
+
+/**** from lib_ameba.a ****/
 *analogin_api.o(.text*)
 *analogout_api.o(.text*)
 *api_lib.o(.text*)
@@ -20,7 +27,6 @@
 *hal_dac.o(.text*)
 *hal_i2c.o(.text*)
 *hal_i2s.o(.text*)
-*hal_log_uart.o(.text*)
 *hal_mii.o(.text*)
 *hal_nfc.o(.text*)
 *hal_pcm.o(.text*)
@@ -82,3 +88,6 @@
 *update.o(.text*)
 *webserver.o(.text*)
 *xml.o(.text*)
+
+/**** from lib_platform.a ****/
+*hal_log_uart.o(.text*)
