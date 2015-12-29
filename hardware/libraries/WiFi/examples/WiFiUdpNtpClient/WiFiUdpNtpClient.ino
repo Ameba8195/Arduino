@@ -16,7 +16,6 @@
 
  */
 
-#include <SPI.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
 
