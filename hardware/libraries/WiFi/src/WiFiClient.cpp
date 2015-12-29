@@ -131,7 +131,7 @@ int WiFiClient::connect(IPAddress ip, uint16_t port) {
 
 	_is_connected = false;
 
-	_sock = clientdrv.startClient(ip, port, _sock);
+	_sock = clientdrv.startClient(ip, port);
 
     if (_sock < 0) {
         _is_connected = false;
