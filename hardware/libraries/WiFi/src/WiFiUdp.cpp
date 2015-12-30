@@ -37,6 +37,10 @@ WiFiUDP::WiFiUDP() : _sock(-1), _client_sock(-1) {}
 /* Start WiFiUDP socket, listening at local port PORT */
 uint8_t WiFiUDP::begin(uint16_t port) {
 
+    if (_port == port && _sock >= 0) {
+        return 1;
+    }
+
     _port = port;
     _sock = serverDrv.startServer(port, UDP_MODE);
 
