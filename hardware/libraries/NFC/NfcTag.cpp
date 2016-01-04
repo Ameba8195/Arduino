@@ -8,12 +8,15 @@ extern "C" {
 #include "cmsis_os.h"
 
 extern int rtl_printf(const char *fmt, ...);
+extern int nfc_free(nfctag_t *obj);
 
 nfctag_t nfctag;
 
 #ifdef __cplusplus
 }
 #endif
+
+#define SAFE_FREE(x) do { if ((x) != NULL) {free(x); x=NULL;} } while(0)
 
 #define TNF_MESSAGE_BEGIN                0x80
 #define TNF_MESSAGE_END                  0x40
@@ -23,9 +26,9 @@ nfctag_t nfctag;
 
 #define TNF_EMPTY                        0x00
 #define TNF_WELL_KNOWN                   0x01
-#define TNF_MIME_MEDIA_TYPE              0x02 // RFC 2046
+#define TNF_MIME_MEDIA                   0x02 // RFC 2046
 #define TNF_ABSOLUTE_URI                 0x03 // RFC 3986
-#define TNF_EXTERNAL                     0x04
+#define TNF_EXTERNAL_TYPE                0x04
 #define TNF_UNKNOWN                      0x05
 #define TNF_UNCHANGED                    0x06
 #define TNF_RESERVED                     0x07
@@ -72,22 +75,31 @@ void NfcTagClass::begin() {
     nfc_init ((nfctag_t *)pNfcTag, nfc_tag_content);
 }
 
-void NfcTagClass::appendWellKnownText(const char *text, unsigned char encodeType, const char *IANALanguageCode) {
-    int i, text_len, language_code_len;
+void NfcTagClass::end() {
+    int i;
+    for (i=0; i<ndef_size; i++) {
+        SAFE_FREE( ndef_msg[i].payload_type );
+        SAFE_FREE( ndef_msg[i].payload );
+    }
+    ndef_size = 0;
+    nfc_free ((nfctag_t *)pNfcTag);
+}
+
+void NfcTagClass::appendRtdText(const char *text, unsigned char encodeType, const char *IANALanguageCode) {
+    int text_len, language_code_len;
 
     addTnfRecord(TNF_WELL_KNOWN);
 
-    ndef_msg[ndef_size].type_len = 0x01;
+    ndef_msg[ndef_size].type_len = 1;
+
+    ndef_msg[ndef_size].payload_type = (unsigned char *)malloc( 1 );
+    ndef_msg[ndef_size].payload_type[0] = 0x54; // RTD Text
 
     text_len = strlen(text);
     language_code_len = strlen(IANALanguageCode);
     ndef_msg[ndef_size].payload_len = 1 + language_code_len + text_len;
 
-    ndef_msg[ndef_size].payload_type = (unsigned char *)malloc(1);
-    ndef_msg[ndef_size].payload_type[0] = 0x54; // 54 = RTD plain/text type
-
     ndef_msg[ndef_size].payload = (unsigned char *)malloc( ndef_msg[ndef_size].payload_len );
-
     ndef_msg[ndef_size].payload[0] = encodeType + language_code_len;
     memcpy( &(ndef_msg[ndef_size].payload[1]), IANALanguageCode, language_code_len );
     memcpy( &(ndef_msg[ndef_size].payload[1 + language_code_len]), text, text_len);
@@ -95,15 +107,39 @@ void NfcTagClass::appendWellKnownText(const char *text, unsigned char encodeType
     ndef_size++;
 }
 
-void NfcTagClass::appendWellKnownText(const char *text) {
-    appendWellKnownText(text, NDEF_TEXT_ENCODE_UTF8, NDEF_IANA_ENGLISH);
+void NfcTagClass::appendRtdText(const char *text) {
+    appendRtdText(text, NDEF_TEXT_ENCODE_UTF8, NDEF_IANA_ENGLISH);
+}
+
+void NfcTagClass::appendRtdUri(const char *uri, unsigned char uriIdentifierCode) {
+    int uri_len;
+
+    addTnfRecord(TNF_WELL_KNOWN);
+
+    ndef_msg[ndef_size].type_len = 1;
+
+    ndef_msg[ndef_size].payload_type = (unsigned char *)malloc( 1 );
+    ndef_msg[ndef_size].payload_type[0] = 0x55; // RTD URI
+
+    uri_len = strlen(uri);
+    ndef_msg[ndef_size].payload_len = 1 + uri_len;
+
+    ndef_msg[ndef_size].payload = (unsigned char *)malloc( ndef_msg[ndef_size].payload_len );
+    ndef_msg[ndef_size].payload[0] = uriIdentifierCode;
+    memcpy( &(ndef_msg[ndef_size].payload[1]), uri, uri_len );
+
+    ndef_size++;
+}
+
+void NfcTagClass::appendRtdUri(const char *uri) {
+    appendRtdUri(uri, RTD_URI_HTTP_WWW);
 }
 
 void NfcTagClass::appendAndroidPlayApp(const char *appName) {
 
     char *aar_record = "android.com:pkg";
 
-    addTnfRecord(TNF_EXTERNAL);
+    addTnfRecord(TNF_EXTERNAL_TYPE);
 
     ndef_msg[ndef_size].type_len = strlen(aar_record);
     ndef_msg[ndef_size].payload_type = (unsigned char *)malloc(ndef_msg[ndef_size].type_len);

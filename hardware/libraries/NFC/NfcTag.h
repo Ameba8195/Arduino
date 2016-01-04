@@ -15,6 +15,13 @@
 
 #define NDEF_IANA_ENGLISH "en"
 
+#define RTD_URI_HTTP_WWW      0x01 // http://www.
+#define RTD_URI_HTTPS_WWW     0x02 // https://www.
+#define RTD_URI_HTTP          0x03 // http://
+#define RTD_URI_HTTPS         0x04 // https://
+#define RTD_URI_TEL           0x05 // tel:
+#define RTD_URI_MAILTO        0x06 // mailto:
+
 struct NDEF {
     unsigned char TNF_flag;
     unsigned char type_len;
@@ -27,9 +34,13 @@ class NfcTagClass {
 public:
 	NfcTagClass( unsigned char nfcid[NFC_UID_LEN] );
 	void begin();
+    void end();
 
-    void appendWellKnownText(const char *text, unsigned char encodeType, const char *IANALanguageCode);
-    void appendWellKnownText(const char *text);
+    void appendRtdText(const char *text, unsigned char encodeType, const char *IANALanguageCode);
+    void appendRtdText(const char *text);
+
+    void appendRtdUri(const char *text, unsigned char uriIdentifierCode);
+    void appendRtdUri(const char *text);
 
     void appendAndroidPlayApp(const char *appName);
 
