@@ -152,6 +152,22 @@ void NfcTagClass::appendAndroidPlayApp(const char *appName) {
     ndef_size++;
 }
 
+void NfcTagClass::appendVcard(const char *vcard, int vcard_len) {
+    char *type_vcard = "text/x-vCard";
+
+    addTnfRecord(TNF_MIME_MEDIA);
+
+    ndef_msg[ndef_size].type_len = strlen(type_vcard);
+    ndef_msg[ndef_size].payload_type = (unsigned char *)malloc(ndef_msg[ndef_size].type_len);
+    memcpy( ndef_msg[ndef_size].payload_type, type_vcard, ndef_msg[ndef_size].type_len );
+
+    ndef_msg[ndef_size].payload_len = vcard_len;
+    ndef_msg[ndef_size].payload = (unsigned char *)malloc( ndef_msg[ndef_size].payload_len );
+    memcpy( ndef_msg[ndef_size].payload, vcard, vcard_len);
+
+    ndef_size++;
+}
+
 void NfcTagClass::addTnfRecord(unsigned char tnfType) {
     if (ndef_size == 0) {
         ndef_msg[ndef_size].TNF_flag = TNF_MESSAGE_BEGIN | TNF_MESSAGE_END | TNF_MESSAGE_SHORT_RECORD | tnfType;

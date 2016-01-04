@@ -42,6 +42,8 @@ public:
     void appendRtdUri(const char *text, unsigned char uriIdentifierCode);
     void appendRtdUri(const char *text);
 
+    void appendVcard(const char *vcard, int vcard_len);
+
     void appendAndroidPlayApp(const char *appName);
 
 private:
