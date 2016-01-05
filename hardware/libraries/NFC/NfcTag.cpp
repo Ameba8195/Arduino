@@ -7,7 +7,6 @@ extern "C" {
 #include "nfc_api.h"
 #include "cmsis_os.h"
 
-extern int rtl_printf(const char *fmt, ...);
 extern int nfc_free(nfctag_t *obj);
 
 nfctag_t nfctag;

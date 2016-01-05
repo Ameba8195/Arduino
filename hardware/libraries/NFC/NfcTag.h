@@ -1,5 +1,5 @@
-#ifndef NFC_H
-#define NFC_H
+#ifndef _NFC_TAG_H_
+#define _NFC_TAG_H_
 
 #include "Stream.h"
 
