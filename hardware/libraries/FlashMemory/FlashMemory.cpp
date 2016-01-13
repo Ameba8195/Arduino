@@ -1,5 +1,3 @@
-
-
 #include "FlashMemory.h"
 
 #ifdef __cplusplus

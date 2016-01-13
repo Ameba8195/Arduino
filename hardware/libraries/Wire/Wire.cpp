@@ -148,9 +148,13 @@ void TwoWire::beginTransmission(int address) {
 //	devices will behave oddly if they do not see a STOP.
 //
 uint8_t TwoWire::endTransmission(uint8_t sendStop) {
+    int length;
 	uint8_t error = 0;
-	
-    error = i2c_write( (i2c_t *)this->pI2C, (int)this->txAddress, (const char*)&this->txBuffer[0], (int)this->txBufferLength, (int)sendStop );
+
+    length = i2c_write( (i2c_t *)this->pI2C, (int)this->txAddress, (const char*)&this->txBuffer[0], (int)this->txBufferLength, (int)sendStop );
+    if (txBufferLength > 0 && length <= 0) {
+        error = 1;
+    }
 
 	txBufferLength = 0;		// empty buffer
 	status = MASTER_IDLE;

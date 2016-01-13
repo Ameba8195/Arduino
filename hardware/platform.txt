@@ -19,12 +19,12 @@ ameba.project=realtek_ameba1_va0_example
 
 compiler.path={runtime.tools.arm-none-eabi-gcc.path}/bin/
 compiler.c.cmd=arm-none-eabi-gcc
-compiler.c.flags=-c -g -w -mcpu=cortex-m3 -mthumb -O2 -fno-short-enums -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-short-enums
+compiler.c.flags=-c -g -w -mcpu=cortex-m3 -mthumb -O2 -std=c++11 -fno-short-enums -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-short-enums
 compiler.c.elf.cmd=arm-none-eabi-gcc
 compiler.c.elf.flags= -O2 -Wl,--gc-sections -mcpu=cortex-m3 -mthumb --specs=nano.specs 
 compiler.S.flags=-c -g -x assembler-with-cpp
 compiler.cpp.cmd=arm-none-eabi-g++
-compiler.cpp.flags=-c -g -w -O2 -mcpu=cortex-m3 -mthumb -fno-short-enums -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-rtti -fno-short-enums
+compiler.cpp.flags=-c -g -w -O2 -std=gnu++11 -mcpu=cortex-m3 -mthumb -fno-short-enums -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-rtti -fno-short-enums
 compiler.ar.cmd=arm-none-eabi-ar
 compiler.ar.flags=rcs
 compiler.strip.cmd=arm-none-eabi-strip
