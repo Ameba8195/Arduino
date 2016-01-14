@@ -26,7 +26,9 @@ SoftwareSerial mySerial(0, 1); // RX, TX
 #define pmsDataLen 32
 uint8_t buf[pmsDataLen];
 int idx = 0;
+int pm10 = 0;
 int pm25 = 0;
+int pm100 = 0;
 
 void setup() {
   Serial.begin(57600);
@@ -34,19 +36,35 @@ void setup() {
 }
 
 void loop() { // run over and over
+  uint8_t c = 0;
   idx = 0;
   memset(buf, 0, pmsDataLen);
 
-  while (mySerial.available()) {
+  while (true) {
+    while (c != 0x42) {
+      while (!mySerial.available());
+      c = mySerial.read();
+    }
+    while (!mySerial.available());
+    c = mySerial.read();
+    if (c == 0x4d) {
+      // now we got a correct header)
+      buf[idx++] = 0x42;
+      buf[idx++] = 0x4d;
+      break;
+    }
+  }
+
+  while (idx != pmsDataLen) {
+    while(!mySerial.available());
     buf[idx++] = mySerial.read();
   }
 
-  // check if data header is correct
-  if (buf[0] == 0x42 && buf[1] == 0x4d) {
-    pm25 = ( buf[12] << 8 ) | buf[13]; 
-    Serial.print("pm2.5: ");
-    Serial.print(pm25);
-    Serial.println(" ug/m3");
-  }
-}
+  pm10 = ( buf[10] << 8 ) | buf[11];
+  pm25 = ( buf[12] << 8 ) | buf[13];
+  pm100 = ( buf[14] << 8 ) | buf[15];
 
+  Serial.print("pm2.5: ");
+  Serial.print(pm25);
+  Serial.println(" ug/m3");
+}

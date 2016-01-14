@@ -54,7 +54,9 @@ uint32_t epochSystem = 0; // timestamp of system boot up
 SoftwareSerial mySerial(0, 1); // RX, TX
 #define pmsDataLen 32
 uint8_t serialBuf[pmsDataLen];
+int pm10 = 0;
 int pm25 = 0;
+int pm100 = 0;
 
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
@@ -170,29 +172,33 @@ void reconnectMQTT() {
 }
 
 void retrievePM25Value() {
-  int idx;
-  bool hasPm25Value = false;
-  int timeout = 200;
-  while (!hasPm25Value) {
-    idx = 0;
-    memset(serialBuf, 0, pmsDataLen);
-    while (mySerial.available()) {
-      serialBuf[idx++] = mySerial.read();
-    }
-
-    if (serialBuf[0] == 0x42 && serialBuf[1] == 0x4d) {
-      pm25 = ( serialBuf[12] << 8 ) | serialBuf[13]; 
-      Serial.print("pm2.5: ");
-      Serial.print(pm25);
-      Serial.println(" ug/m3");
-      hasPm25Value = true;
-    }
-    timeout--;
-    if (timeout < 0) {
-      Serial.println("fail to get pm2.5 data");
-      break;
-    }
+  uint8_t c = 0;
+  int idx = 0;
+  memset(serialBuf, 0, pmsDataLen);
+  
+  while (true) {
+  while (c != 0x42) {
+    while (!mySerial.available());
+    c = mySerial.read();
   }
+  while (!mySerial.available());
+  c = mySerial.read();
+  if (c == 0x4d) {
+    // now we got a correct header)
+    serialBuf[idx++] = 0x42;
+    serialBuf[idx++] = 0x4d;
+    break;
+  }
+  }
+  
+  while (idx != pmsDataLen) {
+  while(!mySerial.available());
+  serialBuf[idx++] = mySerial.read();
+  }
+  
+  pm10 = ( serialBuf[10] << 8 ) | serialBuf[11];
+  pm25 = ( serialBuf[12] << 8 ) | serialBuf[13];
+  pm100 = ( serialBuf[14] << 8 ) | serialBuf[15];
 }
 
 void initializeWiFi() {
