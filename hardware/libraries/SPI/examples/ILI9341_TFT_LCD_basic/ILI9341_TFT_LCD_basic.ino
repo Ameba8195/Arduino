@@ -19,9 +19,13 @@
 
 AmebaILI9341 tft = AmebaILI9341(TFT_CS, TFT_DC, TFT_RESET);
 
+#define ILI9341_SPI_FREQUENCY 20000000
+
 void setup() {
   Serial.begin(9600);
   Serial.println("ILI9341 Test!"); 
+
+  SPI.setDefaultFrequency(ILI9341_SPI_FREQUENCY);
 
   tft.begin();
 

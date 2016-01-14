@@ -37,6 +37,8 @@ SPIClass::SPIClass(void *pSpiObj, int mosi, int miso, int clk, int ss)
     pinSS = ss;
 
     pinUserSS == -1;
+
+    defaultFrequency = 20000000;
 }
 
 void SPIClass::beginTransaction(uint8_t pin, SPISettings settings)
@@ -73,7 +75,7 @@ void SPIClass::begin(void)
         (PinName)g_APinDescription[pinSS].pinname
     );
     spi_format((spi_t *)pSpiMaster, 8, 0, 0);
-	spi_frequency((spi_t *)pSpiMaster, 20000000);
+	spi_frequency((spi_t *)pSpiMaster, defaultFrequency);
 }
 
 void SPIClass::end(void)
@@ -173,6 +175,11 @@ void SPIClass::setDataMode(uint8_t _mode)
 void SPIClass::setClockDivider(uint8_t _div)
 {
     // no affact in Ameba
+}
+
+void SPIClass::setDefaultFrequency(int _frequency)
+{
+    defaultFrequency = _frequency;
 }
 
 SPIClass SPI((void *)(&spi_obj), 11, 12, 13, 10);

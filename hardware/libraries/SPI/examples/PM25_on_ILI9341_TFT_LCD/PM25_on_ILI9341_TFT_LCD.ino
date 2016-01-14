@@ -41,6 +41,8 @@ SoftwareSerial mySerial(0, 1); // RX, TX
 
 AmebaILI9341 tft = AmebaILI9341(TFT_CS, TFT_DC, TFT_RESET);
 
+#define ILI9341_SPI_FREQUENCY 20000000
+
 #define pmsDataLen 32
 uint8_t buf[pmsDataLen];
 int idx = 0;
@@ -65,6 +67,8 @@ uint16_t pm25color[] = {
 void setup() {
   Serial.begin(57600);
   mySerial.begin(9600); // PMS 3003 UART has baud rate 9600
+
+  SPI.setDefaultFrequency(ILI9341_SPI_FREQUENCY);
 
   tft.begin();
   drawPictureFrames();

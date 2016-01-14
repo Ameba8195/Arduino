@@ -91,6 +91,9 @@ public:
     void setDataMode(uint8_t _mode);
     void setClockDivider(uint8_t _div);
 
+    /* extend api added by RTK */
+    void setDefaultFrequency(int _frequency);
+
 private:
     void *pSpiMaster;
     int pinMOSI;
@@ -99,6 +102,8 @@ private:
     int pinSS;
     int pinUserSS;
     BitOrder bitOrder;
+
+    int defaultFrequency; 
 };
 
 extern SPIClass SPI;
