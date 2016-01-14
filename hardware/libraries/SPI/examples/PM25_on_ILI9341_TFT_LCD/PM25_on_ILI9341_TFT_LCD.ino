@@ -175,7 +175,7 @@ void drawPictureFrames() {
   tft.setFontSize(1);
   tft.print("Powered by Realtek");
 
-  updateValue();
+  updateValueToTftScreen();
 }
 
 void updateValueToTftScreen() {
