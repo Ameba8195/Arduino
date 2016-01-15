@@ -173,7 +173,7 @@
           "systems": [
             {
               "host": "i686-mingw32",
-              "archiveFileName": "ameba_tools-1.0.2.tar.gz",
+              "archiveFileName": "ameba_tools-1.0.3.tar.gz",
               "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba_tools-1.0.2.tar.gz",
               "checksum": "SHA-256:dad8b59974a41a91d18320231da063aac33eafbb71b1c60947c581d2f2d593e7",
               "size": "5108072"
