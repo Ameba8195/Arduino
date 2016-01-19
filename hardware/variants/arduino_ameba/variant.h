@@ -39,6 +39,8 @@ extern "C"{
  *        Pins
  *----------------------------------------------------------------------------*/
 
+#define portInputRegister(P) ( (volatile uint32_t *)( 0x40001050 + P * 4 ) )
+
 #ifdef __cplusplus
 }
 #endif

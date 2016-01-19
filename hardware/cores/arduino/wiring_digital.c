@@ -35,7 +35,7 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
         return;
     }
 
-    if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO )
+    if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO && g_APinDescription[ulPin].ulPinMode == ulMode)
     {
         return;
     }
@@ -45,6 +45,7 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
     if ( g_APinDescription[ulPin].ulPinType != PIO_GPIO ) {
         gpio_init( pGpio_t, g_APinDescription[ulPin].pinname );
         g_APinDescription[ulPin].ulPinType = PIO_GPIO;
+        g_APinDescription[ulPin].ulPinMode = ulMode;
     }
 
     switch ( ulMode )
@@ -122,22 +123,51 @@ int digitalRead( uint32_t ulPin )
 
 void digitalChangeDir( uint32_t ulPin, uint8_t direction)
 {
-	gpio_t *pGpio_t;
+    gpio_t *pGpio_t;
     u32 RegValue;
 
-	if ( ulPin < 0 || ulPin > TOTAL_GPIO_PIN_NUM )
+    if ( ulPin < 0 || ulPin > TOTAL_GPIO_PIN_NUM )
     {
         return;
     }
 
-	if ( g_APinDescription[ulPin].ulPinType != PIO_GPIO )
-	{
-	  return ;
-	}
+    if ( g_APinDescription[ulPin].ulPinType != PIO_GPIO )
+    {
+        return;
+    }
 
     pGpio_t = &gpio_pin_struct[ulPin];
 
     gpio_dir( pGpio_t, direction );
+}
+
+/**************************** Extend API by RTK ***********************************/
+
+uint32_t digitalPinToPort( uint32_t ulPin )
+{
+    uint32_t pin_name;
+
+    if ( ulPin < 0 || ulPin > TOTAL_GPIO_PIN_NUM )
+    {
+        return 0xFFFFFFFF;
+    }
+
+    pin_name = HAL_GPIO_GetPinName(g_APinDescription[ulPin].pinname);
+    return HAL_GPIO_GET_PORT_BY_NAME(pin_name);
+}
+
+uint32_t digitalPinToBitMask( uint32_t ulPin )
+{
+    uint32_t pin_name;
+
+    if ( ulPin < 0 || ulPin > TOTAL_GPIO_PIN_NUM )
+    {
+        return 0xFFFFFFFF;
+    }
+
+    pin_name = HAL_GPIO_GetPinName(g_APinDescription[ulPin].pinname);
+
+    return 1 << (HAL_GPIO_GET_PIN_BY_NAME(pin_name));
 }
 
 #ifdef __cplusplus

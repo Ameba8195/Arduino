@@ -75,6 +75,9 @@ typedef struct _PinDescription
   // Supported Pin Function
   uint32_t  ulPinAttribute;
 
+  // Current Pin Mode
+  uint32_t  ulPinMode;
+
 } PinDescription ;
 
 /* Pins table to be instanciated into variant.cpp */

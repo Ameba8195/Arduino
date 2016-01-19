@@ -66,6 +66,9 @@ extern int digitalRead( uint32_t ulPin ) ;
 
 extern void digital_change_dir( uint32_t ulPin, uint8_t direction);
 
+/**************************** Extend API by RTK ***********************************/
+extern uint32_t digitalPinToPort( uint32_t ulPin );
+extern uint32_t digitalPinToBitMask( uint32_t ulPin );
 
 #ifdef __cplusplus
 }
