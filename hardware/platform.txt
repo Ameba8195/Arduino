@@ -92,7 +92,10 @@ recipe.strip.pattern="{compiler.path}{compiler.strip.cmd}" "{build.path}/{build.
 ## Create image
 recipe.objcopy.hex.cmd=postbuild_img2_arduino.bat
 recipe.objcopy.hex.cmd.windows=postbuild_img2_arduino.bat
-recipe.objcopy.hex.pattern="{runtime.tools.ameba_tools.path}/{recipe.objcopy.hex.cmd}" "{runtime.tools.ameba_tools.path}" "{build.path}\application.axf" 
+recipe.objcopy.hex.cmd.macosx=postbuild_img2_arduino_mac
+recipe.objcopy.hex.imagepath="{build.path}\application.axf"
+recipe.objcopy.hex.imagepath.macosx="{build.path}/application.axf"
+recipe.objcopy.hex.pattern="{runtime.tools.ameba_tools.path}/{recipe.objcopy.hex.cmd}" "{runtime.tools.ameba_tools.path}" "{recipe.objcopy.hex.imagepath}" "{compiler.path}"
 
 ## Compute size
 recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/application.axf"
@@ -107,4 +110,4 @@ tools.ameba_tools.upload.params.verbose=
 tools.ameba_tools.upload.params.quiet=
 tools.ameba_tools.upload.pattern="{runtime.tools.ameba_tools.path}/upload_dap.sh" {upload.verbose}
 tools.ameba_tools.upload.pattern.windows="{runtime.tools.ameba_tools.path}/upload_dap.exe" "{runtime.tools.ameba_tools.path}\ram_all.bin"{upload.verbose}
-
+tools.ameba_tools.upload.pattern.macosx="{runtime.tools.ameba_tools.path}/upload_dap_mac" "{runtime.tools.ameba_tools.path}/ram_all.bin"{upload.verbose}

@@ -136,8 +136,8 @@ int main(int argc, char *argv[]) {
 
 		// 4. copy ram_all.bin into mbed device
 		cout << "uploading..." << endl;
-		cmd = "copy \"" + filepath_ram_all;
-		cmd.append("\" ");
+		cmd = "copy " + filepath_ram_all;
+		cmd.append(" ");
 		cmd.append(disk_caption);
 		cout << cmd << endl;
 		system(cmd.c_str());
