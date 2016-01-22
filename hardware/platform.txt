@@ -93,7 +93,7 @@ recipe.strip.pattern="{compiler.path}{compiler.strip.cmd}" "{build.path}/{build.
 recipe.objcopy.hex.cmd=postbuild_img2_arduino.bat
 recipe.objcopy.hex.cmd.windows=postbuild_img2_arduino.bat
 recipe.objcopy.hex.cmd.macosx=postbuild_img2_arduino_mac
-recipe.objcopy.hex.imagepath="{build.path}\application.axf"
+recipe.objcopy.hex.imagepath={build.path}\application.axf
 recipe.objcopy.hex.imagepath.macosx="{build.path}/application.axf"
 recipe.objcopy.hex.pattern="{runtime.tools.ameba_tools.path}/{recipe.objcopy.hex.cmd}" "{runtime.tools.ameba_tools.path}" "{recipe.objcopy.hex.imagepath}" "{compiler.path}"
 
