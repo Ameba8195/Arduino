@@ -90,8 +90,8 @@ recipe.nm.pattern=cp "{build.path}/{build.project_name}.axf" "{build.path}/appli
 recipe.strip.pattern="{compiler.path}{compiler.strip.cmd}" "{build.path}/{build.project_name}.axf"
 
 ## Create image
-recipe.objcopy.hex.cmd=postbuild_img2_arduino.bat
-recipe.objcopy.hex.cmd.windows=postbuild_img2_arduino.bat
+recipe.objcopy.hex.cmd=postbuild_img2_arduino_windows.exe
+recipe.objcopy.hex.cmd.windows=postbuild_img2_arduino_windows.exe
 recipe.objcopy.hex.cmd.macosx=postbuild_img2_arduino_mac
 recipe.objcopy.hex.imagepath={build.path}\application.axf
 recipe.objcopy.hex.imagepath.macosx="{build.path}/application.axf"
