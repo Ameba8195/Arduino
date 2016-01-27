@@ -15,28 +15,11 @@
 #include <SoftwareSerial.h>
 
 // If you're using a GPS module:
-// Connect the GPS Power pin to 5V
+// Connect the GPS Power pin to 3.3V
 // Connect the GPS Ground pin to ground
-// If using software serial (sketch example default):
-//   Connect the GPS TX (transmit) pin to Digital 3
-//   Connect the GPS RX (receive) pin to Digital 2
-// If using hardware serial (e.g. Arduino Mega):
-//   Connect the GPS TX (transmit) pin to Arduino RX1, RX2 or RX3
-//   Connect the GPS RX (receive) pin to matching TX1, TX2 or TX3
-
-// If you're using the Adafruit GPS shield, change 
-// SoftwareSerial mySerial(3, 2); -> SoftwareSerial mySerial(8, 7);
-// and make sure the switch is set to SoftSerial
-
-// If using software serial, keep this line enabled
-// (you can change the pin numbers to match your wiring):
-SoftwareSerial mySerial(3, 2);
-
-// If using hardware serial (e.g. Arduino Mega), comment out the
-// above SoftwareSerial line, and enable this line instead
-// (you can change the Serial number to match your wiring):
-
-//HardwareSerial mySerial = Serial1;
+// Connect the GPS TX (transmit) pin to Digital 0
+// Connect the GPS RX (receive) pin to Digital 1
+SoftwareSerial mySerial(0, 1);
 
 Adafruit_GPS GPS(&mySerial);
 
@@ -46,10 +29,7 @@ Adafruit_GPS GPS(&mySerial);
 
 void setup()  
 {
-    
-  // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
-  // also spit it out
-  Serial.begin(115200);
+  Serial.begin(38400);
   Serial.println("Adafruit GPS library basic test!");
 
   // 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
