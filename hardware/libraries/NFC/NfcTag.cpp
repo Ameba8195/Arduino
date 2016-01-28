@@ -41,6 +41,7 @@ uint32_t      NfcTagClass::nfc_tag_content[NFC_MAX_PAGE_NUM];
 unsigned char NfcTagClass::nfc_tag_dirty[NFC_MAX_PAGE_NUM];
 void *        NfcTagClass::nfctid;
 uint32_t      NfcTagClass::lastUpdateTimestamp = 0;
+bool          NfcTagClass::writeProtect = false;
 
 NfcTagClass::NfcTagClass(unsigned char uid[NFC_UID_LEN]) {
 
@@ -253,6 +254,10 @@ uint32_t NfcTagClass::getLastUpdateTimestamp() {
     return lastUpdateTimestamp;
 }
 
+void NfcTagClass::setWriteProtect(bool enable) {
+    writeProtect = enable;
+}
+
 void NfcTagClass::nfcThread(void const *argument) {
 
     int i, modified_page_count;
@@ -269,13 +274,14 @@ void NfcTagClass::nfcThread(void const *argument) {
                 modified_page_count++;
             }
 
-            // update to nfc cache from page 4
-            nfc_cache_write((nfctag_t *)pNfcTag, &(nfc_tag_content[4]), 4, modified_page_count);
+            if (!writeProtect) {
+                // update to nfc cache from page 4
+                nfc_cache_write((nfctag_t *)pNfcTag, &(nfc_tag_content[4]), 4, modified_page_count);
+                lastUpdateTimestamp = osKernelSysTick();
+            }
 
             memset(nfc_tag_dirty, 0, NFC_MAX_PAGE_NUM);
             osSignalClear(nfctid, NFC_EV_WRITE);
-
-            lastUpdateTimestamp = osKernelSysTick();
         }
     }
 }

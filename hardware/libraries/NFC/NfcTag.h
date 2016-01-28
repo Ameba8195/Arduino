@@ -68,7 +68,11 @@ public:
     /* Convert NDEF messages to NFC Tag Type2 format */
     void convertNdefToRaw();
 
+    /* Return last system timestamp that NFC cache being updated */
     uint32_t getLastUpdateTimestamp();
+
+    /* Set protection that avoid NFC reader to modify NFC Tag content */
+    void setWriteProtect(bool enable);
 
 private:
     /* Helper function to fill TNF+flag field of NDEF message */
@@ -102,6 +106,8 @@ private:
     static void *nfctid;
 
     static uint32_t lastUpdateTimestamp;
+
+    static bool writeProtect;
 };
 
 extern NfcTagClass NfcTag;
