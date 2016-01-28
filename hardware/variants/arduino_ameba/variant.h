@@ -60,8 +60,5 @@ extern LOGUARTClass Serial;
 //extern UARTClass1 Serial1;
 #endif
 
-
-
-
 #endif /* _VARIANT_ARDUINO_AMEBA_ */
 

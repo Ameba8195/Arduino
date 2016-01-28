@@ -36,14 +36,15 @@ unsigned char nfc_default_uid[7] = {
     RTK_NFC_UID, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06
 };
 
-uint32_t NfcTagClass::nfc_tag_content[NFC_MAX_PAGE_NUM];
-
+void *        NfcTagClass::pNfcTag = NULL;
+uint32_t      NfcTagClass::nfc_tag_content[NFC_MAX_PAGE_NUM];
 unsigned char NfcTagClass::nfc_tag_dirty[NFC_MAX_PAGE_NUM];
+void *        NfcTagClass::nfctid;
+uint32_t      NfcTagClass::lastUpdateTimestamp = 0;
 
 NfcTagClass::NfcTagClass(unsigned char uid[NFC_UID_LEN]) {
 
-    page_size = 0;
-    raw_size = 0;
+    unsigned int page_size = 0;
     ndef_size = 0;
 
     memset(nfc_tag_content, 0, NFC_MAX_PAGE_NUM * sizeof(unsigned int));
@@ -70,17 +71,24 @@ NfcTagClass::NfcTagClass(unsigned char uid[NFC_UID_LEN]) {
 }
 
 void NfcTagClass::begin() {
+    osThreadDef_t nfc_thread_def = {
+        nfcThread,
+        osPriorityRealtime,
+        1,
+        NFC_THREAD_STACK_SIZE,
+        "nfcthread"
+    };
+    nfctid = osThreadCreate (&nfc_thread_def, NULL);
+
     convertNdefToRaw();
     nfc_init ((nfctag_t *)pNfcTag, nfc_tag_content);
+    nfc_event((nfctag_t *)pNfcTag, nfcEventListener, NULL, 0xFF);
+    nfc_write((nfctag_t *)pNfcTag, nfcWriteListener, NULL);
+    lastUpdateTimestamp = osKernelSysTick();
 }
 
 void NfcTagClass::end() {
-    int i;
-    for (i=0; i<ndef_size; i++) {
-        SAFE_FREE( ndef_msg[i].payload_type );
-        SAFE_FREE( ndef_msg[i].payload );
-    }
-    ndef_size = 0;
+    clearNdefMessage();
     nfc_free ((nfctag_t *)pNfcTag);
 }
 
@@ -176,9 +184,22 @@ void NfcTagClass::addTnfRecord(unsigned char tnfType) {
     }
 }
 
+void NfcTagClass::clearNdefMessage() {
+    int i;
+    for (i=0; i<ndef_size; i++) {
+        SAFE_FREE( ndef_msg[i].payload_type );
+        SAFE_FREE( ndef_msg[i].payload );
+    }
+    ndef_size = 0;
+}
+
 void NfcTagClass::convertNdefToRaw() {
     int i, idx, ndef_idx;
     unsigned char buf[NFC_MAX_PAGE_NUM * 4];
+
+    if (ndef_size == 0) {
+        return;
+    }
 
     memset( buf, 0, NFC_MAX_PAGE_NUM * 4 );
 
@@ -199,6 +220,87 @@ void NfcTagClass::convertNdefToRaw() {
     buf[idx++] = 0xfe; // fe = terminal byte
 
     memcpy(&(nfc_tag_content[4]), buf, idx);
+}
+
+bool NfcTagClass::isUidValid() {
+    bool uidvalid = true;
+
+    unsigned char uid[7];
+    unsigned char bcc[2];
+
+    uid[0] = (unsigned char)((nfc_tag_content[0] & 0x000000FF) >>  0);
+    uid[1] = (unsigned char)((nfc_tag_content[0] & 0x0000FF00) >>  8);
+    uid[2] = (unsigned char)((nfc_tag_content[0] & 0x00FF0000) >> 16);
+    bcc[0] = (unsigned char)((nfc_tag_content[0] & 0xFF000000) >> 24);
+    uid[3] = (unsigned char)((nfc_tag_content[1] & 0x000000FF) >>  0);
+    uid[4] = (unsigned char)((nfc_tag_content[1] & 0x0000FF00) >>  8);
+    uid[5] = (unsigned char)((nfc_tag_content[1] & 0x00FF0000) >> 16);
+    uid[6] = (unsigned char)((nfc_tag_content[1] & 0xFF000000) >> 24);
+    bcc[1] = (unsigned char)((nfc_tag_content[2] & 0x000000FF) >>  0);
+
+    // verify Block Check Character
+    if (bcc[0] != (0x88 ^ uid[0] ^ uid[1] ^ uid[2])) {
+        uidvalid = false;
+    }
+    if (bcc[1] != (uid[3] ^ uid[4] ^ uid[5] ^ uid[6])) {
+        uidvalid = false;
+    }
+
+    return uidvalid;
+}
+
+uint32_t NfcTagClass::getLastUpdateTimestamp() {
+    return lastUpdateTimestamp;
+}
+
+void NfcTagClass::nfcThread(void const *argument) {
+
+    int i, modified_page_count;
+    osEvent evt;
+
+    osSignalClear(nfctid, 0xFFFFFFFF);
+
+    while(1) {
+        evt = osSignalWait (0, osWaitForever);
+        if (evt.status == osEventSignal && (evt.value.signals & NFC_EV_WRITE)) {
+            osDelay(300);
+
+            for (i = 4, modified_page_count = 0; i < NFC_MAX_PAGE_NUM && nfc_tag_dirty[i]; i++) {
+                modified_page_count++;
+            }
+
+            // update to nfc cache from page 4
+            nfc_cache_write((nfctag_t *)pNfcTag, &(nfc_tag_content[4]), 4, modified_page_count);
+
+            memset(nfc_tag_dirty, 0, NFC_MAX_PAGE_NUM);
+            osSignalClear(nfctid, NFC_EV_WRITE);
+
+            lastUpdateTimestamp = osKernelSysTick();
+        }
+    }
+}
+
+void NfcTagClass::nfcWriteListener(void *arg, unsigned int page, uint32_t pgdat) {
+    nfc_tag_content[page] = pgdat;
+    nfc_tag_dirty[page] = 1;
+    if (nfctid != NULL) {
+        osSignalSet(nfctid, NFC_EV_WRITE);
+    }
+}
+
+void NfcTagClass::nfcEventListener(void *arg, unsigned int event) {
+    switch(event) {
+        case NFC_EV_READER_PRESENT:
+            break;
+        case NFC_EV_READ:
+            break;
+        case NFC_EV_WRITE:
+            break;
+        case NFC_EV_ERR:
+            break;
+        case NFC_EV_CACHE_READ:
+            break;
+    }
 }
 
 NfcTagClass NfcTag = NfcTagClass(nfc_default_uid);
