@@ -132,8 +132,16 @@ void getCurrentTime(unsigned long epoch, int *year, int *month, int *day, int *h
       }
     }
   }
-  (*month)++;
   *day = tempDay+2; // one for base 1, one for current day
+  if (*day > monthDays[ *month ]) {
+    *day -= monthDays[ *month ];
+    (*month)++;
+  }
+  (*month)++;
+  if (*month > 12) {
+    *month -= 12;
+    *year++;
+  }
 }
 
 void reconnectMQTT() {
