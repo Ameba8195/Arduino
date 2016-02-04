@@ -223,6 +223,14 @@ void NfcTagClass::convertNdefToRaw() {
     memcpy(&(nfc_tag_content[4]), buf, idx);
 }
 
+void NfcTagClass::updateRawToCache() {
+    if (!writeProtect) {
+        // update to nfc cache from page 4
+        nfc_cache_write((nfctag_t *)pNfcTag, &(nfc_tag_content[4]), 4, NFC_MAX_PAGE_NUM-4);
+        lastUpdateTimestamp = osKernelSysTick();
+    }
+}
+
 bool NfcTagClass::isUidValid() {
     bool uidvalid = true;
 

@@ -68,6 +68,9 @@ public:
     /* Convert NDEF messages to NFC Tag Type2 format */
     void convertNdefToRaw();
 
+    /* Update NFC TAG content from nfc_tag_content[] */
+    void updateRawToCache();
+
     /* Return last system timestamp that NFC cache being updated */
     uint32_t getLastUpdateTimestamp();
 
