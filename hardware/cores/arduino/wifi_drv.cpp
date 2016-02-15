@@ -259,7 +259,7 @@ rtw_result_t WiFiDrv::wifidrv_scan_result_handler( rtw_scan_handler_result_t* ma
 		record->SSID.val[record->SSID.len] = 0; /* Ensure the SSID is null terminated */
 
         if ( _networkCount < WL_NETWORKS_LIST_MAXNUM ) {
-            memcpy( _networkSsid[_networkCount], record->SSID.val, record->SSID.len );
+            strcpy( _networkSsid[_networkCount], (char *)record->SSID.val);
             _networkRssi[_networkCount] = record->signal_strength;
             _networkEncr[_networkCount] = record->security;
             _networkCount++;
