@@ -23,10 +23,10 @@ extern struct netif xnetif[NET_IF_NUM];
 #endif
 
 // Array of data to cache the information related to the networks discovered
-uint8_t WiFiDrv::_networkCount = 0;
-char 	WiFiDrv::_networkSsid[][WL_SSID_MAX_LENGTH] = {{"1"},{"2"},{"3"},{"4"},{"5"}};
-int32_t WiFiDrv::_networkRssi[WL_NETWORKS_LIST_MAXNUM] = { 0 };
-uint8_t WiFiDrv::_networkEncr[WL_NETWORKS_LIST_MAXNUM] = { 0 };
+uint8_t  WiFiDrv::_networkCount = 0;
+char 	 WiFiDrv::_networkSsid[][WL_SSID_MAX_LENGTH] = {{"1"},{"2"},{"3"},{"4"},{"5"}};
+int32_t  WiFiDrv::_networkRssi[WL_NETWORKS_LIST_MAXNUM] = { 0 };
+uint32_t WiFiDrv::_networkEncr[WL_NETWORKS_LIST_MAXNUM] = { 0 };
 
 static bool init_wlan = false;
 
@@ -301,15 +301,20 @@ uint8_t WiFiDrv::getEncTypeNetowrks(uint8_t networkItem)
 
     if ( _networkEncr[networkItem] == RTW_SECURITY_OPEN ) {
         encType = ENC_TYPE_NONE;
-    } else if ( _networkEncr[networkItem] | AES_ENABLED ) {
+    } else if ( (_networkEncr[networkItem] & AES_ENABLED) || (_networkEncr[networkItem] == RTW_SECURITY_WPA_WPA2_MIXED) ) {
         encType = ENC_TYPE_CCMP;
-    } else if ( _networkEncr[networkItem] | TKIP_ENABLED ) {
+    } else if ( _networkEncr[networkItem] & TKIP_ENABLED ) {
         encType = ENC_TYPE_TKIP;
     } else if ( _networkEncr[networkItem] == RTW_SECURITY_WEP_PSK ) {
         encType = ENC_TYPE_WEP;
     }
 
     return encType;
+}
+
+uint32_t WiFiDrv::getEncTypeNetowrksEx(uint8_t networkItem)
+{
+    return (networkItem >= WL_NETWORKS_LIST_MAXNUM) ? NULL : _networkEncr[networkItem];
 }
 
 int32_t WiFiDrv::getRSSINetoworks(uint8_t networkItem)

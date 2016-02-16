@@ -68,5 +68,31 @@ enum wl_enc_type {  /* Values map to 802.11 encryption suites... */
         ENC_TYPE_AUTO = 8
 };
 
+/* RTK added type */
+#ifndef WEP_ENABLED
+
+#define WEP_ENABLED        0x0001
+#define TKIP_ENABLED       0x0002
+#define AES_ENABLED        0x0004
+#define WSEC_SWFLAG        0x0008
+
+#define SHARED_ENABLED  0x00008000
+#define WPA_SECURITY    0x00200000
+#define WPA2_SECURITY   0x00400000
+#define WPS_ENABLED     0x10000000
+
+#endif // #ifndef WEP_ENABLED
+
+/* redefined from enum rtw_security_t */
+#define SECURITY_OPEN            ( 0 )
+#define SECURITY_WEP_PSK         ( WEP_ENABLED )
+#define SECURITY_WEP_SHARED      ( WEP_ENABLED | SHARED_ENABLED )
+#define SECURITY_WPA_TKIP_PSK    ( WPA_SECURITY  | TKIP_ENABLED )
+#define SECURITY_WPA_AES_PSK     ( WPA_SECURITY  | AES_ENABLED )
+#define SECURITY_WPA2_AES_PSK    ( WPA2_SECURITY | AES_ENABLED )
+#define SECURITY_WPA2_TKIP_PSK   ( WPA2_SECURITY | TKIP_ENABLED )
+#define SECURITY_WPA2_MIXED_PSK  ( WPA2_SECURITY | AES_ENABLED | TKIP_ENABLED )
+#define SECURITY_WPA_WPA2_MIXED  ( WPA_SECURITY  | WPA2_SECURITY )
+
 
 #endif /* WL_DEFINITIONS_H_ */

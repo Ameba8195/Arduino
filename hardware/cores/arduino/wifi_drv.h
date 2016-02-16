@@ -45,9 +45,9 @@ class WiFiDrv
 private:
 	// settings of requested network
 	static uint8_t  _networkCount;
-	static char 	_networkSsid[WL_NETWORKS_LIST_MAXNUM][WL_SSID_MAX_LENGTH];
-	static int32_t 	_networkRssi[WL_NETWORKS_LIST_MAXNUM];
-	static uint8_t 	_networkEncr[WL_NETWORKS_LIST_MAXNUM];
+	static char     _networkSsid[WL_NETWORKS_LIST_MAXNUM][WL_SSID_MAX_LENGTH];
+	static int32_t  _networkRssi[WL_NETWORKS_LIST_MAXNUM];
+	static uint32_t _networkEncr[WL_NETWORKS_LIST_MAXNUM];
 
 	// settings of current selected network
     static rtw_wifi_setting_t wifi_setting;
@@ -231,6 +231,15 @@ public:
      * return: encryption type (enum wl_enc_type) of the specified item on the networks scanned list
      */
     static uint8_t getEncTypeNetowrks(uint8_t networkItem);
+
+    /*
+     * Return the security type and encryption type of the networks discovered during the scanNetworks
+     *
+     * param networkItem: specify from which network item want to get the information
+	 *
+     * return: security and encryption type of the specified item on the networks scanned list
+     */
+    static uint32_t getEncTypeNetowrksEx(uint8_t networkItem);
 
     /*
      * Resolve the given hostname to an IP address.

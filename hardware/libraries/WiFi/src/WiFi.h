@@ -206,6 +206,15 @@ public:
     uint8_t	encryptionType(uint8_t networkItem);
 
     /*
+     * Return the security type and encryption type of the networks discovered during the scanNetworks
+     *
+     * param networkItem: specify from which network item want to get the information
+	 *
+     * return: security and encryption type of the specified item on the networks scanned list
+     */
+    uint32_t encryptionTypeEx(uint8_t networkItem);
+
+    /*
      * Return the RSSI of the networks discovered during the scanNetworks
      *
      * param networkItem: specify from which network item want to get the information

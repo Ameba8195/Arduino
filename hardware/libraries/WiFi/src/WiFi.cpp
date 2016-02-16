@@ -191,6 +191,11 @@ uint8_t WiFiClass::encryptionType(uint8_t networkItem)
     return WiFiDrv::getEncTypeNetowrks(networkItem);
 }
 
+uint32_t WiFiClass::encryptionTypeEx(uint8_t networkItem)
+{
+    return WiFiDrv::getEncTypeNetowrksEx(networkItem);
+}
+
 uint8_t WiFiClass::status()
 {
     return WiFiDrv::getConnectionStatus();

@@ -88,8 +88,42 @@ void listNetworks() {
     Serial.print("\tSignal: ");
     Serial.print(WiFi.RSSI(thisNet));
     Serial.print(" dBm");
+    Serial.print("\tEncryptionRaw: ");
+    printEncryptionTypeEx(WiFi.encryptionTypeEx(thisNet));
     Serial.print("\tEncryption: ");
     printEncryptionType(WiFi.encryptionType(thisNet));
+  }
+}
+
+void printEncryptionTypeEx(uint32_t thisType) {
+  /*  Arduino wifi api use encryption type to mapping to security type.
+   *  This function demonstrate how to get more richful information of security type.
+   */
+  switch (thisType) {
+    case SECURITY_OPEN:
+      Serial.print("Open");
+      break;
+    case SECURITY_WEP_PSK:
+      Serial.print("WEP");
+      break;
+    case SECURITY_WPA_TKIP_PSK:
+      Serial.print("WPA TKIP");
+      break;
+    case SECURITY_WPA_AES_PSK:
+      Serial.print("WPA AES");
+      break;
+    case SECURITY_WPA2_AES_PSK:
+      Serial.print("WPA2 AES");
+      break;
+    case SECURITY_WPA2_TKIP_PSK:
+      Serial.print("WPA2 TKIP");
+      break;
+    case SECURITY_WPA2_MIXED_PSK:
+      Serial.print("WPA2 Mixed");
+      break;
+    case SECURITY_WPA_WPA2_MIXED:
+      Serial.print("WPA/WPA2 AES");
+      break;
   }
 }
 
@@ -113,6 +147,4 @@ void printEncryptionType(int thisType) {
       break;
   }
 }
-
-
 
