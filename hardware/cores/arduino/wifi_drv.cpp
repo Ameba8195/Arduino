@@ -64,6 +64,7 @@ void WiFiDrv::wifiDriverInit()
 int8_t WiFiDrv::wifiSetNetwork(char* ssid, uint8_t ssid_len)
 {
 	int ret;
+    uint8_t dhcp_result;
 
     memset(wifi.bssid.octet, 0, ETH_ALEN);
     memcpy(wifi.ssid.val, ssid, ssid_len);
@@ -79,11 +80,16 @@ int8_t WiFiDrv::wifiSetNetwork(char* ssid, uint8_t ssid_len)
 
     if (ret == RTW_SUCCESS) {
 
-        LwIP_DHCP(0, DHCP_START);
+        dhcp_result = LwIP_DHCP(0, DHCP_START);
 
         init_wifi_struct();
 
-        return WL_SUCCESS;
+        if ( dhcp_result == DHCP_ADDRESS_ASSIGNED ) {
+            return WL_SUCCESS;
+        } else {
+            wifi_disconnect();
+            return WL_FAILURE;
+        }
 
     } else {
 
@@ -96,6 +102,7 @@ int8_t WiFiDrv::wifiSetNetwork(char* ssid, uint8_t ssid_len)
 int8_t WiFiDrv::wifiSetPassphrase(char* ssid, uint8_t ssid_len, const char *passphrase, const uint8_t len)
 {
 	int ret;
+    uint8_t dhcp_result;
 
     memset(wifi.bssid.octet, 0, ETH_ALEN);
     memcpy(wifi.ssid.val, ssid, ssid_len);
@@ -113,11 +120,16 @@ int8_t WiFiDrv::wifiSetPassphrase(char* ssid, uint8_t ssid_len, const char *pass
 
     if (ret == RTW_SUCCESS) {
 
-        LwIP_DHCP(0, DHCP_START);
+        dhcp_result = LwIP_DHCP(0, DHCP_START);
 
         init_wifi_struct();
 
-        return WL_SUCCESS;
+        if ( dhcp_result == DHCP_ADDRESS_ASSIGNED ) {
+            return WL_SUCCESS;
+        } else {
+            wifi_disconnect();
+            return WL_FAILURE;
+        }
 
     } else {
 
@@ -130,6 +142,7 @@ int8_t WiFiDrv::wifiSetPassphrase(char* ssid, uint8_t ssid_len, const char *pass
 int8_t WiFiDrv::wifiSetKey(char* ssid, uint8_t ssid_len, uint8_t key_idx, const void *key, const uint8_t len)
 {
 	int ret;
+    uint8_t dhcp_result;
     int i, idx;
     const unsigned char* k = (const unsigned char *)key;
 
@@ -167,11 +180,16 @@ int8_t WiFiDrv::wifiSetKey(char* ssid, uint8_t ssid_len, uint8_t key_idx, const 
 
     if (ret == RTW_SUCCESS) {
 
-        LwIP_DHCP(0, DHCP_START);
+        dhcp_result = LwIP_DHCP(0, DHCP_START);
 
         init_wifi_struct();
 
-        return WL_SUCCESS;
+        if ( dhcp_result == DHCP_ADDRESS_ASSIGNED ) {
+            return WL_SUCCESS;
+        } else {
+            wifi_disconnect();
+            return WL_FAILURE;
+        }
 
     } else {
 
