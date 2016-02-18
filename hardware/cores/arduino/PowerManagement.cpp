@@ -20,8 +20,7 @@ void PowerManagementClass::setPllReserved(bool reserve) {
 }
 
 void PowerManagementClass::sleep() {
-    pinMode(18, INPUT_PULLUP);
-    if (digitalRead(18) == 1) {
+    if (!safeLock()) {
         release_wakelock(WAKELOCK_OS);
     }
 }
@@ -31,10 +30,14 @@ void PowerManagementClass::active() {
 }
 
 void PowerManagementClass::deepsleep(uint32_t duration_ms) {
-    pinMode(18, INPUT_PULLUP);
-    if (digitalRead(18) == 1) {
+    if (!safeLock()) {
         deepsleep_ex(DSLEEP_WAKEUP_BY_TIMER, duration_ms);
     }
+}
+
+bool PowerManagementClass::safeLock() {
+    pinMode(18, INPUT_PULLUP);
+    return (digitalRead(18) == 1) ? false : true;
 }
 
 void PowerManagementClass::softReset() {

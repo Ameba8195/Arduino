@@ -11,6 +11,8 @@ public:
 
     static void deepsleep(uint32_t duration_ms);
 
+    static bool safeLock();
+
     static void softReset();
 
 private:
