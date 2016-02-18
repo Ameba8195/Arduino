@@ -2,7 +2,7 @@
  * Demonstrates use of deepsleep api of power management with DHTxx and lass
  *
  * This sketch gather DHTxx results for every one minute.
- * After gather 10 data sets, publish them to LASS.
+ * After gather several data sets, publish them to LASS.
  * Ameba would under deepsleep between 2 measurements for saving power.
  *
  * You can find more information of LASS at this site:
@@ -23,10 +23,10 @@ int keyIndex = 0;               // your network key Index number (needed only fo
 char gps_lat[] = "24.7805647";  // device's gps latitude
 char gps_lon[] = "120.9933177"; // device's gps longitude
 
-int measureInterval = 60;  // in seconds
+int measureInterval = 600;  // in seconds
 
 // gether 10 data then upload
-#define DATA_CNT_FOR_UPLOAD 10
+#define DATA_CNT_FOR_UPLOAD 1
 struct dhtData_t {
   char pattern[8];
   int dataCount;
