@@ -25,8 +25,24 @@
 
 #ifdef __cplusplus // Thread is only for C++
 
+#include "Arduino.h"
 #include <stdint.h>
-#include "cmsis_os.h"
+
+// redefined enum osStatus in cmsis_os.h
+#define OS_OK                     0x00
+#define OS_EVENT_SIGNAL           0x08
+#define OS_EVENT_MESSAGE          0x10
+#define OS_EVENT_MAIL             0x20
+#define OS_EVENT_TIMEOUT          0x40
+#define OS_ERROR_PARAMETER        0x80
+#define OS_ERROR_RESOURCE         0x81
+#define OS_ERROR_TIMEOUT_RESOURCE 0xC1
+#define OS_ERROR_ISR              0x82
+#define OS_ERROR_ISR_RECURSIVE    0x83
+#define OS_ERROR_PRIORITY         0x84
+#define OS_ERROR_NO_MEMORY        0x85
+#define OS_ERROR_VALUE            0x86
+#define OS_ERROR_OS               0xFF
 
 /** The Thread class allow defining, creating, and controlling thread functions in the system. */
 class Thread {
@@ -39,26 +55,26 @@ public:
       @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
     */
     Thread(void (*task)(void const *argument), void *argument=NULL,
-           osPriority priority=osPriorityNormal,
-           uint32_t stack_size=configMINIMAL_STACK_SIZE);
+           int priority=0,
+           uint32_t stack_size=512);
 
     /** Terminate execution of a thread and remove it from Active Threads
       @return  status code that indicates the execution status of the function.
     */
 
 	int start();
-    osStatus terminate();
+    uint32_t terminate();
 
     /** Set priority of an active thread
       @param   priority  new priority value for the thread function.
       @return  status code that indicates the execution status of the function.
     */
-    osStatus set_priority(osPriority priority);
+    uint32_t set_priority(int priority);
 
     /** Get priority of an active thread
       @return  current priority value of the thread function.
     */
-    osPriority get_priority();
+    int get_priority();
 
     /** Set the specified Signal Flags of an active thread.
       @param   signals  specifies the signal flags of the thread that should be set.
@@ -93,34 +109,31 @@ public:
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
       @return  event flag information or error code.
     */
-    static osEvent signal_wait(int32_t signals, uint32_t millisec=osWaitForever);
+    static uint32_t signal_wait(int32_t signals, uint32_t millisec=0xFFFFFFFF);
 
     /** Wait for a specified time period in millisec:
       @param   millisec  time delay value
       @return  status code that indicates the execution status of the function.
     */
-    static osStatus wait(uint32_t millisec);
+    static uint32_t wait(uint32_t millisec);
 
     /** Pass control to next thread that is in state READY.
       @return  status code that indicates the execution status of the function.
     */
-    static osStatus yield();
+    static uint32_t yield();
 
     /** Get the thread id of the current running thread.
       @return  thread ID for reference by other functions or NULL in case of error.
     */
-    static osThreadId gettid();
+    static uint32_t gettid();
 
     virtual ~Thread();
 
 private:
-    osThreadId _tid;
-    osThreadDef_t _thread_def;
+    uint32_t _tid;
+    void * _thread_def;
 	void * _thread_arg;
 };
-
-
-//} // namespace rtos
 
 #endif // ifdef __cplusplus
 

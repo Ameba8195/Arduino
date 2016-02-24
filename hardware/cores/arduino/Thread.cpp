@@ -21,45 +21,49 @@
  */
 #include "Thread.h"
 
+#ifdef __cplusplus
 extern "C" {
-extern _LONG_CALL_ uint32_t DiagPrintf(const char *fmt, ...);
+#include "cmsis_os.h"
 }
+#endif
 
 Thread::Thread(void (*task)(void const *argument), void *argument,
-        osPriority priority, uint32_t stack_size) {
+        int priority, uint32_t stack_size) {
 
 	_thread_arg = argument;
-    _thread_def.pthread = task;
-    _thread_def.tpriority = priority;
-    _thread_def.stacksize = stack_size;
+    _thread_def = (osThreadDef_t *) malloc( sizeof(osThreadDef_t) );
+    ((osThreadDef_t *)_thread_def)->pthread = task;
+    ((osThreadDef_t *)_thread_def)->tpriority = (osPriority)priority;
+    ((osThreadDef_t *)_thread_def)->stacksize = stack_size;
+    ((osThreadDef_t *)_thread_def)->name = "ARDUINO";
 }
 
 int Thread::start() 
 {
-	_tid = osThreadCreate(&_thread_def, _thread_arg);
+	_tid = (uint32_t)osThreadCreate((osThreadDef_t *)_thread_def, _thread_arg);
 	
 	if ( _tid == NULL ) {
-		DiagPrintf("Thread start failed \n");
 		return -1;
 	}
 	
 	return 0;
 }
 
-osStatus Thread::terminate() {
-    return osThreadTerminate(_tid);
+uint32_t Thread::terminate() {
+    delete(_thread_def);
+    return osThreadTerminate((osThreadId)_tid);
 }
 
-osStatus Thread::set_priority(osPriority priority) {
-    return osThreadSetPriority(_tid, priority);
+uint32_t Thread::set_priority(int priority) {
+    return osThreadSetPriority((osThreadId)_tid, (osPriority)priority);
 }
 
-osPriority Thread::get_priority() {
-    return osThreadGetPriority(_tid);
+int Thread::get_priority() {
+    return osThreadGetPriority((osThreadId)_tid);
 }
 
 int32_t Thread::signal_set(int32_t signals) {
-    return osSignalSet(_tid, signals);
+    return osSignalSet((osThreadId)_tid, signals);
 }
 
 // not support in cmsis_os version 1.02
@@ -75,20 +79,21 @@ Thread::State Thread::get_state() {
 }
 #endif
 
-osEvent Thread::signal_wait(int32_t signals, uint32_t millisec) {
-    return osSignalWait(signals, millisec);
+uint32_t Thread::signal_wait(int32_t signals, uint32_t millisec) {
+    osEvent evt = osSignalWait(signals, millisec);
+    return (uint32_t)evt.status;
 }
 
-osStatus Thread::wait(uint32_t millisec) {
+uint32_t Thread::wait(uint32_t millisec) {
     return osDelay(millisec);
 }
 
-osStatus Thread::yield() {
+uint32_t Thread::yield() {
     return osThreadYield();
 }
 
-osThreadId Thread::gettid() {
-    return osThreadGetId();
+uint32_t Thread::gettid() {
+    return (uint32_t)osThreadGetId();
 }
 
 Thread::~Thread() {
