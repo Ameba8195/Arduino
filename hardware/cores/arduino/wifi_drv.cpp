@@ -16,6 +16,7 @@ extern "C" {
 #include "lwip_netconf.h"
 #include "lwip/err.h"
 #include "lwip/api.h"
+#include <dhcp/dhcps.h>
 
 extern struct netif xnetif[NET_IF_NUM]; 
 
@@ -200,6 +201,110 @@ int8_t WiFiDrv::wifiSetKey(char* ssid, uint8_t ssid_len, uint8_t key_idx, const 
 
 }
 
+int8_t WiFiDrv::apSetNetwork(char* ssid, uint8_t ssid_len)
+{
+	int ret = WL_SUCCESS;
+
+	ap.ssid.len = ssid_len;
+
+	if(ap.ssid.len > 32){
+		printf("Error: SSID length can't exceed 32\n\r");
+		ret = WL_FAILURE;
+    }
+	strcpy((char *)ap.ssid.val, (char*)ssid);
+	return ret;
+}
+
+int8_t WiFiDrv::apSetPassphrase(const char *passphrase, uint8_t len)
+
+{
+	int ret = WL_SUCCESS;
+	strcpy((char *)password, (char*)passphrase);
+	ap.password = password;
+	ap.password_len = len;
+	return ret;
+}
+
+int8_t WiFiDrv::apSetChannel(const char *channel)
+{
+	int ret = WL_SUCCESS;
+	ap.channel = (unsigned char) atoi((const char *)channel);
+	return ret;
+}
+
+int8_t WiFiDrv::apActivate()
+{
+#if CONFIG_LWIP_LAYER
+	struct ip_addr ipaddr;
+	struct ip_addr netmask;
+	struct ip_addr gw;
+	struct netif * pnetif = &xnetif[0];
+#endif
+	int timeout = 20;
+	int ret = WL_SUCCESS;
+	if(ap.ssid.val[0] == 0){
+        printf("Error: SSID can't be empty\n\r");
+		ret = WL_FAILURE;
+		goto exit;
+    }
+	if(ap.password == NULL){
+          ap.security_type = RTW_SECURITY_OPEN;
+        }
+        else{
+          ap.security_type = RTW_SECURITY_WPA2_AES_PSK;
+    }
+
+#if CONFIG_LWIP_LAYER
+	dhcps_deinit();
+	IP4_ADDR(&ipaddr, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
+	IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1 , NETMASK_ADDR2, NETMASK_ADDR3);
+	IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
+	netif_set_addr(pnetif, &ipaddr, &netmask,&gw);
+#endif
+	wifi_off();
+	vTaskDelay(20);
+	if (wifi_on(RTW_MODE_AP) < 0){
+		printf("\n\rERROR: Wifi on failed!");
+		ret = WL_FAILURE;
+		goto exit;
+	}
+	printf("\n\rStarting AP ...");
+
+	if((ret = wifi_start_ap((char*)ap.ssid.val, ap.security_type, (char*)ap.password, ap.ssid.len, ap.password_len, ap.channel) )< 0) {
+		printf("\n\rERROR: Operation failed!");
+		ret = WL_FAILURE;
+		goto exit;
+	}
+
+	while(1) {
+		char essid[33];
+
+		if(wext_get_ssid(WLAN0_NAME, (unsigned char *) essid) > 0) {
+			if(strcmp((const char *) essid, (const char *)ap.ssid.val) == 0) {
+				printf("\n\r%s started\n", ap.ssid.val);
+				ret = WL_SUCCESS;
+				break;
+			}
+		}
+
+		if(timeout == 0) {
+			printf("\n\rERROR: Start AP timeout!");
+			ret = WL_FAILURE;		
+			break;
+		}
+
+		vTaskDelay(1 * configTICK_RATE_HZ);
+		timeout --;
+	}
+#if CONFIG_LWIP_LAYER
+	//LwIP_UseStaticIP(pnetif);
+	dhcps_init(pnetif);
+#endif
+
+exit:
+	init_wifi_struct( );
+	return ret;
+}
 int8_t WiFiDrv::disconnect()
 {
     wifi_disconnect();

@@ -255,6 +255,14 @@ public:
      * result: version as string with this format a.b.c
      */
     static char* getFwVersion();
+
+	static int8_t apSetNetwork(char* ssid, uint8_t ssid_len);
+
+	static int8_t apSetPassphrase(const char *passphrase, uint8_t len);
+
+	static int8_t apSetChannel(const char *channel);
+
+	static int8_t apActivate();
 };
 
 extern WiFiDrv wiFiDrv;
