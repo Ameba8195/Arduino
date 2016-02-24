@@ -239,6 +239,10 @@ public:
      */
     int hostByName(const char* aHostname, IPAddress& aResult);
 
+	int apbegin(char* ssid, char* channel);
+
+	int apbegin(char* ssid, char* password, char* channel);
+
     friend class WiFiClient;
     friend class WiFiServer;
 };
