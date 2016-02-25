@@ -52,13 +52,17 @@ typedef struct {
 
 extern uint32_t os_thread_create(void (*task)(const void *argument), void *argument, int priority, uint32_t stack_size);
 
+extern uint32_t os_thread_get_id( void );
+
 extern uint32_t os_thread_terminate(uint32_t thread_id);
 
 extern uint32_t os_thread_set_priority(uint32_t thread_id, int priority);
 
 extern int os_thread_get_priority(uint32_t thread_id);
 
-extern int32_t os_signal_set (uint32_t thread_id, int32_t signals);
+extern int32_t os_signal_set(uint32_t thread_id, int32_t signals);
+
+extern int32_t os_signal_clear(uint32_t thread_id, int32_t signals);
 
 extern os_event_t os_signal_wait(int32_t signals, uint32_t millisec);
 
