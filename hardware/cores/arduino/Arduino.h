@@ -96,10 +96,6 @@ extern PinDescription g_APinDescription[];
 
 #endif // __cplusplus
 
-#ifndef DEFAULT_STACK_SIZE
-#define DEFAULT_STACK_SIZE configMINIMAL_STACK_SIZE
-#endif
-
 // Include board variant
 #include "variant.h"
 
