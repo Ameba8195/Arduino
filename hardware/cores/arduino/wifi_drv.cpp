@@ -301,8 +301,6 @@ int8_t WiFiDrv::apActivate()
 	dhcps_init(pnetif);
 #endif
 
-    LwIP_Init();
-
 exit:
 	init_wifi_struct( );
 	return ret;
