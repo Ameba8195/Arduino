@@ -72,7 +72,9 @@ int WiFiClient::read(uint8_t* buf, size_t size) {
 	ret = clientdrv.getDataBuf(_sock, buf, _size);
   	if (ret <= 0){
 		_is_connected = false;
-  	}
+  	} else {
+  	    buf[ret] = '\0';
+    }
   	return ret;
 }
 
