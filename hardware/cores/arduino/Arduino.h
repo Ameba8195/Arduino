@@ -53,6 +53,16 @@ extern int rtl_sprintf(char* str, const char* fmt, ...);
 #define sprintf						rtl_sprintf
 #endif
 
+extern void *pvPortMalloc( size_t xWantedSize );
+extern void vPortFree( void *pv );
+
+#ifndef malloc
+#define malloc                  pvPortMalloc
+#endif
+#ifndef free
+#define free                    vPortFree
+#endif
+
 /* sketch */
 extern void setup( void );
 extern void loop( void );

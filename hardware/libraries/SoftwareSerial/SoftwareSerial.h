@@ -56,13 +56,8 @@ private:
   char _receive_buffer[_SS_MAX_RX_BUFF]; 
   volatile uint8_t _receive_buffer_tail;
   volatile uint8_t _receive_buffer_head;
-  static SoftwareSerial *active_object;
 
-  // static methods
-  static void handle_interrupt(uint32_t id, uint32_t event);
-
-  // private methods
-  void recv(uint32_t id, uint32_t event);
+  friend void handle_interrupt(uint32_t id, uint32_t event);
 
 public:
   // public methods
@@ -71,7 +66,7 @@ public:
   void begin(long speed);
   bool listen();
   void end();
-  bool isListening() { return this == active_object; }
+  bool isListening() { return pUART != NULL; }
   bool stopListening();
   bool overflow() { bool ret = _buffer_overflow; if (ret) _buffer_overflow = false; return ret; }
   int peek();

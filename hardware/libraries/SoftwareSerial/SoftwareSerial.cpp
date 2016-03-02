@@ -49,17 +49,24 @@ extern PinDescription g_APinDescription[];
 #endif
 
 //
-// Statics
-//
-SoftwareSerial *SoftwareSerial::active_object = NULL;
-
-//
 // Private methods
 //
 
-void SoftwareSerial::handle_interrupt(uint32_t id, uint32_t event) {
-    if (active_object != NULL) {
-        active_object->recv(id, (SerialIrq)event);
+void handle_interrupt(uint32_t id, uint32_t event)
+{
+    volatile char d = 0;
+    uint8_t next;
+    SoftwareSerial *pSwSerial = (SoftwareSerial *)id;
+
+    if( (SerialIrq)event == RxIrq ) {
+        d = serial_getc( (serial_t *)(pSwSerial->pUART) );
+        next = (pSwSerial->_receive_buffer_tail + 1) % _SS_MAX_RX_BUFF;
+        if ( next != (pSwSerial->_receive_buffer_head) ) {
+            pSwSerial->_receive_buffer[ pSwSerial->_receive_buffer_tail ] = d;
+            pSwSerial->_receive_buffer_tail = next;
+        } else {
+            pSwSerial->_buffer_overflow = true;
+        }
     }
 }
 
@@ -69,20 +76,13 @@ bool SoftwareSerial::listen()
 {
     bool ret = false;
 
-    if (active_object != this && active_object != NULL)
-    {
-        active_object->stopListening();
-        ret = true;
-    }
-
     serial_init((serial_t *)pUART, (PinName)g_APinDescription[transmitPin].pinname, (PinName)g_APinDescription[receivePin].pinname);
     serial_baud((serial_t *)pUART, speed);
     serial_format((serial_t *)pUART, 8, ParityNone, 1);
 
-    serial_irq_handler((serial_t *)pUART, (uart_irq_handler)handle_interrupt, (uint32_t)pUART);
+    serial_irq_handler((serial_t *)pUART, (uart_irq_handler)handle_interrupt, (uint32_t)this);
     serial_irq_set((serial_t *)pUART, RxIrq, 1);
     serial_irq_set((serial_t *)pUART, TxIrq, 1);
-    active_object = this;
 
     return ret;
 }
@@ -91,28 +91,9 @@ bool SoftwareSerial::listen()
 bool SoftwareSerial::stopListening()
 {
     serial_free((serial_t *)pUART);
+    free( (serial_t *)pUART );
     pUART = NULL;
     return true;
-}
-
-//
-// The receive routine called by the interrupt handler
-//
-void SoftwareSerial::recv(uint32_t id, uint32_t event)
-{
-    volatile char d = 0;
-    uint8_t next;
-
-    if((SerialIrq)event == RxIrq) {
-        d = serial_getc((serial_t *)pUART);
-        next = (_receive_buffer_tail + 1) % _SS_MAX_RX_BUFF;
-        if (next != _receive_buffer_head) {
-            _receive_buffer[_receive_buffer_tail] = d; // save new byte
-            _receive_buffer_tail = next;
-        } else {
-            _buffer_overflow = true;
-        }
-    }
 }
 
 //
@@ -140,7 +121,10 @@ SoftwareSerial::~SoftwareSerial()
 
 void SoftwareSerial::begin(long speed)
 {
-    pUART = (void *)&sobj;
+    pUART = malloc ( sizeof(serial_t) );
+    if (pUART == NULL) {
+        rtl_printf("fail to malloc\r\n");
+    }
     this->speed = speed;
     listen();
 }
