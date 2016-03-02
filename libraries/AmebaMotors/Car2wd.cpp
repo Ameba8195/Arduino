@@ -4,6 +4,12 @@
 #define CAR_ACTION_CHANGE 0x01
 #define CAR_SPEED_CHANGE  0x02
 
+/* The pwm output to enA and enB of L28N can only output to motoer with 2.5V~3V.
+ * It cannot make signaficantly forward right/left.
+ * We use solution that make the slow moter run a little then stop.
+ **/
+#define DELAY_TURN (1)
+
 // A thread which handle car's actions without interfear main thread.
 void carTask(const void *arg) {
 
@@ -25,7 +31,14 @@ void carTask(const void *arg) {
         if (evt.value.signals & CAR_SPEED_CHANGE) {
             analogWrite(pCar->enA, pCar->currentSpeed);
             analogWrite(pCar->enB, pCar->currentSpeed);
-            dfactor = ((pCar->currentSpeed - CAR_MIN_SPEED) * 120)/(255 - CAR_MIN_SPEED) + 20;
+
+            /* only apply to forward right/left and backward right/left
+             * The motor run time is 20ms, and stop time is 20ms~360ms.
+             *                           speed - min_speed
+             *     dfactor = 20 + 360 * -------------------
+             *                            255 - min_speed
+             */ 
+            dfactor = 20 + (360 * (pCar->currentSpeed - CAR_MIN_SPEED))/(255 - CAR_MIN_SPEED);
         }
 
         if (evt.value.signals & CAR_ACTION_CHANGE) {
@@ -83,6 +96,7 @@ void carTask(const void *arg) {
             }
         }
         if (pCar->currentAction >= CAR_FORWARD_RIGHT && pCar->currentAction <= CAR_BACKWARD_LEFT) {
+#if DELAY_TURN
             while(1) {
                 *portOutputRegister(dport) |=  dbitmask;
                 evt = os_signal_wait(0, 20);
@@ -90,7 +104,7 @@ void carTask(const void *arg) {
                     os_signal_set(pCar->tid, evt.value.signals);
                     break;
                 }
-        
+
                 *portOutputRegister(dport) &= ~dbitmask;
                 evt = os_signal_wait(0, dfactor);
                 if (evt.status == OS_EVENT_SIGNAL) {
@@ -99,6 +113,9 @@ void carTask(const void *arg) {
                     break;
                 }
             }
+#else
+            *portOutputRegister(dport) &= ~dbitmask;
+#endif
         }
     }
 }
