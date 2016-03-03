@@ -29,7 +29,7 @@ extern "C" {
 #include "gpio_api.h"
 #include "us_ticker_api.h"
 
-extern gpio_t gpio_pin_struct[];
+extern void *gpio_pin_struct[];
 
 /* Measures the length (in microseconds) of a pulse on the pin; state is HIGH
  * or LOW, the type of pulse to measure.  Works on pulses from 2-3 microseconds
@@ -52,7 +52,7 @@ extern uint32_t pulseIn( uint32_t ulPin, uint32_t state, uint32_t timeout )
         return 0;
 	}
 
-	pGpio_t = &gpio_pin_struct[ulPin];
+	pGpio_t = (gpio_t *)gpio_pin_struct[ulPin];
 
 	// wait for any previous pulse to end
 	start_ticks = us_ticker_read();

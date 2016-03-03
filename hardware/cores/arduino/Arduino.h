@@ -67,12 +67,13 @@ extern void vPortFree( void *pv );
 extern void setup( void );
 extern void loop( void );
 
-#define NOT_INITIAL (1UL<<0)
-#define PIO_GPIO    (1UL<<1)
-#define PIO_PWM	    (1UL<<2)
-#define PIO_I2C	    (1UL<<3)
-#define PIO_ADC     (1UL<<4)
-#define PIO_DAC     (1UL<<5)
+#define NOT_INITIAL  (1UL<<0)
+#define PIO_GPIO     (1UL<<1)
+#define PIO_PWM	     (1UL<<2)
+#define PIO_I2C	     (1UL<<3)
+#define PIO_ADC      (1UL<<4)
+#define PIO_DAC      (1UL<<5)
+#define PIO_GPIO_IRQ (1UL<<6)
 
 /* Types used for the tables below */
 typedef struct _PinDescription

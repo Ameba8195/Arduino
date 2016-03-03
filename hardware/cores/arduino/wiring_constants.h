@@ -26,11 +26,13 @@ extern "C"{
 #define HIGH 0x1
 #define LOW  0x0
 
-#define INPUT 				0x0
-#define OUTPUT 				0x1
-#define INPUT_PULLUP 		0x2
-#define INPUT_PULLNONE 		0x3
-#define OUTPUT_OPENDRAIN 	0x4 
+#define INPUT 				0x00
+#define OUTPUT 				0x01
+#define INPUT_PULLUP 		0x02
+#define INPUT_PULLNONE 		0x03
+#define OUTPUT_OPENDRAIN 	0x04 
+#define INPUT_IRQ_FALL      0x05
+#define INPUT_IRQ_RISE      0x06
 
 #define true 0x1
 #define false 0x0

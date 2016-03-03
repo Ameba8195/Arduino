@@ -39,9 +39,6 @@ bool g_adc_enabled[] = {
     false, false, false
 };
 
-/* PWM */
-pwmout_t pwm_pins[14];
-
 /* DAC */
 dac_t dac0;
 
@@ -49,7 +46,7 @@ bool g_dac_enabled[] = {
     false
 };
 
-extern gpio_t gpio_pin_struct[];
+extern void *gpio_pin_struct[];
 
 //
 // Arduino
@@ -158,13 +155,21 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue)
     	if ( g_APinDescription[ulPin].ulPinType != PIO_PWM )
     	{
     	    if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO ) {
-                gpio_deinit(&gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname);
+                gpio_deinit( (gpio_t *)gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname );
+                free( (gpio_t *)gpio_pin_struct[ulPin] );
+                gpio_pin_struct[ulPin] = NULL;
+            } else if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO_IRQ ) {
+                gpio_irq_free( (gpio_irq_t *)gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname );
+                free( (gpio_irq_t *)gpio_pin_struct[ulPin] );
+                gpio_pin_struct[ulPin] = NULL;
             }
-    	    pwmout_init(&pwm_pins[ulPin], g_APinDescription[ulPin].pinname);
-            pwmout_period_us(&pwm_pins[ulPin], 20000);
+            gpio_pin_struct[ulPin] = malloc ( sizeof(pwmout_t) );
+    	    pwmout_init( (pwmout_t *) gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname);
+            pwmout_period_us( (pwmout_t *)gpio_pin_struct[ulPin], 20000);
     		g_APinDescription[ulPin].ulPinType = PIO_PWM;
+            g_APinDescription[ulPin].ulPinMode = NOT_INITIAL;
     	}
-        pwmout_write(&pwm_pins[ulPin], ulValue / 256.0);
+        pwmout_write( (pwmout_t *)gpio_pin_struct[ulPin], ulValue / 256.0);
     }
     else if (ulPin == DAC0) {
         if (g_dac_enabled[0] == false) {
