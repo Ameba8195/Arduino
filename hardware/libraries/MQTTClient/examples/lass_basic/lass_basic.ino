@@ -47,7 +47,7 @@ const byte nptSendPacket[ NTP_PACKET_SIZE] = {
 };
 byte ntpRecvBuffer[ NTP_PACKET_SIZE ];
 
-#define LEAP_YEAR(Y)     ( ((1970+Y)>0) && !((1970+Y)%4) && ( ((1970+Y)%100) || !((1970+Y)%400) ) )
+#define LEAP_YEAR(Y)     ( ((Y)>0) && !((Y)%4) && ( ((Y)%100) || !((Y)%400) ) )
 static  const uint8_t monthDays[]={31,28,31,30,31,30,31,31,30,31,30,31}; // API starts months from 1, this array starts from 0
 uint32_t epochSystem = 0; // timestamp of system boot up
 
@@ -97,51 +97,35 @@ void getCurrentTime(unsigned long epoch, int *year, int *month, int *day, int *h
   *minute = (epoch  % 3600) / 60;
   *second = epoch % 60;
 
-  *year = 1970;
+  *year = 1970; // epoch starts from 1970
   *month = 0;
   *day = epoch / 86400;
 
   for (*year = 1970; ; (*year)++) {
-    if (tempDay + (LEAP_YEAR(*year) ? 366 : 365) > *day) {
+    tempDay += (LEAP_YEAR(*year) ? 366 : 365);
+    if (tempDay > *day) {
+      tempDay -= (LEAP_YEAR(*year) ? 366 : 365);
       break;
-    } else {
-      tempDay += (LEAP_YEAR(*year) ? 366 : 365);
     }
   }
   tempDay = *day - tempDay; // the days left in a year
   for ((*month) = 0; (*month) < 12; (*month)++) {
     if ((*month) == 1) {
-      if (LEAP_YEAR(*year)) {
-        if (tempDay - 29 < 0) {
-          break;
-        } else {
-          tempDay -= 29;
-        }
-      } else {
-        if (tempDay - 28 < 0) {
-          break;
-        } else {
-          tempDay -= 28;
-        }
+      tempDay -= (LEAP_YEAR(*year) ? 29 : 28);
+      if (tempDay < 0) {
+        tempDay += (LEAP_YEAR(*year) ? 29 : 28);
+        break;
       }
     } else {
-      if (tempDay - monthDays[(*month)] < 0) {
+      tempDay -= monthDays[(*month)];
+      if (tempDay < 0) {
+        tempDay += monthDays[(*month)];
         break;
-      } else {
-        tempDay -= monthDays[(*month)];
       }
     }
   }
-  *day = tempDay+2; // one for base 1, one for current day
-  if (*day > monthDays[ *month ]) {
-    *day -= monthDays[ *month ];
-    (*month)++;
-  }
+  *day = tempDay+1; // one for base 1, one for current day
   (*month)++;
-  if (*month > 12) {
-    *month -= 12;
-    *year++;
-  }
 }
 
 void reconnectMQTT() {
