@@ -13,6 +13,36 @@
         {
           "name": "Realtek Ameba Boards (32-bits ARM Cortex-M3)",
           "architecture": "ameba",
+          "version": "1.0.6",
+          "category": "Contributed",
+          "help": {
+            "online": "http://www.amebaiot.com/"
+          },
+          "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-1.0.6.tar.gz",
+          "archiveFileName": "ameba-1.0.6.tar.gz",
+          "checksum": "SHA-256:33cf988401969ffa92205809c3e819268330014386c118ec76f32587a14327ed",
+          "size": "15452549",
+          "boards": [
+            {"name": "Ameba 8195AM"},
+            {"name": "Ameba 8711AM"},
+            {"name": "Ameba 8711AF"}
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "realtek",
+              "name": "arm-none-eabi-gcc",
+              "version": "4.8.3-2014q1"
+            },
+            {
+              "packager": "realtek",
+              "name": "ameba_tools",
+              "version": "1.0.6"
+            }
+          ]
+        },
+        {
+          "name": "Realtek Ameba Boards (32-bits ARM Cortex-M3)",
+          "architecture": "ameba",
           "version": "1.0.5",
           "category": "Contributed",
           "help": {
@@ -21,7 +51,7 @@
           "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-1.0.5.tar.gz",
           "archiveFileName": "ameba-1.0.5.tar.gz",
           "checksum": "SHA-256:5bb37c277940c88eff42c342991a1df64b40a19fe886e7c44a75c3d377313623",
-          "size": "5502387",
+          "size": "15450506",
           "boards": [
             {"name": "Ameba 8195AM"},
             {"name": "Ameba 8711AM"},
@@ -226,6 +256,26 @@
                  "size":"51029223"
               }
            ]
+        },
+        {
+          "name": "ameba_tools",
+          "version": "1.0.6",
+          "systems": [
+            {
+              "host": "i686-mingw32",
+              "archiveFileName": "ameba_tools-1.0.6.tar.gz",
+              "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba_tools-1.0.6.tar.gz",
+              "checksum": "SHA-256:ac6580447f73fd3d5f063b4396e0b75865b6067f4d47eee7c68e39a47e13f222",
+              "size": "5502387"
+            },
+            {
+              "host": "x86_64-apple-darwin",
+              "archiveFileName": "ameba_tools-1.0.6.tar.gz",
+              "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba_tools-1.0.6.tar.gz",
+              "checksum": "SHA-256:ac6580447f73fd3d5f063b4396e0b75865b6067f4d47eee7c68e39a47e13f222",
+              "size": "5502387"
+            }
+          ]
         },
         {
           "name": "ameba_tools",
