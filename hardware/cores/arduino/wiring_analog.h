@@ -80,6 +80,8 @@ extern void analogWriteResolution(int res);
 
 extern void analogOutputInit( void ) ;
 
+extern void noTone(uint32_t ulPin);
+
 #ifdef __cplusplus
 }
 #endif

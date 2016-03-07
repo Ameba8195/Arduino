@@ -27,6 +27,10 @@ uint32_t os_thread_terminate( uint32_t thread_id ) {
     return (uint32_t)osThreadTerminate(thread_id);
 }
 
+uint32_t os_thread_yield( void ) {
+    return (uint32_t)osThreadYield();
+}
+
 uint32_t os_thread_set_priority( uint32_t thread_id, int priority ) {
     return (uint32_t)osThreadSetPriority(thread_id, (osPriority)priority);
 }
@@ -56,8 +60,36 @@ os_event_t os_signal_wait( int32_t signals, uint32_t millisec ) {
     return ret;
 }
 
-uint32_t os_thread_yield( void ) {
-    return (uint32_t)osThreadYield();
+typedef void (*os_ptimer) (void const *argument);
+
+uint32_t os_timer_create(void (*callback)(void const *argument), uint8_t isPeriodic, void *argument) {
+
+    osTimerDef_t *pTimerDef;
+
+    pTimerDef = (osTimerDef_t *) malloc ( sizeof(osTimerDef_t) );
+    pTimerDef->ptimer = callback;
+    pTimerDef->custom = (struct os_timer_custom *) malloc ( sizeof (struct os_timer_custom) );
+
+    return osTimerCreate(pTimerDef, (isPeriodic ? osTimerPeriodic : osTimerOnce), argument);
+}
+
+uint32_t os_timer_start (uint32_t timer_id, uint32_t millisec) {
+    return osTimerStart (timer_id, millisec);
+}
+
+uint32_t os_timer_stop (uint32_t timer_id) {
+    return osTimerStop(timer_id);
+}
+
+uint32_t os_timer_delete(uint32_t timer_id) {
+
+    osTimerDef_t *pTimerDef;
+
+    pTimerDef = (osTimerDef_t *) pvTimerGetTimerID(timer_id);
+    free (pTimerDef->custom);
+    free (pTimerDef);
+
+    return osTimerDelete(timer_id);
 }
 
 #ifdef __cplusplus

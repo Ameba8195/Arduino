@@ -124,6 +124,8 @@ extern long random( long, long ) ;
 extern void randomSeed( uint32_t dwSeed ) ;
 extern long map( long, long, long, long, long ) ;
 
+void tone(uint32_t ulPin, unsigned int frequency, unsigned long duration = 0);
+
 #endif
 
 //

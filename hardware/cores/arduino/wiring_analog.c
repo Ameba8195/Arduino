@@ -181,6 +181,63 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue)
     }
 }
 
+uint32_t _tone_timer_id = 0;
+
+void _tone_timer_handler(void const *argument)
+{
+    uint32_t ulPin = (uint32_t) argument;
+
+    noTone(ulPin);
+
+    os_timer_delete(_tone_timer_id);
+
+    _tone_timer_id = 0;
+}
+
+void _tone(uint32_t ulPin, unsigned int frequency, unsigned long duration)
+{
+	pwmout_t *pObj;
+
+    if ((g_APinDescription[ulPin].ulPinAttribute & PIO_PWM) != PIO_PWM) {
+        return;
+    }
+
+	if ( g_APinDescription[ulPin].ulPinType != PIO_PWM )
+	{
+	    if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO ) {
+            gpio_deinit( (gpio_t *)gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname );
+            free( (gpio_t *)gpio_pin_struct[ulPin] );
+            gpio_pin_struct[ulPin] = NULL;
+        } else if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO_IRQ ) {
+            gpio_irq_free( (gpio_irq_t *)gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname );
+            free( (gpio_irq_t *)gpio_pin_struct[ulPin] );
+            gpio_pin_struct[ulPin] = NULL;
+        }
+        gpio_pin_struct[ulPin] = malloc ( sizeof(pwmout_t) );
+	    pwmout_init( (pwmout_t *) gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname);
+        pwmout_period( (pwmout_t *)gpio_pin_struct[ulPin], 1.0/frequency );
+        pwmout_pulsewidth((pwmout_t *)gpio_pin_struct[ulPin], 1.0/(frequency * 2));
+		g_APinDescription[ulPin].ulPinType = PIO_PWM;
+        g_APinDescription[ulPin].ulPinMode = NOT_INITIAL;
+
+        if (duration > 0) {
+            _tone_timer_id = os_timer_create(_tone_timer_handler, 0, ulPin);
+            os_timer_start(_tone_timer_id, duration);
+        }
+	}
+}
+
+void noTone(uint32_t ulPin)
+{
+    if (g_APinDescription[ulPin].ulPinType == PIO_PWM) {
+        pwmout_free( (pwmout_t *) gpio_pin_struct[ulPin] );
+        free ( (pwmout_t *) gpio_pin_struct[ulPin] );
+        gpio_pin_struct[ulPin] = NULL;
+		g_APinDescription[ulPin].ulPinType = NOT_INITIAL;
+        g_APinDescription[ulPin].ulPinMode = NOT_INITIAL;
+    }
+}
+
 #ifdef __cplusplus
 }
 #endif

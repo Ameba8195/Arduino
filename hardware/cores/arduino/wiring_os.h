@@ -50,15 +50,21 @@ typedef struct {
   } def;                               ///< event definition
 } os_event_t;
 
+//  ==== Thread Management ====
+
 extern uint32_t os_thread_create(void (*task)(const void *argument), void *argument, int priority, uint32_t stack_size);
 
 extern uint32_t os_thread_get_id( void );
 
 extern uint32_t os_thread_terminate(uint32_t thread_id);
 
+extern uint32_t os_thread_yield(void);
+
 extern uint32_t os_thread_set_priority(uint32_t thread_id, int priority);
 
 extern int os_thread_get_priority(uint32_t thread_id);
+
+//  ==== Signal Management ====
 
 extern int32_t os_signal_set(uint32_t thread_id, int32_t signals);
 
@@ -66,7 +72,18 @@ extern int32_t os_signal_clear(uint32_t thread_id, int32_t signals);
 
 extern os_event_t os_signal_wait(int32_t signals, uint32_t millisec);
 
-extern uint32_t os_thread_yield(void);
+//  ==== Timer Management Functions ====
+
+#define OS_TIMER_ONCE     (0)
+#define OS_TIMER_PERIODIC (1)
+
+extern uint32_t os_timer_create(void (*callback)(void const *argument), uint8_t isPeriodic, void *argument);
+
+extern uint32_t os_timer_start (uint32_t timer_id, uint32_t millisec);
+
+extern uint32_t os_timer_stop (uint32_t timer_id);
+
+extern uint32_t os_timer_delete(uint32_t timer_id);
 
 #ifdef __cplusplus
 }
