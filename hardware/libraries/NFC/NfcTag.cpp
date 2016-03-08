@@ -15,38 +15,28 @@ nfctag_t nfctag;
 }
 #endif
 
+#ifndef SAFE_FREE
 #define SAFE_FREE(x) do { if ((x) != NULL) {free(x); x=NULL;} } while(0)
-
-#define TNF_MESSAGE_BEGIN                0x80
-#define TNF_MESSAGE_END                  0x40
-#define TNF_MESSAGE_CHUNK_FLAG           0x20
-#define TNF_MESSAGE_SHORT_RECORD         0x10
-#define TNF_MESSAGE_ID_LENGTH_IS_PRESENT 0x08
-
-#define TNF_EMPTY                        0x00
-#define TNF_WELL_KNOWN                   0x01
-#define TNF_MIME_MEDIA                   0x02 // RFC 2046
-#define TNF_ABSOLUTE_URI                 0x03 // RFC 3986
-#define TNF_EXTERNAL_TYPE                0x04
-#define TNF_UNKNOWN                      0x05
-#define TNF_UNCHANGED                    0x06
-#define TNF_RESERVED                     0x07
+#endif
 
 unsigned char nfc_default_uid[7] = {
     RTK_NFC_UID, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06
 };
 
-void *        NfcTagClass::pNfcTag = NULL;
-uint32_t      NfcTagClass::nfc_tag_content[NFC_MAX_PAGE_NUM];
-unsigned char NfcTagClass::nfc_tag_dirty[NFC_MAX_PAGE_NUM];
-void *        NfcTagClass::nfctid;
-uint32_t      NfcTagClass::lastUpdateTimestamp = 0;
-bool          NfcTagClass::writeProtect = false;
+void nfcThread(void const *argument);
+void nfcWriteListener(void *arg, unsigned int page, uint32_t pgdat);
+void nfcEventListener(void *arg, unsigned int event);
 
 NfcTagClass::NfcTagClass(unsigned char uid[NFC_UID_LEN]) {
 
     unsigned int page_size = 0;
+
+    // initialize class members
     ndef_size = 0;
+    nfctid = NULL;
+    lastUpdateTimestamp = 0;
+    pNfcTag = NULL;
+    writeProtect = false;
 
     memset(nfc_tag_content, 0, NFC_MAX_PAGE_NUM * sizeof(unsigned int));
     memset(nfc_tag_dirty, 0, NFC_MAX_PAGE_NUM * sizeof(unsigned char));
@@ -79,12 +69,12 @@ void NfcTagClass::begin() {
         NFC_THREAD_STACK_SIZE,
         "nfcthread"
     };
-    nfctid = osThreadCreate (&nfc_thread_def, NULL);
+    nfctid = osThreadCreate (&nfc_thread_def, this);
 
     convertNdefToRaw();
     nfc_init ((nfctag_t *)pNfcTag, nfc_tag_content);
-    nfc_event((nfctag_t *)pNfcTag, nfcEventListener, NULL, 0xFF);
-    nfc_write((nfctag_t *)pNfcTag, nfcWriteListener, NULL);
+    nfc_event((nfctag_t *)pNfcTag, nfcEventListener, this, 0xFF);
+    nfc_write((nfctag_t *)pNfcTag, nfcWriteListener, this);
     lastUpdateTimestamp = osKernelSysTick();
 }
 
@@ -223,6 +213,61 @@ void NfcTagClass::convertNdefToRaw() {
     memcpy(&(nfc_tag_content[4]), buf, idx);
 }
 
+void NfcTagClass::convertRawToNdef() {
+    int idx, tlv_len, ndefs_end;
+    unsigned char has_find_ndefs = 0;
+
+    unsigned char *buf = (unsigned char *)nfc_tag_content;
+
+    clearNdefMessage();
+
+    idx = 16;  // skip NFC Tag Type2 header
+    while(!has_find_ndefs) {
+        if (buf[idx] != 0x03) {
+            idx += 1 + buf[idx+1];
+            if (idx >= NFC_MAX_PAGE_NUM*4) {
+                // fail to find TLV for NDEFs
+                break;
+            }
+        } else {
+            // now we find TLV for NDEFs
+
+            tlv_len = buf[idx+1];
+            idx += 2; // pointing to start address of NDEFs
+            ndefs_end = idx + tlv_len;
+
+            if (ndefs_end >= NFC_MAX_PAGE_NUM * 4) {
+                // wrong format of TLV
+                break;
+            }
+
+            has_find_ndefs = 1;
+        }
+    }
+
+    if (!has_find_ndefs) {
+        return;
+    }
+
+    while(idx < ndefs_end) {
+        ndef_msg[ndef_size].TNF_flag = buf[idx++];
+        ndef_msg[ndef_size].type_len = buf[idx++];
+        ndef_msg[ndef_size].payload_len = buf[idx++];
+
+        ndef_msg[ndef_size].payload_type = (unsigned char *)malloc( ndef_msg[ndef_size].type_len + 1 );
+        memcpy( ndef_msg[ndef_size].payload_type, &(buf[idx]), ndef_msg[ndef_size].type_len );
+        ndef_msg[ndef_size].payload_type[ ndef_msg[ndef_size].type_len ] = '\0';
+        idx += ndef_msg[ndef_size].type_len;
+
+        ndef_msg[ndef_size].payload = (unsigned char *)malloc( ndef_msg[ndef_size].payload_len + 1 );
+        memcpy( ndef_msg[ndef_size].payload, &(buf[idx]), ndef_msg[ndef_size].payload_len );
+        ndef_msg[ndef_size].payload[ ndef_msg[ndef_size].payload_len ] = '\0';
+        idx += ndef_msg[ndef_size].payload_len;
+
+        ndef_size++;
+    }
+}
+
 void NfcTagClass::updateRawToCache() {
     if (!writeProtect) {
         // update to nfc cache from page 4
@@ -266,43 +311,61 @@ void NfcTagClass::setWriteProtect(bool enable) {
     writeProtect = enable;
 }
 
-void NfcTagClass::nfcThread(void const *argument) {
+unsigned char NfcTagClass::getNdefSize() {
+    return ndef_size;
+}
 
+const struct NDEF *NfcTagClass::getNdefData() {
+    return ndef_msg;
+}
+
+void nfcThread(void const *argument) {
+
+    NfcTagClass *pTag;
     int i, modified_page_count;
     osEvent evt;
 
-    osSignalClear(nfctid, 0xFFFFFFFF);
+    pTag = (NfcTagClass *)argument;
+
+    osSignalClear(pTag->nfctid, 0xFFFFFFFF);
 
     while(1) {
         evt = osSignalWait (0, osWaitForever);
         if (evt.status == osEventSignal && (evt.value.signals & NFC_EV_WRITE)) {
             osDelay(300);
 
-            for (i = 4, modified_page_count = 0; i < NFC_MAX_PAGE_NUM && nfc_tag_dirty[i]; i++) {
+            for (i = 4, modified_page_count = 0; i < NFC_MAX_PAGE_NUM && pTag->nfc_tag_dirty[i]; i++) {
                 modified_page_count++;
             }
 
-            if (!writeProtect) {
+            if (!(pTag->writeProtect)) {
                 // update to nfc cache from page 4
-                nfc_cache_write((nfctag_t *)pNfcTag, &(nfc_tag_content[4]), 4, modified_page_count);
-                lastUpdateTimestamp = osKernelSysTick();
+                nfc_cache_write((nfctag_t *)(pTag->pNfcTag), &((pTag->nfc_tag_content)[4]), 4, modified_page_count);
+                pTag->lastUpdateTimestamp = osKernelSysTick();
+
+                pTag->convertRawToNdef();
             }
 
-            memset(nfc_tag_dirty, 0, NFC_MAX_PAGE_NUM);
-            osSignalClear(nfctid, NFC_EV_WRITE);
+            memset(pTag->nfc_tag_dirty, 0, NFC_MAX_PAGE_NUM);
+            osSignalClear(pTag->nfctid, NFC_EV_WRITE);
         }
     }
 }
 
-void NfcTagClass::nfcWriteListener(void *arg, unsigned int page, uint32_t pgdat) {
-    nfc_tag_content[page] = pgdat;
-    nfc_tag_dirty[page] = 1;
-    if (nfctid != NULL) {
-        osSignalSet(nfctid, NFC_EV_WRITE);
+void nfcWriteListener(void *arg, unsigned int page, uint32_t pgdat) {
+
+    NfcTagClass *pTag;
+
+    pTag = (NfcTagClass *)arg;
+
+    (pTag->nfc_tag_content)[page] = pgdat;
+    (pTag->nfc_tag_dirty)[page] = 1;
+    if (pTag->nfctid != NULL) {
+        osSignalSet(pTag->nfctid, NFC_EV_WRITE);
     }
 }
 
-void NfcTagClass::nfcEventListener(void *arg, unsigned int event) {
+void nfcEventListener(void *arg, unsigned int event) {
     switch(event) {
         case NFC_EV_READER_PRESENT:
             break;

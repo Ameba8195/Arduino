@@ -8,7 +8,23 @@
 
 #define NFC_MAX_PAGE_NUM 36
 
+// In most case, 2 is enough for most application. Modify it if you need more.
 #define NFC_MAX_NDEF_NUM 2
+
+#define TNF_MESSAGE_BEGIN                0x80
+#define TNF_MESSAGE_END                  0x40
+#define TNF_MESSAGE_CHUNK_FLAG           0x20
+#define TNF_MESSAGE_SHORT_RECORD         0x10
+#define TNF_MESSAGE_ID_LENGTH_IS_PRESENT 0x08
+
+#define TNF_EMPTY                        0x00
+#define TNF_WELL_KNOWN                   0x01
+#define TNF_MIME_MEDIA                   0x02 // RFC 2046
+#define TNF_ABSOLUTE_URI                 0x03 // RFC 3986
+#define TNF_EXTERNAL_TYPE                0x04
+#define TNF_UNKNOWN                      0x05
+#define TNF_UNCHANGED                    0x06
+#define TNF_RESERVED                     0x07
 
 #define NDEF_TEXT_ENCODE_UTF8  0x00
 #define NDEF_TEXT_ENCODE_UTF16 0x80
@@ -33,7 +49,10 @@ struct NDEF {
 };
 
 class NfcTagClass {
+
+// public function members
 public:
+
     /* constructor */
 	NfcTagClass( unsigned char nfcid[NFC_UID_LEN] );
 
@@ -60,13 +79,14 @@ public:
     /* clear previous stored NDEF messages */
     void clearNdefMessage();
 
-    /* Store nfc raw data by pages */
-	static uint32_t nfc_tag_content[NFC_MAX_PAGE_NUM];
-
+    /* check if UID checksum matches BCC */
     bool isUidValid();
 
     /* Convert NDEF messages to NFC Tag Type2 format */
     void convertNdefToRaw();
+
+    /* Convert NFC Tag Type2 format to NDEF messages */
+    void convertRawToNdef();
 
     /* Update NFC TAG content from nfc_tag_content[] */
     void updateRawToCache();
@@ -77,40 +97,60 @@ public:
     /* Set protection that avoid NFC reader to modify NFC Tag content */
     void setWriteProtect(bool enable);
 
-private:
-    /* Helper function to fill TNF+flag field of NDEF message */
-    void addTnfRecord(unsigned char tnfType);
+    /* Return current stored NDEF messages size (It should be the same with Tag content)*/
+    unsigned char getNdefSize();
 
+    /* Return current stored NDEF messages (It should be the same with Tag content) */
+    const struct NDEF *getNdefData();
+
+// public data members
+public:
+
+    /* Store nfc raw data by pages */
+	uint32_t nfc_tag_content[NFC_MAX_PAGE_NUM];
+
+// friend functions
+public:
     /* A callback function when NFC reader perform write actions.
      * It's called for every written page, so keep this function process fast enough.
      * Otherwise it will broke the write process.
      */
-    static void nfcWriteListener(void *arg, unsigned int page, uint32_t pgdat);
+    friend void nfcWriteListener(void *arg, unsigned int page, uint32_t pgdat);
 
     /* A callback function when NFC reader perform any actions to Tag */
-    static void nfcEventListener(void *arg, unsigned int event);
+    friend void nfcEventListener(void *arg, unsigned int event);
 
     /* A internal message handler */
-    static void nfcThread(void const *argument);
+    friend void nfcThread(void const *argument);
+
+
+// private function members
+private:
+
+    /* Helper function to fill TNF+flag field of NDEF message */
+    void addTnfRecord(unsigned char tnfType);
+
+// private data members
+private:
 
     /* Store nfc object address */
-	static void* pNfcTag;
+	void* pNfcTag;
 
     /* Store information that which pages has been modified */
-	static unsigned char nfc_tag_dirty[NFC_MAX_PAGE_NUM];
-
-    /* ndef struct size */
-    unsigned char ndef_size;
+	unsigned char nfc_tag_dirty[NFC_MAX_PAGE_NUM];
 
     /* ndef struct data */
     struct NDEF ndef_msg[NFC_MAX_NDEF_NUM];
 
+    /* ndef struct size */
+    unsigned char ndef_size;
+
     /* thread id of nfc internal message handler */
-    static void *nfctid;
+    void *nfctid;
 
-    static uint32_t lastUpdateTimestamp;
+    uint32_t lastUpdateTimestamp;
 
-    static bool writeProtect;
+    bool writeProtect;
 };
 
 extern NfcTagClass NfcTag;
