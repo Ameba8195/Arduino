@@ -88,6 +88,8 @@ void pinMode( uint32_t ulPin, uint32_t ulMode)
             g_APinDescription[ulPin].ulPinType = PIO_GPIO;
         }
         g_APinDescription[ulPin].ulPinMode = ulMode;
+    } else {
+        pGpio_t = gpio_pin_struct[ulPin];
     }
 
     switch ( ulMode )
