@@ -7,10 +7,16 @@
 int start_server(uint16_t port, uint8_t protMode)
 {
     int _sock;
+    int timeout;
+
     if(protMode == 0) {
+        timeout = 3000;
         _sock = lwip_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        lwip_setsockopt(_sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
     } else {
+        timeout = 1000;
         _sock = lwip_socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+        lwip_setsockopt(_sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
     }
 
     if (_sock < 0) {
@@ -63,7 +69,6 @@ int get_receive(int sock, uint8_t* data, int length, int flag, uint32_t *peer_ad
     int ret = 0;
     struct sockaddr from;
     socklen_t fromlen;
-
     ret = lwip_recvfrom(sock, data, length, flag, &from, &fromlen);
     if ( ret >= 0 ) {
         if (peer_addr != NULL) {
