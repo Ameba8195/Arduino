@@ -67,10 +67,16 @@ SECTIONS
   .sdr_data : 
   {
     __sdram_data_start__ = .;
-    *(.sdram.data*)
     *(.mon.ram.text*)
     INCLUDE "sdram_obj_list.txt"
     __sdram_data_end__ = .;
+  } > SDRAM_RAM
+
+  .sdr_bf_data : 
+  {
+    __sdram_buffer_data_start__ = .;
+    *(.sdram.data*)
+    __sdram_buffer_data_end__ = .;
   } > SDRAM_RAM
 
   .image2.start.table :
@@ -149,13 +155,6 @@ SECTIONS
     __buffer_data_end__ = .;
     
   } > BD_RAM
-
-  .bf_data2 : 
-  {
-    __buffer_data_start2__ = .;
-    __buffer_data_end2__ = .;
-    
-  } > RECY_RAM
 
  .heap :
  {
