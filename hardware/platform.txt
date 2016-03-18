@@ -57,7 +57,7 @@ compiler.ameba.c.flags= -DCONFIG_PLATFORM_8195A {compiler.arduino.c.include} {co
 
 # Ameba archieve list
 # -------------------
-compiler.ameba.ar.list="{build.variant.path}/lib_mdns.a" "{build.variant.path}/lib_ameba.a" "{build.variant.path}/lib_platform.a" "{build.variant.path}/lib_wlan.a" "{build.variant.path}/lib_wps.a" "{build.variant.path}/lib_rtlstd.a"
+compiler.ameba.ar.list="{build.variant.path}/lib_mdns.a" "{build.variant.path}/lib_ameba.a" "{build.variant.path}/lib_platform.a" "{build.variant.path}/lib_wlan.a" "{build.variant.path}/lib_wps.a" "{build.variant.path}/lib_rtlstd.a" "{build.variant.path}/lib_usb_drv.a" "{build.variant.path}/lib_usb_otg.a" "{build.variant.path}/lib_usb_otg_linux.a" "{build.variant.path}/lib_uvc.a"
 
 # USB Flags
 # ---------
@@ -81,7 +81,7 @@ recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -m
 recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{archive_file_path}" "{object_file}"
 
 ## Combine gc-sections, archives, and objects
-recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} "-L{build.variant.path}/linker_scripts/gcc" "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map={build.path}/application.map" {compiler.c.elf.extra_flags} -o "{build.path}/application.axf" "-L{build.path}" -Wl,--start-group {object_files} -Wl,--end-group "{build.path}/{archive_file}" -Wl,--start-group {compiler.ameba.ar.list} -Wl,--end-group -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} "-L{build.variant.path}/linker_scripts/gcc" "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map={build.path}/application.map" {compiler.c.elf.extra_flags} -o "{build.path}/application.axf" "-L{build.path}" -Wl,--start-group {object_files} -Wl,--end-group -Wl,--start-group "{build.path}/{archive_file}" {compiler.ameba.ar.list} -Wl,--end-group -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
 
 ## Create nm map
 recipe.nm.pattern=cp "{build.path}/{build.project_name}.axf" "{build.path}/application.axf"

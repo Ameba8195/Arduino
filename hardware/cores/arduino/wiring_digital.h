@@ -64,13 +64,12 @@ extern void digitalWrite( uint32_t dwPin, uint32_t dwVal ) ;
  */
 extern int digitalRead( uint32_t ulPin ) ;
 
-extern void digital_change_dir( uint32_t ulPin, uint8_t direction);
-
 /**************************** Extend API by RTK ***********************************/
 extern uint32_t digitalPinToPort( uint32_t ulPin );
 extern uint32_t digitalPinToBitMask( uint32_t ulPin );
 extern uint32_t digitalSetIrqHandler( uint32_t ulPin, void (*handler)(uint32_t id, uint32_t event) );
 extern uint32_t digitalClearIrqHandler( uint32_t ulPin );
+extern void pinRemoveMode(uint32_t ulPin);
 
 #ifdef __cplusplus
 }

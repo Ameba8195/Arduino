@@ -154,14 +154,8 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue)
     	/* Handle */
     	if ( g_APinDescription[ulPin].ulPinType != PIO_PWM )
     	{
-    	    if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO ) {
-                gpio_deinit( (gpio_t *)gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname );
-                free( (gpio_t *)gpio_pin_struct[ulPin] );
-                gpio_pin_struct[ulPin] = NULL;
-            } else if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO_IRQ ) {
-                gpio_irq_free( (gpio_irq_t *)gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname );
-                free( (gpio_irq_t *)gpio_pin_struct[ulPin] );
-                gpio_pin_struct[ulPin] = NULL;
+    	    if ( (g_APinDescription[ulPin].ulPinType == PIO_GPIO) || (g_APinDescription[ulPin].ulPinType == PIO_GPIO_IRQ) ) {
+                pinRemoveMode(ulPin);
             }
             gpio_pin_struct[ulPin] = malloc ( sizeof(pwmout_t) );
     	    pwmout_init( (pwmout_t *) gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname);
@@ -169,7 +163,7 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue)
     		g_APinDescription[ulPin].ulPinType = PIO_PWM;
             g_APinDescription[ulPin].ulPinMode = NOT_INITIAL;
     	}
-        pwmout_write( (pwmout_t *)gpio_pin_struct[ulPin], ulValue / 256.0);
+        pwmout_write( (pwmout_t *)gpio_pin_struct[ulPin], ulValue * 1.0 / (1<<_writeResolution));
     }
     else if (ulPin == DAC0) {
         if (g_dac_enabled[0] == false) {
@@ -204,14 +198,8 @@ void _tone(uint32_t ulPin, unsigned int frequency, unsigned long duration)
 
 	if ( g_APinDescription[ulPin].ulPinType != PIO_PWM )
 	{
-	    if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO ) {
-            gpio_deinit( (gpio_t *)gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname );
-            free( (gpio_t *)gpio_pin_struct[ulPin] );
-            gpio_pin_struct[ulPin] = NULL;
-        } else if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO_IRQ ) {
-            gpio_irq_free( (gpio_irq_t *)gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname );
-            free( (gpio_irq_t *)gpio_pin_struct[ulPin] );
-            gpio_pin_struct[ulPin] = NULL;
+	    if ( (g_APinDescription[ulPin].ulPinType == PIO_GPIO) || (g_APinDescription[ulPin].ulPinType == PIO_GPIO_IRQ) ) {
+            pinRemoveMode(ulPin);
         }
         gpio_pin_struct[ulPin] = malloc ( sizeof(pwmout_t) );
 	    pwmout_init( (pwmout_t *) gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname);
@@ -229,13 +217,7 @@ void _tone(uint32_t ulPin, unsigned int frequency, unsigned long duration)
 
 void noTone(uint32_t ulPin)
 {
-    if (g_APinDescription[ulPin].ulPinType == PIO_PWM) {
-        pwmout_free( (pwmout_t *) gpio_pin_struct[ulPin] );
-        free ( (pwmout_t *) gpio_pin_struct[ulPin] );
-        gpio_pin_struct[ulPin] = NULL;
-		g_APinDescription[ulPin].ulPinType = NOT_INITIAL;
-        g_APinDescription[ulPin].ulPinMode = NOT_INITIAL;
-    }
+    pinRemoveMode(ulPin);
 }
 
 #ifdef __cplusplus

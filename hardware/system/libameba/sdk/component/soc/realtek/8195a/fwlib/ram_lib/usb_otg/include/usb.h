@@ -1086,11 +1086,11 @@ struct usb_interface {
 	unsigned needs_altsetting0:1;	/* switch to altsetting 0 is pending */
 	unsigned reset_running:1;
 	unsigned resetting_device:1;	/* true: bandwidth alloc after reset */
-
+//edit by Ian -- not necessary member since we are not hooking any v4l2 device
 	void *dev_prive_data;/* interface specific device info i.e struct v4l2_device pointer */
 
 	void *driver;
-    void *drv_priv;     // functional driver priv data
+        void *drv_priv;     // functional driver priv data
 	void *usb_dev;
 };
 #define	to_usb_interface(d) container_of(d, struct usb_interface, usb_dev)
@@ -2105,4 +2105,28 @@ struct usb_device_id {
 	.bInterfaceSubClass = (sc), \
 	.bInterfaceProtocol = (pr)                
 
+typedef enum{
+	USB_INIT_NONE = -1,
+	USB_INIT_OK = 0,
+	USB_INIT_FAIL = 1,
+	USB_NOT_ATTACHED = 2
+}_usb_init_s;
+
+struct usb_driver {
+	const char *name;
+
+	int (*probe) (struct usb_interface *intf);
+
+	void (*disconnect) (struct usb_interface *intf);
+
+	int (*resume) (struct usb_interface *intf);
+	int (*reset_resume)(struct usb_interface *intf);
+
+	int (*pre_reset)(struct usb_interface *intf);
+	int (*post_reset)(struct usb_interface *intf);
+
+	const struct usb_device_id *id_table;
+};
+
+int usb_register_class_driver(struct usb_driver *driver);
 #endif /* _USB_H_ */

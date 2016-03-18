@@ -69,13 +69,21 @@ SECTIONS
     __sdram_data_start__ = .;
     *(.mon.ram.text*)
     INCLUDE "sdram_obj_list.txt"
+    *(.sdram.data*)
     __sdram_data_end__ = .;
+  } > SDRAM_RAM
+
+  .sdr_otg_bf_data : 
+  {
+    __sdram_otg_buffer_data_start__ = .;
+    *(.ram.otg.bfdata*)
+    __sdram_otg_buffer_data_end__ = .;
   } > SDRAM_RAM
 
   .sdr_bf_data : 
   {
     __sdram_buffer_data_start__ = .;
-    *(.sdram.data*)
+    *(.ossdram.heap*)
     __sdram_buffer_data_end__ = .;
   } > SDRAM_RAM
 
@@ -121,6 +129,7 @@ SECTIONS
     *(.hal.gpio.text*)
     *(.fwu.rodata*)
     *(.fwu.text*)
+    *(.otg.rom.text*)
     *(.text*)
   } > BD_RAM
 
@@ -140,10 +149,13 @@ SECTIONS
     *(.hal.sdrc.data*)    
     *(.hal.gpio.data*)
     *(.fwu.data*)
+    *(.ram.otg.data.a*)
+    *(.ram.otg.data.b*)
     *(.bss*)
     *(.mon.ram.bss*)
     *(COMMON)
     *(.bdsram.data*)
+    *(.bfsram.data*)
     __bss_end__ = .;
     .ram.bss$$Limit = .;
   } > BD_RAM
@@ -151,7 +163,7 @@ SECTIONS
   .bf_data : 
   {
     __buffer_data_start__ = .;
-    *(.bfsram.data*)
+    *(.ossram.heap*)
     __buffer_data_end__ = .;
     
   } > BD_RAM

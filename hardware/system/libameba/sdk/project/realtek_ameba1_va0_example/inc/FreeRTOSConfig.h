@@ -99,8 +99,9 @@ extern uint32_t SystemCoreClock;
 
 #ifdef ARDUINO_SDK
 #undef  configTOTAL_HEAP_SIZE
-#define configTOTAL_HEAP_SIZE			( ( size_t ) ( 40 * 1024 ) )	// use HEAP5
-#define configTOTAL_SDRHEAP_SIZE		( ( size_t ) ( 60 * 1024 ) )	// use HEAP5
+#define configTOTAL_HEAP_SIZE			( ( size_t ) ( 2   * 1024 ) )	// use HEAP5
+#define configTOTAL_SDRHEAP_SIZE		( ( size_t ) ( 200 * 1024 ) )	// use HEAP5
+#define configENLARGE_HEAP_SIZE         ( 1 )
 #endif
 
 #define configMAX_TASK_NAME_LEN			( 10 )

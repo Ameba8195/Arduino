@@ -51,28 +51,19 @@ void pinMode( uint32_t ulPin, uint32_t ulMode)
     }
 
     if ( g_APinDescription[ulPin].ulPinType == PIO_PWM ) {
-        free ( (pwmout_t *)gpio_pin_struct[ulPin] );
-        gpio_pin_struct[ulPin] = NULL;
-        g_APinDescription[ulPin].ulPinType = NOT_INITIAL;
-        g_APinDescription[ulPin].ulPinMode = NOT_INITIAL;
+        pinRemoveMode(ulPin);
     }
 
     if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO && 
             (ulMode == INPUT_IRQ_FALL || ulMode == INPUT_IRQ_RISE) ) {
         // requst type from gpio_t to gpio_irq_t
-        free ( (gpio_t *)gpio_pin_struct[ulPin] );
-        gpio_pin_struct[ulPin] = NULL;
-        g_APinDescription[ulPin].ulPinType = NOT_INITIAL;
-        g_APinDescription[ulPin].ulPinMode = NOT_INITIAL;
+        pinRemoveMode(ulPin);
     }
 
     if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO_IRQ && 
             (ulMode == INPUT || ulMode == OUTPUT || ulMode == INPUT_PULLUP || ulMode == INPUT_PULLNONE || ulMode == OUTPUT_OPENDRAIN) ) {
         // requst type from gpio_irq_t to gpio_t
-        free ( (gpio_irq_t *)gpio_pin_struct[ulPin] );
-        gpio_pin_struct[ulPin] = NULL;
-        g_APinDescription[ulPin].ulPinType = NOT_INITIAL;
-        g_APinDescription[ulPin].ulPinMode = NOT_INITIAL;
+        pinRemoveMode(ulPin);
     }
 
     if ( g_APinDescription[ulPin].ulPinType == NOT_INITIAL ) {
@@ -230,6 +221,30 @@ uint32_t digitalSetIrqHandler( uint32_t ulPin, void (*handler)(uint32_t id, uint
 
 uint32_t digitalClearIrqHandler( uint32_t ulPin ) {
     gpio_irq_handler_list[ulPin] = NULL;
+}
+
+void pinRemoveMode(uint32_t ulPin) {
+    if ( g_APinDescription[ulPin].ulPinType == PIO_PWM ) {
+        pwmout_free( (pwmout_t *)gpio_pin_struct[ulPin] );
+        free ( (pwmout_t *)gpio_pin_struct[ulPin] );
+        gpio_pin_struct[ulPin] = NULL;
+        g_APinDescription[ulPin].ulPinType = NOT_INITIAL;
+        g_APinDescription[ulPin].ulPinMode = NOT_INITIAL;
+    }
+    if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO ) {
+        gpio_deinit( (gpio_t *)gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname );
+        free ( (gpio_t *)gpio_pin_struct[ulPin] );
+        gpio_pin_struct[ulPin] = NULL;
+        g_APinDescription[ulPin].ulPinType = NOT_INITIAL;
+        g_APinDescription[ulPin].ulPinMode = NOT_INITIAL;
+    }
+    if ( g_APinDescription[ulPin].ulPinType == PIO_GPIO_IRQ ) {
+        gpio_irq_deinit( (gpio_irq_t *)gpio_pin_struct[ulPin] );
+        free ( (gpio_irq_t *)gpio_pin_struct[ulPin] );
+        gpio_pin_struct[ulPin] = NULL;
+        g_APinDescription[ulPin].ulPinType = NOT_INITIAL;
+        g_APinDescription[ulPin].ulPinMode = NOT_INITIAL;
+    }
 }
 
 #ifdef __cplusplus

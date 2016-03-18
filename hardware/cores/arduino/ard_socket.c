@@ -55,7 +55,7 @@ int get_available(int sock)
 
 	socklen_t client = sizeof(cli_addr);
 	if((client_fd = lwip_accept(sock, (struct sockaddr *) &cli_addr, &client)) < 0){
-		printf("\r\nERROR on accept\r\n");
+		//printf("\r\nERROR on accept\r\n");
 		return -1;
 	}
 	else {

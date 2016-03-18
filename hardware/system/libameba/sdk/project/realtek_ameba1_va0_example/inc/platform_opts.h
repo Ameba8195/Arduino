@@ -37,7 +37,8 @@
 /**
  * For FreeRTOS tickless configurations
  */
-#define FREERTOS_PMU_TICKLESS_PLL_RESERVED 0 // In sleep mode, 0: close PLL clock, 1: reserve PLL clock
+#define FREERTOS_PMU_TICKLESS_PLL_RESERVED   0 // In sleep mode, 0: close PLL clock, 1: reserve PLL clock
+#define FREERTOS_PMU_TICKLESS_SUSPEND_SDRAM  1   // In sleep mode, 1: suspend SDRAM, 0: no act
 
 /******************************************************************************/
 
@@ -169,5 +170,14 @@ in lwip_opt.h for support uart adapter*/
 
 #undef  CONFIG_INCLUDE_SIMPLE_CONFIG
 #define CONFIG_INCLUDE_SIMPLE_CONFIG 0
+
+#undef  FREERTOS_PMU_TICKLESS_PLL_RESERVED
+#define FREERTOS_PMU_TICKLESS_PLL_RESERVED 1
+
+#undef  CONFIG_ENABLE_WPS
+#define CONFIG_ENABLE_WPS 0
+
+#undef  SUPPORT_LOG_SERVICE
+#define SUPPORT_LOG_SERVICE 0
 
 #endif

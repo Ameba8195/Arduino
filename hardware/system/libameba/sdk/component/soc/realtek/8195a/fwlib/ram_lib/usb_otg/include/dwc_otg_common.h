@@ -8,8 +8,11 @@
  */
 #include "basic_types.h"
 #include <osdep_api.h>
-//#include "va_list.h"
+#if defined(__CC_ARM)
 #include <stdarg.h>
+#else
+#include "va_list.h"
+#endif
 
 #include "diag.h"
 #include "dwc_otg_dbg.h"

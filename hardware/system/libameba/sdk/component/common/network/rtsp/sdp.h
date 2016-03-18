@@ -1,45 +1,26 @@
-
 #ifndef _SDP_H_
 #define _SDP_H_
 
-/* select one codec profile, here we choose AV PROFILE*/
 #include "avcodec.h"
 
-#define MAX_SDP_SIZE 512
-#define SDP_LINE_LEN 128
+#define CRLF "\r\n"
+#define MAX_SDP_SIZE (512+256)
+#define SDP_LINE_LEN (128+256)
+
+#define SDP_BWTYPE_CT 0
+#define SDP_BWTYPE_AS 1
+
+void sdp_strcat(unsigned char *buf1, int size, unsigned char *buf2);
+void sdp_fill_o_field(unsigned char *sdp_buf, int size, u8 *username, u32 session_id, u8 session_version, u8* nettype, u8* addrtype, u8* unicast_addr);
+void sdp_fill_s_field(unsigned char *sdp_buf, int size, u8 * session_name);
+void sdp_fill_i_field(unsigned char *sdp_buf, int size, u8 * session_info);
+void sdp_fill_u_field(unsigned char * sdp_buf, int size, u8 *uri);
+void sdp_fill_c_field(unsigned char *sdp_buf, int size, u8 *nettype, u8 *addrtype, u8 *connection_addr, u8 ttl);
+void sdp_fill_b_field(unsigned char *sdp_buf, int size, int bwtype, int bw);
+void sdp_fill_t_field(unsigned char *sdp_buf, int size, u32 start_time, u32 end_time);
+void sdp_fill_m_field(unsigned char *sdp_buf, int size, int media_type, u16 port, int fmt);
+void sdp_fill_a_string(unsigned char *sdp_buf, int size, u8 *string);
+void sdp_fill_a_rtpmap(unsigned char *sdp_buf, int size, struct codec_info *codec);
 
 
-struct sdp_session_level {
-     int sdp_version;      /**< protocol version (currently 0) */
-     int id;               /**< session ID */
-     int version;          /**< session version */
-     int start_time;       /**< session start time (NTP time, in seconds), or 0 in case of permanent session */
-     int end_time;         /**< session end time (NTP time, in seconds), or 0 if the session is not bounded */
-     int ttl;              /**< TTL, in case of multicast stream */
-     const char *user;     /**< username of the session's creator */
-     const char *nettype;  /**< type of network (initially "IN") */
-     const char *src_addr; /**< IP address of the machine from which the session was created */
-     const char *src_type; /**< address type of src_addr */
-     const char *dst_addr; /**< destination IP address (can be multicast) */
-     const char *dst_type; /**< destination IP address type */
-     const char *name;     /**< session name (can be an empty string) */
-};
-
-struct sdp_media_level {
-     int media_type;
-     int payload_type;
-     int framerate;
-     struct codec_info *codec;
-};
-
-struct sdp_info {
-     struct sdp_session_level session;
-     struct sdp_media_level media;
-     void *extra;
-};
-
-
-int form_sdp_header(unsigned char *buffer, struct sdp_info *sdp, int size);
-int form_sdp_media(unsigned char *buffer, struct sdp_info *sdp, int size);
-
-#endif  //_SDP_H_
+#endif
