@@ -90,8 +90,7 @@ int AmebaServo::read() // return the value as degrees
 
 int AmebaServo::readMicroseconds()
 {
-    // not support
-    return 0;
+    return currentWidth;
 }
 
 bool AmebaServo::attached()
