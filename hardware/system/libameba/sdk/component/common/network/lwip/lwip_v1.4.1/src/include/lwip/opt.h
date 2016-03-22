@@ -321,7 +321,11 @@
  * (only needed if you use the sequential API, like api_lib.c)
  */
 #ifndef MEMP_NUM_NETBUF
+#ifdef ARDUINO_SDK
+#define MEMP_NUM_NETBUF                 4
+#else
 #define MEMP_NUM_NETBUF                 2
+#endif
 #endif
 
 /**
@@ -329,7 +333,11 @@
  * (only needed if you use the sequential API, like api_lib.c)
  */
 #ifndef MEMP_NUM_NETCONN
+#ifdef ARDUINO_SDK
+#define MEMP_NUM_NETCONN                8
+#else
 #define MEMP_NUM_NETCONN                4
+#endif
 #endif
 
 /**
