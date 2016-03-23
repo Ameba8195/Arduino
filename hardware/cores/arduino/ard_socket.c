@@ -50,6 +50,7 @@ int sock_listen(int sock, int max)
 
 int get_available(int sock)
 {
+    int timeout;
     int client_fd;
 	struct sockaddr_in cli_addr;
 
@@ -59,6 +60,9 @@ int get_available(int sock)
 		return -1;
 	}
 	else {
+        timeout = 3000;
+        lwip_setsockopt(client_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+
 		printf("\r\nA client connected to this server :\r\n[PORT]: %d\r\n[IP]:%s\r\n\r\n", ntohs(cli_addr.sin_port), inet_ntoa(cli_addr.sin_addr.s_addr));
 		return client_fd;	
 	}
@@ -80,6 +84,14 @@ int get_receive(int sock, uint8_t* data, int length, int flag, uint32_t *peer_ad
     }
 
     return ret;
+}
+
+int get_sock_errno(int sock)
+{
+	int so_error;
+	socklen_t len = sizeof(so_error);
+	getsockopt(sock, SOL_SOCKET, SO_ERROR, &so_error, &len);
+    return so_error;
 }
 
 void stop_socket(int sock)

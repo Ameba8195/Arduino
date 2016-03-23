@@ -38,10 +38,10 @@ void setup() {
   }
   Serial.print("You're connected to the network");
 
-  // Default setting is motion jpeg with 640x480 resolution and frame rate is 30fps
+  // Default setting is motion jpeg with 320x240 resolution and frame rate is 30fps
   UVC.begin();
-  // Try below setting if you found the stream quality is poor
-  //UVC.begin(UVC_MJPEG, 320, 240, 30, 0);
+  // Try below setting if you want better resolution
+  //UVC.begin(UVC_MJPEG, 640, 480, 30, 0);
 
   // wait until UVC is ready for streaming
   while (!UVC.available()) {

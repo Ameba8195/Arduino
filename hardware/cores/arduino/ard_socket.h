@@ -10,6 +10,8 @@ int get_available(int sock);
 
 int get_receive(int sock, uint8_t* data, int length, int flag, uint32_t *peer_addr, uint16_t *peer_port);
 
+int get_sock_errno(int sock);
+
 void stop_socket(int sock);
 
 int send_data(int sock, const uint8_t *data, uint16_t len);

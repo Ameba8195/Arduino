@@ -30,7 +30,8 @@ public:
 	int startServer(uint16_t port, uint8_t protMode=TCP_MODE);
 	int getAvailable(int sock);
     int startClient(uint32_t ipAddress, uint16_t port, uint8_t protMode=TCP_MODE);
-	void stopClient(uint8_t sock);
+    int getLastErrno(int sock);
+	void stopClient(int sock);
 	bool getData(int sock, uint8_t *data, uint8_t peek = 0);
 	int getDataBuf(int sock, uint8_t *_data, uint16_t _dataLen);
 

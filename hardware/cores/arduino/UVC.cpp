@@ -20,7 +20,7 @@ void UVCClass::begin(int frame_type, int width, int height, int frame_rate, int 
 }
 
 void UVCClass::begin() {
-    begin(UVC_MJPEG, 640, 480, 30, 0);
+    begin(UVC_MJPEG, 320, 240, 30, 0);
 }
 
 void UVCClass::end() {

@@ -2,6 +2,8 @@ extern "C" {
   #include "wl_definitions.h"
   #include "wl_types.h"
   #include "string.h"
+  #include "errno.h"
+
 }
 
 #include "WiFi.h"
@@ -15,12 +17,12 @@ WiFiClient::WiFiClient() : _sock(MAX_SOCK_NUM) {
 
 WiFiClient::WiFiClient(uint8_t sock) {
     _sock = sock;
-    if(sock >= 0)
+    if(sock >= 0 && sock != 0xFF)
         _is_connected = true;
 }
 
 uint8_t WiFiClient::connected() {
-  	if (_sock < 0) {
+  	if (_sock < 0 || _sock == 0xFF) {
 		_is_connected = false;
     	return 0;
   	}
@@ -71,7 +73,10 @@ int WiFiClient::read(uint8_t* buf, size_t size) {
 	int ret;
 	ret = clientdrv.getDataBuf(_sock, buf, _size);
   	if (ret <= 0){
-		_is_connected = false;
+        if (clientdrv.getLastErrno(_sock) != EAGAIN) {
+		    _is_connected = false;
+        }
+        buf[0] = '\0';
   	} else {
   	    buf[ret] = '\0';
     }

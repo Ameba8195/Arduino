@@ -78,7 +78,12 @@ int ServerDrv::getDataBuf(int sock, uint8_t *_data, uint16_t _dataLen)
 	return ret;
 }
 
-void ServerDrv::stopClient(uint8_t sock)
+int ServerDrv::getLastErrno(int sock)
+{
+    return get_sock_errno(sock);
+}
+
+void ServerDrv::stopClient(int sock)
 {
 	stop_socket(sock);
     _available = false;
