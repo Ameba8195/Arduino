@@ -63,8 +63,14 @@ void loop() {
   while (client.connected()) {
     if (client.read(buffer, sizeof(buffer)) > 0) {
       handleData((const char *)buffer);
+    } else {
+      buffer[0] = '\0';
     }
+    handleData((const char *)buffer);
+    memset(buffer, 0, 256);
   }
+  buffer[0] = '\0';
+  handleData((const char *)buffer);
   delay(1000);
 }
 
@@ -82,16 +88,31 @@ int speedMapping(int rawspeed) {
 int lastXspeed = 0;
 int lastYspeed = 0;
 void handleData(const char *buf) {
+  int len;
+  bool xchange = false, ychange = false;;
+  int xspeed = 0, yspeed = 0;
 
-  int xspeed;
-  int yspeed;
-
-  if (buf[0] == 'X') {
-    xspeed = lastXspeed = speedMapping(atoi(&(buf[2])));
-    yspeed = lastYspeed;
-  } else if (buf[0] == 'Y') {
-    xspeed = lastXspeed;
-    yspeed = lastYspeed = speedMapping(atoi(&(buf[2])));
+  if (buf[0] != '\0') {
+    len = strlen(buf);
+    for (int i=0; i<len; i++) {
+      if (buf[i] == 'X') {
+        xspeed = lastXspeed = speedMapping(parseSpeed(&buf[i+2]));
+        xchange = true;
+      }
+      if (buf[i] == 'Y') {
+        yspeed = lastYspeed = speedMapping(parseSpeed(&buf[i+2]));
+        ychange = true;
+      }
+    }
+    if (xchange == false) {
+      xspeed = lastXspeed;
+    }
+    if (ychange == false) {
+      yspeed = lastYspeed;
+    }
+  } else {
+    xspeed = lastXspeed = 0;
+    yspeed = lastYspeed = 0;
   }
 
   if (xspeed == 0 && yspeed == 0) {
@@ -113,4 +134,21 @@ void handleData(const char *buf) {
   } else if (xspeed < 0 && yspeed > 0 ) {
     car.setAction(CAR_FORWARD_LEFT, abs(yspeed));
   }
+}
+
+int parseSpeed(const char *buf) {
+  int s = 0;
+  if (buf[0] == '-') {
+    s = buf[1] - '0';
+    if (buf[2] >= '0' && buf[2] <= '9') {
+      s = s * 10 + (buf[2] - '0');
+    }
+    s = -s;
+  } else {
+    s = buf[0] - '0';
+    if (buf[1] >= '0' && buf[1] <= '9') {
+      s = s * 10 + (buf[1] - '0');
+    }
+  }
+  return s;
 }

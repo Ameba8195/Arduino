@@ -28,18 +28,18 @@ void setup() {
 
   status = WiFi.status();
 
-  // attempt to connect to Wifi network:
+  // attempt to start AP:
   while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to WPA SSID: ");
+    Serial.print("Attempting to start AP with SSID: ");
     Serial.println(ssid);
-    // Connect to WPA/WPA2 network:
     status = WiFi.apbegin(ssid, pass, channel);
     if (status == WL_CONNECTED) {
       break;
     }
-    // wait 10 seconds for connection:
     delay(10000);
   }
+
+  //AP MODE already started:
   Serial.println("AP mode already started");
 
   // Default setting is motion jpeg with 320x240 resolution and frame rate is 30fps
@@ -72,6 +72,8 @@ void loop() {
     handleData((const char *)buffer);
     memset(buffer, 0, 256);
   }
+  buffer[0] = '\0';
+  handleData((const char *)buffer);
   delay(1000);
 }
 
