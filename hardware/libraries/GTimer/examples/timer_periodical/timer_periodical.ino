@@ -10,6 +10,10 @@ void myhandler(uint32_t data) {
   counter++;
   Serial.print("counter: ");
   Serial.println(counter);
+  if (counter >= 10) {
+    Serial.println("stop timer");
+    GTimer.stop(0);
+  }
 }
 
 void setup() {
