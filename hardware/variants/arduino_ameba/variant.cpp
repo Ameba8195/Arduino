@@ -34,8 +34,8 @@ PinDescription g_APinDescription[TOTAL_GPIO_PIN_NUM]=
   {PA_6, NOT_INITIAL, PIO_GPIO                         , NOT_INITIAL}, //D0  :      UART0_RX
   {PA_7, NOT_INITIAL, PIO_GPIO                         , NOT_INITIAL}, //D1  :      UART0_TX
   {PA_5, NOT_INITIAL, PIO_GPIO                         , NOT_INITIAL}, //D2  :
-  {PD_4, NOT_INITIAL, PIO_GPIO | PIO_GPIO_IRQ | PIO_PWM, NOT_INITIAL}, //D3  : PWM1 UART2_RX
-  {PD_5, NOT_INITIAL, PIO_GPIO | PIO_GPIO_IRQ | PIO_PWM, NOT_INITIAL}, //D4  : PWM2
+  {PD_4, NOT_INITIAL, PIO_GPIO | PIO_GPIO_IRQ | PIO_PWM, NOT_INITIAL}, //D3  : PWM0 UART2_RX
+  {PD_5, NOT_INITIAL, PIO_GPIO | PIO_GPIO_IRQ | PIO_PWM, NOT_INITIAL}, //D4  : PWM1
   {PA_4, NOT_INITIAL, PIO_GPIO                         , NOT_INITIAL}, //D5  :      UART2_TX
   {PA_3, NOT_INITIAL, PIO_GPIO                         , NOT_INITIAL}, //D6  :
   {PA_2, NOT_INITIAL, PIO_GPIO                         , NOT_INITIAL}, //D7  :
