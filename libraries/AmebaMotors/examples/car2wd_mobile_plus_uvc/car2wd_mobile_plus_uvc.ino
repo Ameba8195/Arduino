@@ -62,17 +62,18 @@ void setup() {
 
 uint8_t buffer[256];
 void loop() {
+  int len;
   WiFiClient client = server.available();
   while (client.connected()) {
-    if (client.read(buffer, sizeof(buffer)) > 0) {
-      handleData((const char *)buffer);
-    } else {
-      buffer[0] = '\0';
+    memset(buffer, 0, 256);
+    len = client.read(buffer, sizeof(buffer)-1);
+    if (len > 0) {
+      buffer[len] = '\0';
     }
     handleData((const char *)buffer);
-    memset(buffer, 0, 256);
   }
-  buffer[0] = '\0';
+  Serial.println("control socket broken");
+  memset(buffer, 0, 256);
   handleData((const char *)buffer);
   delay(1000);
 }

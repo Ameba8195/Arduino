@@ -76,10 +76,7 @@ int WiFiClient::read(uint8_t* buf, size_t size) {
         if (clientdrv.getLastErrno(_sock) != EAGAIN) {
 		    _is_connected = false;
         }
-        buf[0] = '\0';
-  	} else {
-  	    buf[ret] = '\0';
-    }
+  	}
   	return ret;
 }
 
