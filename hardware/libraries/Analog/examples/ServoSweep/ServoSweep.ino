@@ -9,7 +9,7 @@
  refined 2016/03/18 by Realtek
 */
 
-#include "AmebaServo.h"
+#include <AmebaServo.h>
 
 AmebaServo myservo;  // create servo object to control a servo
 // 4 servo objects can be created correspond to PWM pins

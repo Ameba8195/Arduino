@@ -1,14 +1,12 @@
 #######################################
 # Syntax Coloring Map for GPIO
-# (formerly NewSoftSerial)
 #######################################
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
 
-GPIO	KEYWORD1
-Digital	KEYWORD1
+DHT	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
