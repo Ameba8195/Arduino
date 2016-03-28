@@ -154,8 +154,9 @@ int start_client(uint32_t ipAddress, uint16_t port, uint8_t protMode)
             return -1;
         }
     }
-    else
-        printf("\r\nUdp client setup Server's information successful!\r\n");
+    else {
+        //printf("\r\nUdp client setup Server's information successful!\r\n");
+    }
 
     return _sock;
 }

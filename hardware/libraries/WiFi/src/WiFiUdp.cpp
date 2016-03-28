@@ -170,8 +170,8 @@ int WiFiUDP::peek()
 
 void WiFiUDP::flush()
 {
-    while (available())
-        read();
+    while (read() > 0)
+        ;
 }
 
 IPAddress WiFiUDP::remoteIP()
