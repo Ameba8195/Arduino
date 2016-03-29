@@ -98,7 +98,7 @@ bool ServerDrv::sendData(int sock, const uint8_t *data, uint16_t len)
 
     ret = send_data(sock, data, len);
 
-    if (ret == 0) {  
+    if (ret <= 0) {  
         return false;
     }
 
