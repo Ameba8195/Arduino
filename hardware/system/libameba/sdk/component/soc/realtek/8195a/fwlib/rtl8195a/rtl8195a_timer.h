@@ -101,6 +101,11 @@ HalTimerIrqDisRtl8195a(
 );
 
 VOID
+HalTimerClearIsrRtl8195a(
+    IN  u32 TimerId
+);
+
+VOID
 HalTimerEnRtl8195a_Patch(
     IN  u32 TimerId
 );
@@ -186,6 +191,14 @@ HalTimerDisable(
 )
 {
     HalTimerDisRtl8195a_Patch(TimerId);
+}
+
+static __inline VOID
+HalTimerClearIsr(
+    IN  u32 TimerId
+)
+{
+    HalTimerClearIsrRtl8195a(TimerId);
 }
 
 static __inline VOID
