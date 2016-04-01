@@ -60,7 +60,7 @@ void handle_interrupt(uint32_t id, uint32_t event)
 
     if( (SerialIrq)event == RxIrq ) {
         d = serial_getc( (serial_t *)(pSwSerial->pUART) );
-        next = (pSwSerial->_receive_buffer_tail + 1) % _SS_MAX_RX_BUFF;
+        next = (pSwSerial->_receive_buffer_tail + 1) % pSwSerial->_receive_buffer_size;
         if ( next != (pSwSerial->_receive_buffer_head) ) {
             pSwSerial->_receive_buffer[ pSwSerial->_receive_buffer_tail ] = d;
             pSwSerial->_receive_buffer_tail = next;
@@ -105,6 +105,8 @@ SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inv
     this->receivePin = receivePin;
     this->transmitPin = transmitPin;
     pUART = NULL;
+    _receive_buffer_size = _SS_MAX_RX_BUFF;
+    _receive_buffer = (char *) malloc( _receive_buffer_size );
 }
 
 //
@@ -131,6 +133,10 @@ void SoftwareSerial::begin(long speed)
 
 void SoftwareSerial::end()
 {
+    if (_receive_buffer != NULL) {
+        free(_receive_buffer);
+        _receive_buffer = NULL;
+    }
     stopListening();
 }
 
@@ -147,7 +153,7 @@ int SoftwareSerial::read()
 
     // Read from "head"
     uint8_t d = _receive_buffer[_receive_buffer_head]; // grab next byte
-    _receive_buffer_head = (_receive_buffer_head + 1) % _SS_MAX_RX_BUFF;
+    _receive_buffer_head = (_receive_buffer_head + 1) % _receive_buffer_size;
     _buffer_overflow = false;
     return d;
 }
@@ -157,7 +163,7 @@ int SoftwareSerial::available()
     if (!isListening())
         return 0;
 
-    return (_receive_buffer_tail + _SS_MAX_RX_BUFF - _receive_buffer_head) % _SS_MAX_RX_BUFF;
+    return (_receive_buffer_tail + _receive_buffer_size - _receive_buffer_head) % _receive_buffer_size;
 }
 
 size_t SoftwareSerial::write(uint8_t b)
@@ -187,5 +193,14 @@ int SoftwareSerial::peek()
 
     // Read from "head"
     return _receive_buffer[_receive_buffer_head];
+}
+
+void SoftwareSerial::setBufferSize(uint32_t buffer_size)
+{
+    if (_receive_buffer != NULL) {
+        if (realloc(_receive_buffer, buffer_size) != NULL) {
+            _receive_buffer_size = buffer_size;
+        }
+    }
 }
 

@@ -53,7 +53,8 @@ private:
   uint16_t _buffer_overflow:1;
 
   // static data
-  char _receive_buffer[_SS_MAX_RX_BUFF]; 
+  uint32_t _receive_buffer_size;
+  char *_receive_buffer; 
   volatile uint8_t _receive_buffer_tail;
   volatile uint8_t _receive_buffer_head;
 
@@ -78,6 +79,10 @@ public:
   operator bool() { return true; }
   
   using Print::write;
+
+  /* Extend API provide by RTK */
+public:
+  void setBufferSize(uint32_t buffer_size);
 };
 
 #endif
