@@ -24,6 +24,7 @@ extern "C" {
 
 #include "gpio_api.h"
 #include "gpio_irq_api.h"
+#include "gpio_irq_ex_api.h"
 #include "pwmout_api.h"
 
 void *gpio_pin_struct[TOTAL_GPIO_PIN_NUM] = {NULL};
@@ -117,6 +118,16 @@ void pinMode( uint32_t ulPin, uint32_t ulMode)
 
         case INPUT_IRQ_RISE:
             gpio_irq_set( (gpio_irq_t *)pGpio_t, IRQ_RISE, 1 );
+            gpio_irq_enable( (gpio_irq_t *)pGpio_t );
+            break;
+
+        case INPUT_IRQ_LOW:
+            gpio_irq_set( (gpio_irq_t *)pGpio_t, IRQ_LOW, 1 );
+            gpio_irq_enable( (gpio_irq_t *)pGpio_t );
+            break;
+
+        case INPUT_IRQ_HIGH:
+            gpio_irq_set( (gpio_irq_t *)pGpio_t, IRQ_HIGH, 1 );
             gpio_irq_enable( (gpio_irq_t *)pGpio_t );
             break;
 
