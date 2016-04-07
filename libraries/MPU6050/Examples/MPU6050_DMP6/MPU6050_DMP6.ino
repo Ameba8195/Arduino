@@ -162,7 +162,7 @@ void setup() {
     // join I2C bus (I2Cdev library doesn't do this automatically)
     #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
         Wire.begin();
-        TWBR = 24; // 400kHz I2C clock (200kHz if CPU is 8MHz). Comment this line if having compilation difficulties with TWBR.
+        Wire.setClock(400000); // 400kHz I2C clock (200kHz if CPU is 8MHz).
     #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
         Fastwire::setup(400, true);
     #endif
@@ -170,7 +170,7 @@ void setup() {
     // initialize serial communication
     // (115200 chosen because it is required for Teapot Demo output, but it's
     // really up to you depending on your project)
-    Serial.begin(115200);
+    Serial.begin(38400);
     while (!Serial); // wait for Leonardo enumeration, others continue immediately
 
     // NOTE: 8MHz or slower host processors, like the Teensy @ 3.3v or Ardunio
@@ -210,8 +210,8 @@ void setup() {
         mpu.setDMPEnabled(true);
 
         // enable Arduino interrupt detection
-        Serial.println(F("Enabling interrupt detection (Arduino external interrupt 0)..."));
-        attachInterrupt(0, dmpDataReady, RISING);
+        Serial.println(F("Enabling interrupt detection (Ameba D3 pin)..."));
+        attachInterrupt(3, dmpDataReady, RISING);
         mpuIntStatus = mpu.getIntStatus();
 
         // set our DMP Ready flag so the main loop() function knows it's okay to use it
@@ -220,6 +220,12 @@ void setup() {
 
         // get expected DMP packet size for later comparison
         packetSize = mpu.dmpGetFIFOPacketSize();
+
+        /* We should avoid send/recv I2C data while there is an interrupt invoked.
+	 * Otherwise the MPU6050 would hang and need a power down/up reset.
+	 * So we set this vale big enough that we can finish task before next interrupt happend.
+	 */
+        mpu.setRate(5); // 1khz / (1 + 5) = 166 Hz
     } else {
         // ERROR!
         // 1 = initial memory load failed
@@ -256,6 +262,7 @@ void loop() {
         // .
         // .
         // .
+        os_thread_yield(); // without yield, the empty busy loop might make CPU behave un-expected
     }
 
     // reset interrupt flag and get INT_STATUS byte
@@ -276,12 +283,14 @@ void loop() {
         // wait for correct available data length, should be a VERY short wait
         while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
 
-        // read a packet from FIFO
-        mpu.getFIFOBytes(fifoBuffer, packetSize);
-        
-        // track FIFO count here in case there is > 1 packet available
-        // (this lets us immediately read more without waiting for an interrupt)
-        fifoCount -= packetSize;
+        while (fifoCount >= packetSize){
+            // read a packet from FIFO
+            mpu.getFIFOBytes(fifoBuffer, packetSize);
+            
+            // track FIFO count here in case there is > 1 packet available
+            // (this lets us immediately read more without waiting for an interrupt)
+            fifoCount -= packetSize;
+        }
 
         #ifdef OUTPUT_READABLE_QUATERNION
             // display quaternion values in easy matrix form: w x y z

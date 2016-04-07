@@ -118,6 +118,7 @@ extern PinDescription g_APinDescription[];
 #include "wiring_digital.h"
 #include "wiring_analog.h"
 #include "WInterrupts.h"
+#include "wiring_os.h"
 
 // C++ functions
 #ifdef __cplusplus
