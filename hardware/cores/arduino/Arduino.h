@@ -55,12 +55,16 @@ extern int rtl_sprintf(char* str, const char* fmt, ...);
 
 extern void *pvPortMalloc( size_t xWantedSize );
 extern void vPortFree( void *pv );
+extern void *pvPortReAlloc( void *pv,  size_t xWantedSize );
 
 #ifndef malloc
 #define malloc                  pvPortMalloc
 #endif
 #ifndef free
 #define free                    vPortFree
+#endif
+#ifndef realloc
+#define realloc                 pvPortReAlloc
 #endif
 
 /* sketch */
@@ -113,6 +117,7 @@ extern PinDescription g_APinDescription[];
 #include "wiring.h"
 #include "wiring_digital.h"
 #include "wiring_analog.h"
+#include "WInterrupts.h"
 
 // C++ functions
 #ifdef __cplusplus

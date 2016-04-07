@@ -19,18 +19,10 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "Arduino.h"
 #include "WString.h"
 #include "itoa.h"
 #include "avr/dtostrf.h"
-
-#ifdef __cplusplus
-extern "C" {
-extern void vPortFree( void *pv );
-extern void* pvPortReAlloc( void *pv,  size_t xWantedSize );
-#define free vPortFree
-#define realloc pvPortReAlloc
-}
-#endif
 
 /*********************************************/
 /*  Constructors                             */
