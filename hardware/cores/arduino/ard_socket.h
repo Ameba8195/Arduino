@@ -12,6 +12,8 @@ int get_receive(int sock, uint8_t* data, int length, int flag, uint32_t *peer_ad
 
 int get_sock_errno(int sock);
 
+int set_sock_recv_timeout(int sock, int timeout);
+
 void stop_socket(int sock);
 
 int send_data(int sock, const uint8_t *data, uint16_t len);

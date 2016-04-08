@@ -85,6 +85,10 @@ public:
   virtual uint16_t remotePort();
 
   friend class WiFiDrv;
+
+  // extend API by RTK
+
+  void setRecvTimeout(int timeout);
 };
 
 #endif

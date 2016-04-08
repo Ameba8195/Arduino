@@ -136,3 +136,9 @@ void ServerDrv::getRemoteData(int sock, uint32_t *ip, uint16_t *port)
     *ip = _peer_addr;
     *port = _peer_port;
 }
+
+int ServerDrv::setSockRecvTimeout(int sock, int timeout)
+{
+    return set_sock_recv_timeout(sock, timeout);
+}
+

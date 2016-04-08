@@ -17,12 +17,14 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#ifdef __cplusplus
 extern "C" {
-//  #include "utility/debug.h"
-//  #include "utility/wifi_spi.h"
+
 extern int rtl_printf(const char *fmt, ...);
 
 }
+#endif
+
 #include <string.h>
 #include "server_drv.h"
 #include "wifi_drv.h"
@@ -194,3 +196,13 @@ uint16_t WiFiUDP::remotePort()
 
     return _remotePort;
 }
+
+// extend API by RTK
+
+void WiFiUDP::setRecvTimeout(int timeout)
+{
+    if (_sock >= 0) {
+        serverDrv.setSockRecvTimeout(_sock, timeout);
+    }
+}
+

@@ -45,6 +45,8 @@ public:
 	
 	void getRemoteData(int sock, uint32_t *ip, uint16_t *port);
 
+    int setSockRecvTimeout(int sock, int timeout);
+
 private:    	
 	bool _available;
 

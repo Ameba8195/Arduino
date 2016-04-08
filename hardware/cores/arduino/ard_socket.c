@@ -94,6 +94,11 @@ int get_sock_errno(int sock)
     return so_error;
 }
 
+int set_sock_recv_timeout(int sock, int timeout)
+{
+    return lwip_setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+}
+
 void stop_socket(int sock)
 {
     lwip_close(sock);

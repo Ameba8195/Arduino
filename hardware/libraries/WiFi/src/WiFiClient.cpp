@@ -162,3 +162,9 @@ void WiFiClient::flush() {
 	while (available())
 		read();
 }
+
+int WiFiClient::setRecvTimeout(int timeout) {
+    if (connected() && _sock >= 0) {
+        clientdrv.setSockRecvTimeout(_sock, timeout);
+    }
+}

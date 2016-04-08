@@ -29,6 +29,10 @@ public:
 
   using Print::write;
 
+  // extend API from RTK
+
+  int setRecvTimeout(int timeout);
+
 private:
 	int _sock;
 	ServerDrv clientdrv;
