@@ -163,8 +163,14 @@ void WiFiClient::flush() {
 		read();
 }
 
+// extend API from RTK
+
 int WiFiClient::setRecvTimeout(int timeout) {
     if (connected() && _sock >= 0) {
         clientdrv.setSockRecvTimeout(_sock, timeout);
     }
+}
+
+int WiFiClient::read(char *buf, size_t size) {
+    read( (uint8_t *)buf, size);
 }

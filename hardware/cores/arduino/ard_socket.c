@@ -50,6 +50,7 @@ int sock_listen(int sock, int max)
 
 int get_available(int sock)
 {
+    int enable = 1;
     int timeout;
     int client_fd;
 	struct sockaddr_in cli_addr;
@@ -62,7 +63,7 @@ int get_available(int sock)
 	else {
         timeout = 3000;
         lwip_setsockopt(client_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
-
+        lwip_setsockopt(client_fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
 		printf("\r\nA client connected to this server :\r\n[PORT]: %d\r\n[IP]:%s\r\n\r\n", ntohs(cli_addr.sin_port), inet_ntoa(cli_addr.sin_addr.s_addr));
 		return client_fd;	
 	}
@@ -130,6 +131,8 @@ int sendto_data(int sock, const uint8_t *data, uint16_t len, uint32_t peer_ip, u
 
 int start_client(uint32_t ipAddress, uint16_t port, uint8_t protMode)
 {
+    int enable = 1;
+    int timeout;
     int _sock;
 
     if(protMode == 0)//tcp
@@ -151,6 +154,11 @@ int start_client(uint32_t ipAddress, uint16_t port, uint8_t protMode)
     if (protMode == 0){//TCP MODE
         if(connect(_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == 0){
             printf("\r\nConnect to Server successful!\r\n");
+
+            timeout = 3000;
+            lwip_setsockopt(_sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+            lwip_setsockopt(_sock, IPPROTO_TCP, TCP_NODELAY, &enable, sizeof(enable));
+
             return _sock;
         }
         else{

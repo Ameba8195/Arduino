@@ -32,6 +32,7 @@ public:
   // extend API from RTK
 
   int setRecvTimeout(int timeout);
+  int read(char *buf, size_t size);
 
 private:
 	int _sock;

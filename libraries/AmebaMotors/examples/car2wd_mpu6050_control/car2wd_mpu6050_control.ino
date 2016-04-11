@@ -1,5 +1,16 @@
+/*
+   This sketch shows how to use control car with MPU6050 6 axis gyro/accelerometer,
+   and send out results via UDP
+
+   This sketch requires library include Ameba version of I2Cdev and MPU6050
+
+   We enable MPU (Motion Processing Tech) of MPU6050 that it can trigger interrupt with correspond sample rate.
+   And then gather the data from fifo and convert it to yaw/pitch/poll values.
+   We only need pitch and poll, convert it to car data format and send out via UDP.
+
+ **/
+
 #include <WiFi.h>
-#include <WiFiUdp.h>
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "Wire.h"
@@ -10,7 +21,7 @@ char pass[] = "12345678";    // your network password (use for WPA, or use as ke
 IPAddress server(192,168,1,1);  // numeric IP for mycar AP mode
 int status = WL_IDLE_STATUS;
 
-WiFiUDP Udp;
+WiFiClient client;
 char sendbuf[12];
 
 /* MPU6050 related variables */
@@ -43,105 +54,23 @@ void dmpDataReady() {
 }
 
 void setup() {
-
-  while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to SSID: ");
-    Serial.println(ssid);
-    // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-    status = WiFi.begin(ssid, pass);
-    if (status == WL_CONNECTED) {
-      break;
-    }
-    // wait 1 seconds for reconnect
-    delay(1000);
-  }
-  Serial.println("Connected to wifi");
-
-  Wire.begin();
-  Wire.setClock(400000); // 400kHz I2C clock (200kHz if CPU is 8MHz).
-
-  Serial.println(F("Initializing I2C devices..."));
-  mpu.initialize();
-
-  Serial.println(F("Testing device connections..."));
-  Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
-
-  Serial.println(F("Initializing DMP..."));
-  devStatus = mpu.dmpInitialize();
-
-  // make sure it worked (returns 0 if so)
-  if (devStatus == 0) {
-    // turn on the DMP, now that it's ready
-    Serial.println(F("Enabling DMP..."));
-    mpu.setDMPEnabled(true);
-
-    // enable Arduino interrupt detection
-    Serial.println(F("Enabling interrupt detection (Ameba D16 pin)..."));
-    attachInterrupt(16, dmpDataReady, RISING);
-    mpuIntStatus = mpu.getIntStatus();
-
-    // set our DMP Ready flag so the main loop() function knows it's okay to use it
-    Serial.println(F("DMP ready! Waiting for first interrupt..."));
-    dmpReady = true;
-
-    // get expected DMP packet size for later comparison
-    packetSize = mpu.dmpGetFIFOPacketSize();
-    
-    mpu.setRate(19); // 1khz / (1 + 99) = 10 Hz
-  } else {
-    // ERROR!
-    // 1 = initial memory load failed
-    // 2 = DMP configuration updates failed
-    // (if it's going to break, usually the code will be 1)
-    Serial.print(F("DMP Initialization failed (code "));
-    Serial.print(devStatus);
-    Serial.println(F(")"));
-  }
+  checkAndReconnectServer();
+  initMPU6050();
 }
 
 void loop() {
-  // if programming failed, don't try to do anything
-  if (!dmpReady) return;
+  if (!dmpReady) return; // if programming failed, don't try to do anything
 
-  // wait for MPU interrupt or extra packet(s) available
-  while (!mpuInterrupt && fifoCount < packetSize) {
-    // other program behavior stuff here
-    // .
-    // .
-    // .
-    // if you are really paranoid you can frequently test in between other
-    // stuff to see if mpuInterrupt is true, and if so, "break;" from the
-    // while() loop to immediately process the MPU data
-    // .
-    // .
-    // .
-    os_thread_yield(); // without yield, the empty busy loop might make CPU behave un-expected
-  }
-
-  // reset interrupt flag and get INT_STATUS byte
-  mpuInterrupt = false;
+  safeWaitMPU6050();
   mpuIntStatus = mpu.getIntStatus();
-
-  // get current FIFO count
   fifoCount = mpu.getFIFOCount();
 
-  // check for overflow (this should never happen unless our code is too inefficient)
   if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
-    // reset so we can continue cleanly
     mpu.resetFIFO();
     Serial.println(F("FIFO overflow!"));
-
-  // otherwise, check for DMP data ready interrupt (this should happen frequently)
-  } else if (mpuIntStatus & 0x02) {
-    // wait for correct available data length, should be a VERY short wait
-    while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
-
+  } else if (mpuIntStatus & 0x02 && fifoCount >= packetSize) {
     while (fifoCount >= packetSize){
-      // read a packet from FIFO
       mpu.getFIFOBytes(fifoBuffer, packetSize);
-            
-      // track FIFO count here in case there is > 1 packet available
-      // (this lets us immediately read more without waiting for an interrupt)
       fifoCount -= packetSize;
     }
 
@@ -151,6 +80,7 @@ void loop() {
     mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 
     mapPitchRolltoXY(ypr[1], ypr[2], &carx, &cary);
+
     memset(sendbuf, 0, 12);
     timestamp = millis();
     if ((timestamp - last_send_timestamp) > 500 || (carx != prev_carx && cary != prev_cary)) {
@@ -161,31 +91,16 @@ void loop() {
       sprintf(sendbuf, "Y:%d", cary);
     }
     if (strlen(sendbuf) > 0) {
-      status = WiFi.status();
-      while (status != WL_CONNECTED) {
-        Serial.print("Attempting to connect to SSID: ");
-        Serial.println(ssid);
-        // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-        status = WiFi.begin(ssid, pass);
-        if (status == WL_CONNECTED) {
-
-          // reconnect may take a long time, reset FIFO anyway to avoid buffer overflow
-          mpu.resetFIFO();
-          mpuInterrupt = false;
-
-          Serial.println("Connected to wifi");
-          break;
-        }
-        // wait 1 seconds for reconnect
-        delay(1000);
+      rtl_printf("%s\r\n", sendbuf);
+      if (checkAndReconnectServer()) {
+        safeResetMPU6050();
       }
-
-      Udp.beginPacket("192.168.1.1", 5001);
-      Udp.write(sendbuf);
-      Udp.endPacket();
-
+      client.write(sendbuf, strlen(sendbuf));
       last_send_timestamp = timestamp;
       delay(10);
+
+      // ignore previous interrupt
+      mpuInterrupt = false;
     }
     prev_carx = carx;
     prev_cary = cary;
@@ -227,18 +142,90 @@ void mapPitchRolltoXY(float pitch, float roll, int *carx, int *cary) {
   *cary = -*cary;
 }
 
-void checkAndReconnectWiFi() {
+int checkAndReconnectServer() {
+  int ret = 0;
   status = WiFi.status();
-  while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to SSID: ");
-    Serial.println(ssid);
-    // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-    status = WiFi.begin(ssid, pass);
-    if (status == WL_CONNECTED) {
-      break;
+  if (status != WL_CONNECTED) {
+    while (status != WL_CONNECTED) {
+      Serial.print("Attempting to connect to SSID: ");
+      Serial.println(ssid);
+      // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+      status = WiFi.begin(ssid, pass);
+      if (status == WL_CONNECTED) {
+        break;
+      }
+      Serial.println("Reconnect to wifi...");
+      delay(1000);
     }
-    // wait 10 seconds for connection:
-    delay(10000);
+    Serial.println("Connected to wifi");
+    ret = 1;
   }
-  Serial.println("Connected to wifi");
+  if ( !client.connected()) {
+    while (!client.connect(server, 5001)) {
+      Serial.println("reconnect to server...");
+      delay(1000);
+    }
+    Serial.println("connected to server");  
+    ret = 1;
+  }
+  return ret;
+}
+
+void initMPU6050() {
+  Wire.begin();
+  Wire.setClock(400000); // 400kHz I2C clock (200kHz if CPU is 8MHz).
+
+  Serial.println(F("Initializing I2C devices..."));
+  mpu.initialize();
+
+  Serial.println(F("Testing device connections..."));
+  Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
+
+  Serial.println(F("Initializing DMP..."));
+  devStatus = mpu.dmpInitialize();
+
+  // make sure it worked (returns 0 if so)
+  if (devStatus == 0) {
+    // turn on the DMP, now that it's ready
+    Serial.println(F("Enabling DMP..."));
+    mpu.setDMPEnabled(true);
+
+    // enable Arduino interrupt detection
+    Serial.println(F("Enabling interrupt detection (Ameba D16 pin)..."));
+    attachInterrupt(16, dmpDataReady, RISING);
+    mpuIntStatus = mpu.getIntStatus();
+
+    // set our DMP Ready flag so the main loop() function knows it's okay to use it
+    Serial.println(F("DMP ready! Waiting for first interrupt..."));
+    dmpReady = true;
+
+    // get expected DMP packet size for later comparison
+    packetSize = mpu.dmpGetFIFOPacketSize();
+
+    mpu.setRate(5); // 1khz / (1 + 5) = 166 Hz
+  } else {
+    // ERROR!
+    // 1 = initial memory load failed
+    // 2 = DMP configuration updates failed
+    // (if it's going to break, usually the code will be 1)
+    Serial.print(F("DMP Initialization failed (code "));
+    Serial.print(devStatus);
+    Serial.println(F(")"));
+  }  
+}
+
+void safeWaitMPU6050() {
+  while (!mpuInterrupt) {
+    os_thread_yield(); // without yield, the empty busy loop might make CPU behave un-expected
+  }  
+  mpuInterrupt = false;
+}
+
+void safeResetMPU6050() {
+  mpuInterrupt = false;
+    while (!mpuInterrupt) {
+    os_thread_yield(); // without yield, the empty busy loop might make CPU behave un-expected
+  }
+  mpu.resetFIFO();
+  mpuInterrupt = false;
 }
