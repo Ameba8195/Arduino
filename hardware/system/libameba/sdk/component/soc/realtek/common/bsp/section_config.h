@@ -221,6 +221,9 @@
 #define START_RAM_FUN_E_SECTION                         \
         SECTION(".start.ram.data.e")
 
+#define SRAM_OS_HEAP_SECTION                            \
+        SECTION(".ossram.heap")
+
 //Non-Flash Boot Section
 #define NON_FLASH_BOOT_DATA_SECTION					\
         SECTION(".nonflash.data")
@@ -243,12 +246,19 @@
 #define START_OTG_RAM_DATA_SECTION                      \
         SECTION(".ram.otg.data.b")
 
+#define OTG_RAM_BF_DATA_SECTION                         \
+        SECTION(".ram.otg.bfdata")
 
 #define IMAGE2_START_RAM_FUN_SECTION                     \
             SECTION(".image2.ram.data")
 
+// SDRAM Section
+
 #define SDRAM_DATA_SECTION                        \
         SECTION(".sdram.data")
+
+#define SDRAM_OS_HEAP_SECTION                           \
+        SECTION(".ossdram.heap")
 
 //3 Wlan  Section
 #define WLAN_ROM_TEXT_SECTION                      \

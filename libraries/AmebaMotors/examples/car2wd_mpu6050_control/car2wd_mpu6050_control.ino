@@ -8,6 +8,8 @@
    And then gather the data from fifo and convert it to yaw/pitch/poll values.
    We only need pitch and poll, convert it to car data format and send out via UDP.
 
+   The correspond car use Ameba example "car2wd_mobile_control".
+
  **/
 
 #include <WiFi.h>
@@ -16,8 +18,8 @@
 #include "Wire.h"
 
 /* WiFi related variables*/
-char ssid[] = "mycar"; //  your network SSID (name)
-char pass[] = "12345678";    // your network password (use for WPA, or use as key for WEP)
+char ssid[] = "mycar";          // mycar ssid
+char pass[] = "12345678";       // mycar password
 IPAddress server(192,168,1,1);  // numeric IP for mycar AP mode
 int status = WL_IDLE_STATUS;
 
@@ -41,12 +43,9 @@ VectorFloat gravity;    // [x, y, z]            gravity vector
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
 /* car control variable */
-int carx = 0;
-int cary = 0;
-int prev_carx = 0;
-int prev_cary = 0;
-uint32_t last_send_timestamp = 0;
-uint32_t timestamp = 0;
+int carx = 0, cary = 0;
+int prev_carx = 0, prev_cary = 0;
+uint32_t timestamp = 0, last_send_timestamp = 0;
 
 volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
 void dmpDataReady() {
@@ -74,72 +73,92 @@ void loop() {
       fifoCount -= packetSize;
     }
 
-    // display Euler angles in degrees
+    // get Euler angles
     mpu.dmpGetQuaternion(&q, fifoBuffer);
     mpu.dmpGetGravity(&gravity, &q);
     mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 
-    mapPitchRolltoXY(ypr[1], ypr[2], &carx, &cary);
-
-    memset(sendbuf, 0, 12);
-    timestamp = millis();
-    if ((timestamp - last_send_timestamp) > 500 || (carx != prev_carx && cary != prev_cary)) {
-      sprintf(sendbuf, "X:%dY:%d", carx, cary);
-    } else if (carx != prev_carx) {
-      sprintf(sendbuf, "X:%d", carx);
-    } else if (cary != prev_cary) {
-      sprintf(sendbuf, "Y:%d", cary);
-    }
-    if (strlen(sendbuf) > 0) {
-      rtl_printf("%s\r\n", sendbuf);
-      if (checkAndReconnectServer()) {
-        safeResetMPU6050();
+    if (hasStarted(ypr[1], ypr[2])) {
+      mapPitchRolltoXY(ypr[1], ypr[2], &carx, &cary);
+  
+      memset(sendbuf, 0, 12);
+      timestamp = millis();
+      if ((timestamp - last_send_timestamp) > 500 || (carx != prev_carx && cary != prev_cary)) {
+        // If there is no value changed after 500ms, then send command to keepalive.
+        sprintf(sendbuf, "X:%dY:%d", carx, cary);
+      } else if (carx != prev_carx) {
+        sprintf(sendbuf, "X:%d", carx);
+      } else if (cary != prev_cary) {
+        sprintf(sendbuf, "Y:%d", cary);
       }
-      client.write(sendbuf, strlen(sendbuf));
-      last_send_timestamp = timestamp;
-      delay(10);
-
-      // ignore previous interrupt
-      mpuInterrupt = false;
+      if (strlen(sendbuf) > 0) {
+        if (checkAndReconnectServer()) {
+          safeResetMPU6050();
+        }
+        client.write(sendbuf, strlen(sendbuf));
+        last_send_timestamp = timestamp;
+        delay(10);
+  
+        // ignore previous interrupt
+      }
+      prev_carx = carx;
+      prev_cary = cary;
+    } else {
+      // Roll Ameba to start
     }
-    prev_carx = carx;
-    prev_cary = cary;
+
+    mpuInterrupt = false;
+  }
+}
+
+int isStarted = 0;
+int waitAction = 0;
+int hasStarted(float pitch, float roll) {
+  /* To start sending command, user need perform a roll action and back.
+   * We check pitch/roll if its abs value larger than 80 and comes back to abs value 24
+   **/
+  if (isStarted == 1) {
+    return 1;
+  } else {
+    pitch = pitch * 180 / M_PI;
+    roll = roll * 180 / M_PI;
+    if (waitAction == 1) {
+      if (pitch < 24 && pitch > -24 && roll < 24 && roll > -24) {
+        isStarted = 1;
+        return 1;
+      }
+    } else {
+      if (pitch > 80 || pitch < -80 || roll > 80 || roll < -80) {
+        waitAction = 1;
+      }
+    }
+  }
+  return 0;
+}
+
+int mapRange(float angle) {
+  /* Here is the mapping table.
+   * Pitch/Roll(degree): -48...-24...24...48
+   * Car:                -12.....0....0...12
+   */
+  if (angle < -48) {
+    return -12;
+  } else if ( angle >= -48 && angle < -24) {
+    return ((angle + 24)) / 2;
+  } else if ( angle > 24 && angle <= 48) {
+    return (angle - 24) / 2;
+  } else if (angle > 48) {
+    return 12;
+  } else {
+    return 0;
   }
 }
 
 void mapPitchRolltoXY(float pitch, float roll, int *carx, int *cary) {
   pitch = pitch * 180 / M_PI;
   roll = roll * 180 / M_PI;
-  if (pitch > 24) {
-    pitch = 24;
-  }
-  if (pitch < -24) {
-    pitch = -24;
-  }
-  if (roll > 24) {
-    roll = 24;
-  }
-  if (roll < -24) {
-    roll = -24;
-  }
-
-  if (pitch > 12) {
-    *carx = (int)(pitch-12);
-  } else if (pitch < -12) {
-    *carx = (int)(pitch + 12);
-  } else {
-    *carx = 0;
-  }
-  *carx = -*carx;
-
-  if (roll > 12) {
-    *cary = (int)(roll-12);
-  } else if (roll < -12) {
-    *cary = (int)(roll+12);
-  } else {
-    *cary = 0;
-  }
-  *cary = -*cary;
+  *carx = -mapRange(pitch);
+  *cary = -mapRange(roll);
 }
 
 int checkAndReconnectServer() {
@@ -222,6 +241,8 @@ void safeWaitMPU6050() {
 }
 
 void safeResetMPU6050() {
+  /* If dmp interrupt happends at I2C send/recv, then MPU6050 would hang and can only recover by plug out/in VCC.
+   * To avoid this happen we wait next interrupt and then reset buffer */
   mpuInterrupt = false;
     while (!mpuInterrupt) {
     os_thread_yield(); // without yield, the empty busy loop might make CPU behave un-expected
