@@ -222,9 +222,9 @@ void setup() {
         packetSize = mpu.dmpGetFIFOPacketSize();
 
         /* We should avoid send/recv I2C data while there is an interrupt invoked.
-	 * Otherwise the MPU6050 would hang and need a power down/up reset.
-	 * So we set this vale big enough that we can finish task before next interrupt happend.
-	 */
+         * Otherwise the MPU6050 would hang and need a power down/up reset.
+         * So we set this vale big enough that we can finish task before next interrupt happend.
+         */
         mpu.setRate(5); // 1khz / (1 + 5) = 166 Hz
     } else {
         // ERROR!
