@@ -8,6 +8,8 @@
    And then gather the data from fifo and convert it to yaw/pitch/poll values.
    We only need pitch and poll, convert it to car data format and send out via UDP.
 
+   To Start/Stop control car, it needs roll Ameba to back side and return it.
+
    The correspond car use Ameba example "car2wd_mobile_control".
 
  **/
@@ -80,32 +82,32 @@ void loop() {
 
     if (hasStarted(ypr[1], ypr[2])) {
       mapPitchRolltoXY(ypr[1], ypr[2], &carx, &cary);
-  
-      memset(sendbuf, 0, 12);
-      timestamp = millis();
-      if ((timestamp - last_send_timestamp) > 500 || (carx != prev_carx && cary != prev_cary)) {
-        // If there is no value changed after 500ms, then send command to keepalive.
-        sprintf(sendbuf, "X:%dY:%d", carx, cary);
-      } else if (carx != prev_carx) {
-        sprintf(sendbuf, "X:%d", carx);
-      } else if (cary != prev_cary) {
-        sprintf(sendbuf, "Y:%d", cary);
-      }
-      if (strlen(sendbuf) > 0) {
-        if (checkAndReconnectServer()) {
-          safeResetMPU6050();
-        }
-        client.write(sendbuf, strlen(sendbuf));
-        last_send_timestamp = timestamp;
-        delay(10);
-  
-        // ignore previous interrupt
-      }
-      prev_carx = carx;
-      prev_cary = cary;
     } else {
-      // Roll Ameba to start
+      carx = cary = 0;
     }
+  
+    memset(sendbuf, 0, 12);
+    timestamp = millis();
+    if ((timestamp - last_send_timestamp) > 500 || (carx != prev_carx && cary != prev_cary)) {
+      // If there is no value changed after 500ms, then send command to keepalive.
+      sprintf(sendbuf, "X:%dY:%d", carx, cary);
+    } else if (carx != prev_carx) {
+      sprintf(sendbuf, "X:%d", carx);
+    } else if (cary != prev_cary) {
+      sprintf(sendbuf, "Y:%d", cary);
+    }
+    if (strlen(sendbuf) > 0) {
+      if (checkAndReconnectServer()) {
+        safeResetMPU6050();
+      }
+      client.write(sendbuf, strlen(sendbuf));
+      last_send_timestamp = timestamp;
+      delay(10);
+
+      // ignore previous interrupt
+    }
+    prev_carx = carx;
+    prev_cary = cary;
 
     mpuInterrupt = false;
   }
@@ -113,23 +115,54 @@ void loop() {
 
 int isStarted = 0;
 int waitAction = 0;
+uint32_t lastChangeStateTimestamp = 0;
+// return 1 if we can control car
 int hasStarted(float pitch, float roll) {
-  /* To start sending command, user need perform a roll action and back.
-   * We check pitch/roll if its abs value larger than 80 and comes back to abs value 24
-   **/
+  pitch = pitch * 180 / M_PI;
+  roll = roll * 180 / M_PI;
   if (isStarted == 1) {
-    return 1;
-  } else {
-    pitch = pitch * 180 / M_PI;
-    roll = roll * 180 / M_PI;
     if (waitAction == 1) {
       if (pitch < 24 && pitch > -24 && roll < 24 && roll > -24) {
-        isStarted = 1;
+        Serial.println("OFF");
+        isStarted = 0;
+        waitAction = 0;
+        lastChangeStateTimestamp = millis();
+        return 0;
+      } else {
         return 1;
       }
     } else {
-      if (pitch > 80 || pitch < -80 || roll > 80 || roll < -80) {
-        waitAction = 1;
+      if (pitch > 70 || pitch < -70 || roll > 70 || roll < -700) {
+        if (millis() - lastChangeStateTimestamp > 2000) {
+          // don't try do state change rapidly
+          waitAction = 1;
+        }
+      } else {
+        return 1;
+      }
+    }
+  } else {
+    /* To start sending command, user need perform a roll action and back.
+     * We check pitch/roll if its abs value larger than 80 and comes back to abs value 24
+     **/
+    if (waitAction == 1) {
+      if (pitch < 24 && pitch > -24 && roll < 24 && roll > -24) {
+        Serial.println("ON");
+        isStarted = 1;
+        waitAction = 0;
+        lastChangeStateTimestamp = millis();
+        return 1;
+      } else {
+        return 0;
+      }
+    } else {
+      if (pitch > 70 || pitch < -70 || roll > 70 || roll < -70) {
+        if (millis() - lastChangeStateTimestamp > 2000) {
+          // don't try do state change rapidly
+          waitAction = 1;
+        }
+      } else {
+        return 0;
       }
     }
   }
