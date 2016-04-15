@@ -8,7 +8,7 @@
    And then gather the data from fifo and convert it to yaw/pitch/poll values.
    We only need pitch and poll, convert it to car data format and send out via UDP.
 
-   To Start/Stop control car, it needs roll Ameba to back side and return it.
+   To start/stop control car, you need roll Ameba twice within 3 seconds.
 
    The correspond car use Ameba example "car2wd_mobile_control".
 
@@ -113,60 +113,120 @@ void loop() {
   }
 }
 
-int isStarted = 0;
-int waitAction = 0;
-uint32_t lastChangeStateTimestamp = 0;
+#define CAR_STATE_OFF             0
+#define CAR_STATE_OFF_FIRST_ROLL  1
+#define CAR_STATE_OFF_FIRST_FLAT  2
+#define CAR_STATE_OFF_SECOND_ROLL 3
+#define CAR_STATE_ON              4
+#define CAR_STATE_ON_FIRST_ROLL   5
+#define CAR_STATE_ON_FIRST_FLAT   6
+#define CAR_STATE_ON_SECOND_ROLL  7
+
+// If user cannot complete action within 3s, then break to init state
+#define CAR_STATE_BREAK_TIMEOUT 3000
+
+int carState = CAR_STATE_OFF;
+uint32_t initChangeStateTimestamp = 0;
+
+int isFlat(float pitch, float roll) {
+  return (pitch < 24 && pitch > -24 && roll < 24 && roll > -24);
+}
+
+int isRoll(float pitch, float roll) {
+  return (pitch > 70 || pitch < -70 || roll > 70 || roll < -70);
+}
+
 // return 1 if we can control car
 int hasStarted(float pitch, float roll) {
+  int ret = 0;
   pitch = pitch * 180 / M_PI;
   roll = roll * 180 / M_PI;
-  if (isStarted == 1) {
-    if (waitAction == 1) {
-      if (pitch < 24 && pitch > -24 && roll < 24 && roll > -24) {
-        Serial.println("OFF");
-        isStarted = 0;
-        waitAction = 0;
-        lastChangeStateTimestamp = millis();
-        return 0;
-      } else {
-        return 1;
+  switch(carState) {
+    case CAR_STATE_OFF:
+      if (isRoll(pitch, roll)) {
+        carState = CAR_STATE_OFF_FIRST_ROLL;
+        initChangeStateTimestamp = millis();
       }
-    } else {
-      if (pitch > 70 || pitch < -70 || roll > 70 || roll < -700) {
-        if (millis() - lastChangeStateTimestamp > 2000) {
-          // don't try do state change rapidly
-          waitAction = 1;
+      ret = 0;
+      break;
+    case CAR_STATE_OFF_FIRST_ROLL:
+      if (millis() - initChangeStateTimestamp > CAR_STATE_BREAK_TIMEOUT) {
+        carState = CAR_STATE_OFF;
+      } else {
+        if (isFlat(pitch, roll)) {
+          carState = CAR_STATE_OFF_FIRST_FLAT;
         }
-      } else {
-        return 1;
       }
-    }
-  } else {
-    /* To start sending command, user need perform a roll action and back.
-     * We check pitch/roll if its abs value larger than 80 and comes back to abs value 24
-     **/
-    if (waitAction == 1) {
-      if (pitch < 24 && pitch > -24 && roll < 24 && roll > -24) {
-        Serial.println("ON");
-        isStarted = 1;
-        waitAction = 0;
-        lastChangeStateTimestamp = millis();
-        return 1;
+      ret = 0;
+      break;
+    case CAR_STATE_OFF_FIRST_FLAT:
+      if (millis() - initChangeStateTimestamp > CAR_STATE_BREAK_TIMEOUT) {
+        carState = CAR_STATE_OFF;
       } else {
-        return 0;
-      }
-    } else {
-      if (pitch > 70 || pitch < -70 || roll > 70 || roll < -70) {
-        if (millis() - lastChangeStateTimestamp > 2000) {
-          // don't try do state change rapidly
-          waitAction = 1;
+        if (isRoll(pitch, roll)) {
+          carState = CAR_STATE_OFF_SECOND_ROLL;
         }
-      } else {
-        return 0;
       }
-    }
+      ret = 0;
+      break;
+    case CAR_STATE_OFF_SECOND_ROLL:
+      if (millis() - initChangeStateTimestamp > CAR_STATE_BREAK_TIMEOUT) {
+        carState = CAR_STATE_OFF;
+        ret = 0;
+      } else {
+        if (isFlat(pitch, roll)) {
+          carState = CAR_STATE_ON;
+          Serial.println("OFF");
+          ret = 1;
+        } else {
+          ret = 0;
+        }
+      }
+      break;
+    case CAR_STATE_ON:
+      if (isRoll(pitch, roll)) {
+        carState = CAR_STATE_ON_FIRST_ROLL;
+        initChangeStateTimestamp = millis();
+      }
+      ret = 1;
+      break;
+    case CAR_STATE_ON_FIRST_ROLL:
+      if (millis() - initChangeStateTimestamp > CAR_STATE_BREAK_TIMEOUT) {
+        carState = CAR_STATE_ON;
+      } else {
+        if (isFlat(pitch, roll)) {
+          carState = CAR_STATE_ON_FIRST_FLAT;
+        }
+      }
+      ret = 1;
+      break;
+    case CAR_STATE_ON_FIRST_FLAT:
+      if (millis() - initChangeStateTimestamp > CAR_STATE_BREAK_TIMEOUT) {
+        carState = CAR_STATE_ON;
+      } else {
+        if (isRoll(pitch, roll)) {
+          carState = CAR_STATE_ON_SECOND_ROLL;
+        }
+      }
+      ret = 1;
+      break;
+    case CAR_STATE_ON_SECOND_ROLL:
+      if (millis() - initChangeStateTimestamp > CAR_STATE_BREAK_TIMEOUT) {
+        carState = CAR_STATE_ON;
+        ret = 1;
+      } else {
+        if (isFlat(pitch, roll)) {
+          carState = CAR_STATE_OFF;
+          Serial.println("ON");
+          ret = 0;
+        } else {
+          ret = 1;
+        }
+      }
+      break;
   }
-  return 0;
+
+  return ret;
 }
 
 int mapRange(float angle) {
