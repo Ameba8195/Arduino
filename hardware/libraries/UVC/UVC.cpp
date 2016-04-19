@@ -294,30 +294,29 @@ void uvcThread(void const *argument) {
                 }
 
                 do {
-                    ret = uvc_dqbuf(&buf);
-        
-                    if(buf.index < 0) {
-                        continue;
-                    }
-        
-                    if( (uvc_buf_check(&buf) < 0) || (ret < 0) ){
-                        UVC_PRINTF("buffer error\r\n");
-                    }
-        
-                    evt = osSignalWait(0, 1);
+                    evt = osSignalWait(0, 0xFFFFFFFF);
                     if (evt.status == osEventSignal) {
+                        ret = uvc_dqbuf(&buf);
+
+                        if(buf.index < 0) {
+                            continue;
+                        }
+
+                        if( (uvc_buf_check(&buf) < 0) || (ret < 0) ){
+                            UVC_PRINTF("buffer error\r\n");
+                        }
+
                         if (evt.value.signals & REQ_JPEG_CAPTURE) {
                             if (pUVC->mjpeg_buf != NULL && pUVC->mjpeg_size == 0) {
                                 memcpy(pUVC->mjpeg_buf, buf.data, buf.len);
                                 pUVC->mjpeg_size = buf.len;
                             }
                         }
-                    }
-        
-                    if (uvc_qbuf(&buf) < 0) {
-                        uvc_stream_free();
-                        break;
-                    }
+                        if (uvc_qbuf(&buf) < 0) {
+                            uvc_stream_free();
+                            break;
+                        }
+                    }        
                 } while(uvc_is_stream_on());
         
             } while (0); // end of UVC_MJPEG_CAPTURE
