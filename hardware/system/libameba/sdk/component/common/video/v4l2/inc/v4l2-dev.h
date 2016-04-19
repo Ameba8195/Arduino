@@ -56,14 +56,14 @@ struct v4l2_prio_state {
 
 /* 
 enum v4l2_priority { 
-    V4L2_PRIORITY_UNSET       = 0,  // ?￡aicl?A 
-    V4L2_PRIORITY_BACKGROUND  = 1,  // -I’o 
-    V4L2_PRIORITY_INTERACTIVE = 2,  // ??°E 
-    V4L2_PRIORITY_RECORD      = 3,  // ?o?y
+    V4L2_PRIORITY_UNSET       = 0,  // 不初始化 
+    V4L2_PRIORITY_BACKGROUND  = 1,  // 背景 
+    V4L2_PRIORITY_INTERACTIVE = 2,  // 互動 
+    V4L2_PRIORITY_RECORD      = 3,  // 紀錄
     V4L2_PRIORITY_DEFAULT     = V4L2_PRIORITY_INTERACTIVE, 
 }; 
-E?￥yAv?O?°?FMultiple Opens?T§@!A·i￥i￥H?a?udevice|PRE3Q|h-Othread ￥’?}(i.e open())
-?Y-n￥I3oAu￥yAv￥h°I?A-t-O?T§@§o-?-n!A‥I￥Iao‥o-OAu￥y¯A§O!Aaoprios[4]’N￥[?@!C
+优先權是為了Multiple Opens操作，當可以支持device同時被多個thread 打開(i.e open())
+需要用這優先權去區分哪個操作更重要，使用的那個優先級別，的prios[4]就加一。
 */ 
 
 void v4l2_prio_init(struct v4l2_prio_state *global);

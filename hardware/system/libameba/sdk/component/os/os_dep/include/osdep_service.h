@@ -76,6 +76,12 @@
 #define RTW_MAX_DELAY			0xFFFFFFFF
 #define RTW_WAIT_FOREVER		0xFFFFFFFF
 
+/* Definitions returned by xTaskGetSchedulerState(). */
+#define OS_SCHEDULER_NOT_STARTED	0
+#define OS_SCHEDULER_RUNNING		1
+#define OS_SCHEDULER_SUSPENDED		2
+
+
 struct timer_list {
 	_timerHandle 	timer_hdl;
 	unsigned long	data;
@@ -211,6 +217,7 @@ void	rtw_mutex_init(_mutex *pmutex);
 void	rtw_mutex_free(_mutex *pmutex);
 void	rtw_mutex_put(_mutex *pmutex);
 void	rtw_mutex_get(_mutex *pmutex);
+int		rtw_mutex_get_timeout(_mutex *pmutex, u32 timeout_ms);
 void	rtw_enter_critical(_lock *plock, _irqL *pirqL);
 void	rtw_exit_critical(_lock *plock, _irqL *pirqL);
 void	rtw_enter_critical_bh(_lock *plock, _irqL *pirqL);
@@ -253,11 +260,6 @@ void	rtw_mdelay_os(int ms);
 void	rtw_udelay_os(int us);
 void	rtw_yield_os(void);
 
-void	rtw_init_timer(_timer *ptimer, void *adapter, TIMER_FUN pfunc,void* cntx, const char *name);
-void	rtw_set_timer(_timer *ptimer,u32 delay_time);
-u8		rtw_cancel_timer(_timer *ptimer);
-void	rtw_del_timer(_timer *ptimer);
-
 //Atomic integer operations
 void 	ATOMIC_SET(ATOMIC_T *v, int i);
 int		ATOMIC_READ(ATOMIC_T *v);
@@ -282,7 +284,7 @@ void	rtw_release_wakelock(void);
 /*********************************** Thread related *****************************************/
 int	rtw_create_task(struct task_struct *task, const char *name, u32  stack_size, u32 priority, thread_func_t func, void *thctx);
 void rtw_delete_task(struct task_struct * task);
-void	rtw_wakeup_task(struct task_struct *task);
+void rtw_wakeup_task(struct task_struct *task);
 int rtw_create_worker_thread( rtw_worker_thread_t* worker_thread, u8 priority, u32 stack_size, u32 event_queue_size );
 int rtw_delete_worker_thread( rtw_worker_thread_t* worker_thread );
 
@@ -295,6 +297,8 @@ BOOLEAN rtw_cancel_delayed_work(struct delayed_work *dwork);
 
 void	rtw_thread_enter(char *name);
 void	rtw_thread_exit(void);
+u8		rtw_get_scheduler_state(void);
+
 #ifdef PLATFORM_LINUX
 #define rtw_warn_on(condition) WARN_ON(condition)
 #else
@@ -467,6 +471,7 @@ struct osdep_service_ops {
 	void (*rtw_mutex_init)(_mutex *pmutex);
 	void (*rtw_mutex_free)(_mutex *pmutex);
 	void (*rtw_mutex_get)(_mutex *pmutex);
+	int (*rtw_mutex_get_timeout)(_mutex *pmutex, u32 timeout_ms);
 	void (*rtw_mutex_put)(_mutex *pmutex);
 	void (*rtw_enter_critical)(_lock *plock, _irqL *pirqL);
 	void (*rtw_exit_critical)(_lock *plock, _irqL *pirqL);
@@ -494,10 +499,6 @@ struct osdep_service_ops {
 	void (*rtw_mdelay_os)(int ms);
 	void (*rtw_udelay_os)(int us);
 	void (*rtw_yield_os)(void);
-	void (*rtw_init_timer)(_timer *ptimer, void *adapter, TIMER_FUN pfunc,void* cntx, const char *name);
-	void (*rtw_set_timer)(_timer *ptimer,u32 delay_time);
-	u8 (*rtw_cancel_timer)(_timer *ptimer);
-	void (*rtw_del_timer)(_timer *ptimer);
 	void (*ATOMIC_SET)(ATOMIC_T *v, int i);
 	int (*ATOMIC_READ)(ATOMIC_T *v);
 	void (*ATOMIC_ADD)(ATOMIC_T *v, int i);
@@ -539,6 +540,8 @@ struct osdep_service_ops {
 
 	void (*rtw_acquire_wakelock)(void);
 	void (*rtw_release_wakelock)(void);
+
+	u8 (*rtw_get_scheduler_state)(void);
 };
 /*********************************** OSDEP API end *****************************************/
 

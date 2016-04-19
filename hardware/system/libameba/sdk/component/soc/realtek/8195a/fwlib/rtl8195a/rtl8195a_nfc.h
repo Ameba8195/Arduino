@@ -75,12 +75,12 @@ typedef struct _NFC_ADAPTER_ {
     //u8          NFCTagFlashRIdx;
 //    u32         NFCTag[NFCTAGLENGTH];
 #if !TASK_SCHEDULER_DISABLED
-    void *       VeriSema;
+    void *      VeriSema;
 #else
     u32         VeriSema;
 #endif  
 #ifdef PLATFORM_FREERTOS
-    void * NFCTask;
+    void *      NFCTask;
 #else
     u32         NFCTask;
 #endif
@@ -149,5 +149,7 @@ VOID HalNFCDmemInit(IN u32 *pTagData, IN u32 TagLen);
 VOID HalNFCInit(PNFC_ADAPTER pNFCAdp);
 VOID HalNFCDeinit(PNFC_ADAPTER pNFCAdp);
 VOID HalNFCFwDownload(VOID);
+u32 HalNFCDbgRead32(IN  u32 Addr);
+VOID HalNFCDbgWrite32(IN  u32 Addr, IN  u32 Data);
 #endif  //CONFIG_NFC_NORMAL
 #endif  // #ifndef _RTL8195A_NFC_H_

@@ -5,6 +5,8 @@
 #include "dwc_otg_core_if.h"
 #include "rtl8195a.h"
 
+#define OTG_FAST_INIT   1
+
 #define HAL_OTG_READ32(addr)            HAL_READ32(USB_OTG_REG_BASE, (u32)addr)
 #define HAL_OTG_WRITE32(addr, value)    HAL_WRITE32(USB_OTG_REG_BASE, (u32)addr, value)
 

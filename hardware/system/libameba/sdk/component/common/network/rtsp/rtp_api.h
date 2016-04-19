@@ -39,19 +39,19 @@
 
 typedef struct {
 #if RTP_BIG_ENDIAN
-        unsigned int version:2;   /* protocol version */
-        unsigned int p:1;         /* padding flag */
-        unsigned int x:1;         /* header extension flag */
-        unsigned int cc:4;        /* CSRC count */
-        unsigned int m:1;         /* marker bit */
-        unsigned int pt:7;        /* payload type */
+        u16 version:2;   /* protocol version */
+        u16 p:1;         /* padding flag */
+        u16 x:1;         /* header extension flag */
+        u16 cc:4;        /* CSRC count */
+        u16 m:1;         /* marker bit */
+        u16 pt:7;        /* payload type */
 #else /*RTP_LITTLE_ENDIAN*/
-        unsigned int cc:4;        /* CSRC count */
-        unsigned int x:1;         /* header extension flag */
-        unsigned int p:1;         /* padding flag */
-        unsigned int version:2;   /* protocol version */
-        unsigned int pt:7;        /* payload type */
-        unsigned int m:1;         /* marker bit */
+        u16 cc:4;        /* CSRC count */
+        u16 x:1;         /* header extension flag */
+        u16 p:1;         /* padding flag */
+        u16 version:2;   /* protocol version */
+        u16 pt:7;        /* payload type */
+        u16 m:1;         /* marker bit */
 #endif
         u16 seq;              /* sequence number */
         u32 ts;               /* timestamp */

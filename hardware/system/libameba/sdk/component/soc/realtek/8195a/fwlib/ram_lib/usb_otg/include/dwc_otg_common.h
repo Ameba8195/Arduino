@@ -8,10 +8,11 @@
  */
 #include "basic_types.h"
 #include <osdep_api.h>
-#if defined(__CC_ARM)
-#include <stdarg.h>
-#else
+#ifdef ARDUINO_SDK
 #include "va_list.h"
+#else
+//#include "va_list.h"
+#include <stdarg.h>
 #endif
 
 #include "diag.h"

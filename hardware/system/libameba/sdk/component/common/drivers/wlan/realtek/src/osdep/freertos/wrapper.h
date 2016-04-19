@@ -429,6 +429,11 @@ void del_timer_sync(struct timer_list * timer);
 void init_timer_wrapper(void);
 void deinit_timer_wrapper(void);
 
+void	rtw_init_timer(_timer *ptimer, void *adapter, TIMER_FUN pfunc,void* cntx, const char *name);
+void	rtw_set_timer(_timer *ptimer,u32 delay_time);
+u8		rtw_cancel_timer(_timer *ptimer);
+void	rtw_del_timer(_timer *ptimer);
+
 #endif //__WRAPPER_H__
 
 

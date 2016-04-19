@@ -45,12 +45,21 @@
 #define BOUNDARY "amebaimagetest"
 
 
+#ifdef ARDUINO_SDK
+enum _rtsp_state {
+    RTSP_INIT = 0,
+    RTSP_READY = 1,
+    RTSP_PLAYING = 2,
+};
+typedef enum _rtsp_state rtsp_state;
+#else
 typedef enum _rtsp_state rtsp_state;
 enum _rtsp_state {
     RTSP_INIT = 0,
     RTSP_READY = 1,
     RTSP_PLAYING = 2,
 };
+#endif
 
 struct rtsp_session
 {

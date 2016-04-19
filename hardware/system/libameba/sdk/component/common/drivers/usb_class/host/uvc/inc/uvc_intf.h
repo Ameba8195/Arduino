@@ -1,7 +1,9 @@
 #ifndef _UVC_INTF_H_
 #define _UVC_INTF_H_
 
+#ifdef ARDUINO_SDK
 #include <inttypes.h>
+#endif
 
 enum uvc_format_type{
       UVC_FORMAT_MJPEG = 1,
@@ -20,12 +22,17 @@ struct uvc_context
       int compression_ratio;//compression format video compression ratio
 };
 
-#define USER_CTRL_SATURATATION  1
+#define USER_CTRL_SATURATION  1
 
 struct uvc_user_ctrl
 {
+#ifdef ARDUINO_SDK
       uint32_t ctrl_id;
       int32_t ctrl_value;
+#else
+      u32 ctrl_id;
+      s32 ctrl_value;
+#endif
 };
 
 struct uvc_buf_context
@@ -33,10 +40,14 @@ struct uvc_buf_context
       int index; //index of internal uvc buffer
       unsigned char *data; //address of uvc data
       int len; //length of uvc data
+#ifdef ARDUINO_SDK
       uint32_t timestamp; //timestamp
+#else
+      u32 timestamp; //timestamp
+#endif
 };
 
-void uvc_stream_init(void); //entry function to start uvc
+int uvc_stream_init(void); //entry function to start uvc
 void uvc_stream_free(void); // free streaming resources
 int uvc_is_stream_ready(void); // return true if uvc device is initialized successfully
 int uvc_is_stream_on(void); //return true if uvc device is streaming now

@@ -42,6 +42,17 @@ struct list_head {
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
+#ifdef ARDUINO_SDK
+static inline void __list_add(struct list_head *newitem,
+			      struct list_head *prev,
+			      struct list_head *next)
+{
+	next->prev = newitem;
+	newitem->next = next;
+	newitem->prev = prev;
+	prev->next = newitem;
+}
+#else
 static inline void __list_add(struct list_head *new,
 			      struct list_head *prev,
 			      struct list_head *next)
@@ -51,6 +62,7 @@ static inline void __list_add(struct list_head *new,
 	new->prev = prev;
 	prev->next = new;
 }
+#endif
 
 /**
  * list_add - add a new entry
@@ -60,10 +72,17 @@ static inline void __list_add(struct list_head *new,
  * Insert a new entry after the specified head.
  * This is good for implementing stacks.
  */
+#ifdef ARDUINO_SDK
+static inline void list_add(struct list_head *newitem, struct list_head *head)
+{
+	__list_add(newitem, head, head->next);
+}
+#else
 static inline void list_add(struct list_head *new, struct list_head *head)
 {
 	__list_add(new, head, head->next);
 }
+#endif
 
 /**
  * list_add_tail - add a new entry
@@ -73,11 +92,17 @@ static inline void list_add(struct list_head *new, struct list_head *head)
  * Insert a new entry before the specified head.
  * This is useful for implementing queues.
  */
+#ifdef ARDUINO_SDK
+static inline void list_add_tail(struct list_head *newitem, struct list_head *head)
+{
+	__list_add(newitem, head->prev, head);
+}
+#else
 static inline void list_add_tail(struct list_head *new, struct list_head *head)
 {
 	__list_add(new, head->prev, head);
 }
-
+#endif
 /*
  * Delete a list entry by making the prev/next entries
  * point to each other.
@@ -99,8 +124,13 @@ static inline void __list_del(struct list_head *prev, struct list_head *next)
 static inline void list_del(struct list_head *entry)
 {
 	__list_del(entry->prev, entry->next);
+#ifdef ARDUINO_SDK
+	entry->next = (struct list_head *) 0;
+	entry->prev = (struct list_head *) 0;
+#else
 	entry->next = (void *) 0;
 	entry->prev = (void *) 0;
+#endif
 }
 
 /**

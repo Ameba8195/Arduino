@@ -13,12 +13,14 @@
 #define SRC_FROM_UVC
 //#define SRC_FROM_UAC
 //#define SRC_FROM_SPI
+#define SRC_FROM_I2S
 #define SRC_FROM_STA
 
 #define SRC_TYPE_NUL 0
 #define SRC_TYPE_UVC 1
 #define SRC_TYPE_SPI 2
 #define SRC_TYPE_UAC 3
+#define SRC_TYPE_I2S 4
 #define SRC_TYPE_STA 7
 
 struct FormatInfo
@@ -65,6 +67,13 @@ struct uvcManager
 #endif
 
 #ifdef SRC_FROM_UAC
+
+#endif
+
+#ifdef SRC_FROM_I2S
+struct i2sManager{
+    struct FormatInfo currentFormatInfo;
+};
 
 #endif
 

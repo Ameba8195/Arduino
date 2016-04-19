@@ -38,10 +38,11 @@
 
 #include "basic_types.h"
 #include <osdep_api.h>
-#if defined(__CC_ARM)
-#include <stdarg.h>
-#else
+#ifdef ARDUINO_SDK
 #include "va_list.h"
+#else
+//#include "va_list.h"
+#include <stdarg.h>
 #endif
 
 #include "diag.h"
@@ -186,8 +187,11 @@ extern _LONG_CALL_ int DWC_VSNPRINTF(char *str, int size, char *format, va_list 
 /**
  * printf() clone.  Just call printf if you've go it.
  */
+#ifdef OTGDEBUG
 #define DWC_PRINTF(format...) do{ DBG_8195A_OTG(format); }while(0)
-
+#else
+#define DWC_PRINTF(format...)
+#endif
 //extern void DWC_PRINTF(char *format, ...)
 /* This provides compiler level static checking of the parameters if you're
  * using GCC. */

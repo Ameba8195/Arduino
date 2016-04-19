@@ -763,11 +763,20 @@ typedef __u32 __wsum;
 #define GFP_KERNEL	(__GFP_WAIT | __GFP_IO | __GFP_FS)
 #endif
 
+#ifdef ARDUINO_SDK
 #ifndef copy_from_user
 #define copy_from_user(to, from, sz) _memcpy((to), (from), (sz))
 #endif
 #ifndef copy_to_user
 #define copy_to_user(to, from, sz)   _memcpy((to), (from), (sz))
+#endif
+#else
+#ifndef copy_from_user
+#define copy_from_user(to, from, sz) RtlMemcpy((to), (from), (sz))
+#endif
+#ifndef copy_to_user
+#define copy_to_user(to, from, sz)   RtlMemcpy((to), (from), (sz))
+#endif
 #endif
 
 #if 0 /*comment since we are not using polling*/

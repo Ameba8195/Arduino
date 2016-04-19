@@ -6,6 +6,4 @@
 #include "dlist.h"
 #include "basic_types.h"
 
-extern int v4l2_external_task(void);
-
 #endif  //V4L2_DRIVER_H

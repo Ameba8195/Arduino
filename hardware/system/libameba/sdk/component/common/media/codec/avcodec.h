@@ -58,8 +58,8 @@ struct codec_info
 #define RTP_PT_UNKNOWN          255
 
 /*av codec tables*/
-#include "section_config.h"
-SDRAM_DATA_SECTION
+//#include "section_config.h"
+//SDRAM_DATA_SECTION
 static const struct codec_info av_codec_tables[] = {
   {AV_CODEC_ID_MJPEG, "MJPEG", RTP_PT_JPEG, 90000, 0, 0},
   {AV_CODEC_ID_H264, "H264", RTP_PT_DYN_BASE, 90000, 0, 0},

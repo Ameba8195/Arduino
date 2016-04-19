@@ -50,6 +50,7 @@
 #include "usb_ch9.h"
 #include "usb_defs.h"
 
+#define USB_FAST_HUB_ENUM   1
 /*
  * The USB records contain some unaligned little-endian word
  * components.  The U[SG]ETW macros take care of both the alignment
@@ -1087,7 +1088,7 @@ struct usb_interface {
 	unsigned reset_running:1;
 	unsigned resetting_device:1;	/* true: bandwidth alloc after reset */
 //edit by Ian -- not necessary member since we are not hooking any v4l2 device
-	void *dev_prive_data;/* interface specific device info i.e struct v4l2_device pointer */
+	//void *dev_prive_data;/* interface specific device info i.e struct v4l2_device pointer */
 
 	void *driver;
         void *drv_priv;     // functional driver priv data
@@ -1828,12 +1829,20 @@ static inline void usb_set_intfdata(struct usb_interface *intf, void *data)
 
 static inline struct usb_device *interface_to_usbdev(struct usb_interface *intf)
 {
+#ifdef ARDUINO_SDK
+	return (struct usb_device *)(intf->usb_dev);
+#else
 	return intf->usb_dev;
+#endif
 }
 
 static inline struct usb_driver *interface_to_usbdri(struct usb_interface *intf)
 {
+#ifdef ARDUINO_SDK
+	return (struct usb_driver *)(intf->driver);
+#else
 	return intf->driver;
+#endif
 }
 
 /*-------------------------------------------------------------------------*/
@@ -1930,8 +1939,9 @@ typedef struct {
 #define USB_OTG_HNP		(1 << 1)	/* swap host/device roles */
 
 
-extern int usb_init(void);
-extern int usb_stop(void);
+extern void _usb_init(void);
+extern void _usb_deinit(void);
+extern int wait_usb_ready(void);
 extern void usb_disable_asynch(int disable);
 extern unsigned short usb_maxpacket(struct usb_device *udev, int pipe, int is_out);
 extern int usb_set_interface(struct usb_device *dev, int interface, int alternate);

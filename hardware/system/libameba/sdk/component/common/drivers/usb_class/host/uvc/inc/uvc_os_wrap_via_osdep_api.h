@@ -334,11 +334,20 @@ static inline __u16 le16_to_cpup(const __le16 *p)
 #define GFP_KERNEL	(__GFP_WAIT | __GFP_IO | __GFP_FS)
 #endif
 
+#ifdef ARDUINO_SDK
 #ifndef copy_from_user
 #define copy_from_user(to, from, sz) _memcpy((to), (from), (sz))
 #endif
 #ifndef copy_to_user
 #define copy_to_user(to, from, sz)   _memcpy((to), (from), (sz))
+#endif
+#else
+#ifndef copy_from_user
+#define copy_from_user(to, from, sz) RtlMemcpy((to), (from), (sz))
+#endif
+#ifndef copy_to_user
+#define copy_to_user(to, from, sz)   RtlMemcpy((to), (from), (sz))
+#endif
 #endif
 
 typedef u32             compat_caddr_t; //used for compatibility in uvc_v4l2.c
