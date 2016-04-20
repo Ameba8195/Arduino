@@ -17,16 +17,39 @@
 
 // MQTT_VERSION : Pick the version
 //#define MQTT_VERSION MQTT_VERSION_3_1
+#ifndef MQTT_VERSION
 #define MQTT_VERSION MQTT_VERSION_3_1_1
+#endif
+
+#ifdef ARDUINO_AMEBA
+// PCNs (Patch Change Numbers)
+
+/* For projects (Ex. LASS) that needs larger packets size then default. */
+#define MQTT_PCN001_ENLARGE_PACKET_SIZE
+
+/* MQTT use busy loop to check if data available. It cause CPU resource cannot be released. */
+#define MQTT_PCN002_NON_BUSY_LOOP_READ
+
+#endif
+
+#ifdef MQTT_PCN001_ENLARGE_PACKET_SIZE
+#define MQTT_MAX_PACKET_SIZE 512
+#endif
 
 // MQTT_MAX_PACKET_SIZE : Maximum packet size
-#define MQTT_MAX_PACKET_SIZE 512
+#ifndef MQTT_MAX_PACKET_SIZE
+#define MQTT_MAX_PACKET_SIZE 128
+#endif
 
 // MQTT_KEEPALIVE : keepAlive interval in Seconds
+#ifndef MQTT_KEEPALIVE
 #define MQTT_KEEPALIVE 15
+#endif
 
 // MQTT_SOCKET_TIMEOUT: socket timeout interval in Seconds
+#ifndef MQTT_SOCKET_TIMEOUT
 #define MQTT_SOCKET_TIMEOUT 15
+#endif
 
 // MQTT_MAX_TRANSFER_SIZE : limit how much data is passed to the network client
 //  in each write call. Needed for the Arduino Wifi Shield. Leave undefined to
@@ -65,7 +88,12 @@
 #define MQTTQOS1        (1 << 1)
 #define MQTTQOS2        (2 << 1)
 
-#define MQTT_CALLBACK_SIGNATURE void (*callback)(char*,uint8_t*,unsigned int)
+#ifdef ESP8266
+#include <functional>
+#define MQTT_CALLBACK_SIGNATURE std::function<void(char*, uint8_t*, unsigned int)> callback
+#else
+#define MQTT_CALLBACK_SIGNATURE void (*callback)(char*, uint8_t*, unsigned int)
+#endif
 
 class PubSubClient {
 private:
