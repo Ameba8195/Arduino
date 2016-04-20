@@ -30,6 +30,9 @@
 /* MQTT use busy loop to check if data available. It cause CPU resource cannot be released. */
 #define MQTT_PCN002_NON_BUSY_LOOP_READ
 
+/* MQTT use busy loop to check if connected to server. It cause CPU resource cannot be released. */
+#define MQTT_PCN003_NON_BUSY_LOOP_CONNECT
+
 #endif
 
 #ifdef MQTT_PCN001_ENLARGE_PACKET_SIZE

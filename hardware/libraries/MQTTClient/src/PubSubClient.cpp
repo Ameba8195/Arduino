@@ -182,6 +182,9 @@ boolean PubSubClient::connect(const char *id, const char *user, const char *pass
                     _client->stop();
                     return false;
                 }
+#ifdef MQTT_PCN003_NON_BUSY_LOOP_CONNECT
+                delay(10);
+#endif
             }
             uint8_t llen;
             uint16_t len = readPacket(&llen);
