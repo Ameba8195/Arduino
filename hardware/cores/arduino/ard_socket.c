@@ -74,6 +74,22 @@ int get_receive(int sock, uint8_t* data, int length, int flag, uint32_t *peer_ad
     int ret = 0;
     struct sockaddr from;
     socklen_t fromlen;
+
+    uint8_t backup_recvtimeout = 0;
+    int backup_recv_timeout, recv_timeout, len;
+
+    if (flag & 0x01) {
+        // for MSG_PEEK, we try to peek packets by changing receiving timeout to 10ms
+        ret = lwip_getsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &backup_recv_timeout, &len);
+        if (ret >= 0) {
+            recv_timeout = 10;
+            ret = lwip_setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &recv_timeout, sizeof(recv_timeout));
+            if (ret >= 0) {
+                backup_recvtimeout = 1;
+            }
+        }
+    }
+
     ret = lwip_recvfrom(sock, data, length, flag, &from, &fromlen);
     if ( ret >= 0 ) {
         if (peer_addr != NULL) {
@@ -82,6 +98,11 @@ int get_receive(int sock, uint8_t* data, int length, int flag, uint32_t *peer_ad
         if (peer_port != NULL) {
             *peer_port = ntohs(((struct sockaddr_in *)&from)->sin_port);
         }
+    }
+
+    if ((flag & 0x01) && (backup_recvtimeout == 1)) {
+        // restore receiving timeout
+        lwip_setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &backup_recv_timeout, sizeof(recv_timeout));
     }
 
     return ret;

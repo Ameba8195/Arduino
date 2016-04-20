@@ -26,7 +26,7 @@ int ServerDrv::getAvailable(int sock)
 	return get_available(sock);
 }
 
-uint16_t ServerDrv::availData(int sock)
+int ServerDrv::availData(int sock)
 {
 	int ret;
     uint8_t c;
@@ -44,7 +44,7 @@ uint16_t ServerDrv::availData(int sock)
 			return 1;	
 		} 	
 		else{
-			return 0;	
+			return ret;	
 		}
 	}
 }
@@ -56,6 +56,8 @@ bool ServerDrv::getData(int sock, uint8_t *data, uint8_t peek)
 
     if (peek) {
         flag |= 1;
+    } else {
+        _available = false;
     }
 
 	ret = get_receive(sock, data, 1, flag, &_peer_addr, &_peer_port);

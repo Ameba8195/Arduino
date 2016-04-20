@@ -56,9 +56,16 @@ uint8_t WiFiUDP::begin(uint16_t port) {
 /* return number of bytes available in the current packet,
    will return zero if parsePacket hasn't been called yet */
 int WiFiUDP::available() {
+    int ret;
+
     if (_sock >= 0)
     {
-        return serverDrv.availData(_sock);
+        ret = serverDrv.availData(_sock);
+        if (ret > 0) {
+            return ret;
+        } else {
+            return 0;
+        }
     }
     return 0;
 }

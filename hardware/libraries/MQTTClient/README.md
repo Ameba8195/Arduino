@@ -13,7 +13,7 @@ Full API documentation is available here: http://pubsubclient.knolleary.net
 ## Limitations
 
  - It can only publish QoS 0 messages. It can subscribe at QoS 0 or QoS 1.
- - The maximum message size, including header, is **512 bytes** by default. This
+ - The maximum message size, including header, is **128 bytes** by default. This
    is configurable via `MQTT_MAX_PACKET_SIZE` in `PubSubClient.h`.
  - The keepalive interval is set to 15 seconds by default. This is configurable
    via `MQTT_KEEPALIVE` in `PubSubClient.h`.

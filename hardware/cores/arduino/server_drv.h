@@ -41,7 +41,7 @@ public:
     /* Usually used by UDP */
 	bool sendtoData(int sock, const uint8_t *data, uint16_t len, uint32_t peer_ip, uint16_t peer_port);
 
-	uint16_t availData(int sock);
+	int availData(int sock);
 	
 	void getRemoteData(int sock, uint32_t *ip, uint16_t *port);
 

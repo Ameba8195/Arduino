@@ -33,6 +33,12 @@
 /* MQTT use busy loop to check if connected to server. It cause CPU resource cannot be released. */
 #define MQTT_PCN003_NON_BUSY_LOOP_CONNECT
 
+/* MQTT try to read even server disconnected. */
+#define MQTT_PCN004_BREAK_READ_IF_NO_CONNECTION
+
+/* If there is no imcoming data, then the loop function would become a busy loop*/
+#define MQTT_PCN005_NON_BUSY_LOOP_If_NO_DATA
+
 #endif
 
 #ifdef MQTT_PCN001_ENLARGE_PACKET_SIZE

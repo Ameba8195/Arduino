@@ -38,42 +38,56 @@ uint8_t WiFiClient::connected() {
 
 int WiFiClient::available() {
 	int ret = 0;
-	if(!_is_connected)
+    int err;
+
+	if(!_is_connected) {
 		return 0;
+    }
   	if (_sock >= 0)
   	{	
       	ret = clientdrv.availData(_sock);
-		if(ret == 0){
-			_is_connected = false;
-			return 0;
-		}
-		else{
-			return 1;
-		}
+        if (ret > 0) {
+            return 1;
+        } else {
+            err = clientdrv.getLastErrno(_sock);
+            if (err != EAGAIN) {
+                _is_connected = false;
+            }
+            return 0;
+        }
   	}
 }
 
 int WiFiClient::read() {
+    int ret;
+    int err;
   	uint8_t b[1];
 	
   	if (!available())
     	return -1;
 
-  	if(clientdrv.getData(_sock, b))
-  		return b[0];
-	else{
-		_is_connected = false;
-	}
-	return -1;
+    ret = clientdrv.getData(_sock, b);
+    if (ret > 0) {
+        return b[0];
+    } else {
+        err = clientdrv.getLastErrno(_sock);
+        if (err != EAGAIN) {
+            _is_connected = false;
+        }
+    }
+
+	return ret;
 }
 
 int WiFiClient::read(uint8_t* buf, size_t size) {
-
   	uint16_t _size = size;
 	int ret;
+    int err;
+
 	ret = clientdrv.getDataBuf(_sock, buf, _size);
   	if (ret <= 0){
-        if (clientdrv.getLastErrno(_sock) != EAGAIN) {
+        err = clientdrv.getLastErrno(_sock);
+        if (err != EAGAIN) {
 		    _is_connected = false;
         }
   	}

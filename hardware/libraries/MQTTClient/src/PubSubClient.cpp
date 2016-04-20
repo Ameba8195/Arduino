@@ -216,6 +216,11 @@ boolean PubSubClient::readByte(uint8_t * result) {
      if(currentMillis - previousMillis >= ((int32_t) MQTT_SOCKET_TIMEOUT * 1000)){
        return false;
      }
+#ifdef MQTT_PCN004_BREAK_READ_IF_NO_CONNECTION
+     if(!_client->connected()) {
+        return false;
+     }
+#endif
 #ifdef MQTT_PCN002_NON_BUSY_LOOP_READ
      delay(10); // delay a little to release CPU resources
 #endif
@@ -347,6 +352,9 @@ boolean PubSubClient::loop() {
         }
         return true;
     }
+#ifdef MQTT_PCN005_NON_BUSY_LOOP_If_NO_DATA
+    delay(10);
+#endif
     return false;
 }
 
