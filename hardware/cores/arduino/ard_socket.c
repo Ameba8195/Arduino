@@ -53,11 +53,23 @@ int get_available(int sock)
     int enable = 1;
     int timeout;
     int client_fd;
+    int err;
 	struct sockaddr_in cli_addr;
 
 	socklen_t client = sizeof(cli_addr);
-	if((client_fd = lwip_accept(sock, (struct sockaddr *) &cli_addr, &client)) < 0){
-		//printf("\r\nERROR on accept\r\n");
+
+    do {
+        client_fd = lwip_accept(sock, (struct sockaddr *) &cli_addr, &client);
+        if (client_fd < 0) {
+            err = get_sock_errno(sock);
+            if (err != EAGAIN) {
+                break;
+            }
+        }
+    } while (client_fd < 0);
+
+	if(client_fd  < 0){
+        printf("\r\nERROR on accept\r\n");
 		return -1;
 	}
 	else {

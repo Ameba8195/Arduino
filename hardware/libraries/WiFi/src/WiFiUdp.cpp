@@ -148,23 +148,20 @@ int WiFiUDP::parsePacket()
 
 int WiFiUDP::read()
 {
+    int ret;
     uint8_t b;
-    if (available())
-    {
-        serverDrv.getData(_sock, &b);
+
+    ret = serverDrv.getData(_sock, &b);
+    if (ret == 1) {
         return b;
     } else {
-        return -1;
+        return ret;
     }
 }
 
 int WiFiUDP::read(unsigned char* buffer, size_t len)
 {
-    if (available()) {
-        return serverDrv.getDataBuf(_sock, buffer, len);
-    } else {
-        return -1;
-    }
+    return serverDrv.getDataBuf(_sock, buffer, len);
 }
 
 int WiFiUDP::peek()
