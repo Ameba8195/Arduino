@@ -53,7 +53,7 @@ void setup()
     tm.Second = second();
     tm.Day = day();
     tm.Month = month();
-    tm.Year = year();
+    tm.Year = CalendarYrToTm(year());
     // configure RTC time
     RTC.write(tm);
   }
