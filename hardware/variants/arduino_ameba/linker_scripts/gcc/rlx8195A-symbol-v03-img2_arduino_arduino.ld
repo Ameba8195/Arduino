@@ -62,6 +62,7 @@ SECTIONS
     *mem.o (.bss)
     *memp.o (.bss)
     __tcm_end__ = .;
+	end = __tcm_end__;
   } > TCM
 
   .sdr_data : 
@@ -171,7 +172,6 @@ SECTIONS
  .heap :
  {
 	__end__ = .;
-	end = __end__;
 	*(.heap*)
 	__HeapLimit = .;
  } > BD_RAM
