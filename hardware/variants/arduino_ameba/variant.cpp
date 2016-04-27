@@ -58,14 +58,14 @@ PinDescription g_APinDescription[TOTAL_GPIO_PIN_NUM]=
 #endif
 
 void serialEvent() __attribute__((weak));
-void serialEvent() { }
+bool Serial_available() __attribute__((weak));
 
 // ----------------------------------------------------------------------------
 
 void serialEventRun(void)
 {
+    if (Serial_available && serialEvent && Serial_available()) serialEvent();
 
-  //if (Serial.available()) serialEvent();
 //  if (Serial1.available()) serialEvent1();
 //  if (Serial2.available()) serialEvent2();
 //  if (Serial3.available()) serialEvent3();

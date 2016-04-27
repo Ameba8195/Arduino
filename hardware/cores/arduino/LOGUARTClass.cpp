@@ -151,3 +151,6 @@ size_t LOGUARTClass::write( const uint8_t uc_data )
 
 LOGUARTClass Serial(UART_LOG_IRQ, &rx_buffer0);
 
+bool Serial_available() {
+    return Serial.available() > 0;
+}

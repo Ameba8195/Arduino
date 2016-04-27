@@ -47,7 +47,8 @@ void main_task( void const *arg )
     for (;;)
     {
         loop();
-        //if (serialEventRun) serialEventRun();
+        if (serialEventRun) serialEventRun();
+        osThreadYield();
     }
 }
 
@@ -60,14 +61,8 @@ int main( void )
  
     initVariant();
 
-#if 1
     osThreadDef(main_task, osPriorityRealtime, 1, 4096);
     main_tid = osThreadCreate (osThread (main_task), NULL);
-#else
-    // debug under interactive mode
-    console_init();
-    wlan_network();
-#endif
 
     osKernelStart();
 

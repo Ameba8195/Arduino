@@ -49,6 +49,8 @@ class LOGUARTClass : public HardwareSerial
 
     int _dwIrq;
 
+  private:
+    friend bool Serial_available();
 };
 
 extern LOGUARTClass Serial;
