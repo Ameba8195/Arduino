@@ -92,6 +92,26 @@ uint32_t os_timer_delete(uint32_t timer_id) {
     return osTimerDelete(timer_id);
 }
 
+uint32_t os_semaphore_create(int32_t count) {
+    return (uint32_t)osSemaphoreCreate(NULL, count);
+}
+
+int32_t os_semaphore_wait(uint32_t semaphore_id, uint32_t millisec) {
+    if (osSemaphoreWait((osSemaphoreId)semaphore_id, millisec) == 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+uint32_t os_semaphore_release(uint32_t semaphore_id) {
+    return (uint32_t)osSemaphoreRelease((osSemaphoreId)semaphore_id);
+}
+
+uint32_t os_semaphore_delete(uint32_t semaphore_id) {
+    return (uint32_t)osSemaphoreDelete((osSemaphoreId)semaphore_id);
+}
+
 #ifdef __cplusplus
 }
 #endif

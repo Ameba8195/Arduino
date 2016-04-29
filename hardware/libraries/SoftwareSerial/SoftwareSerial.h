@@ -50,15 +50,16 @@ private:
   long speed;
 
   // Expressed as 4-cycle delays (must never be 0!)
-  uint16_t _buffer_overflow:1;
+  bool _buffer_overflow;
 
-  // static data
   uint32_t _receive_buffer_size;
   char *_receive_buffer; 
   volatile uint8_t _receive_buffer_tail;
   volatile uint8_t _receive_buffer_head;
 
   friend void handle_interrupt(uint32_t id, uint32_t event);
+
+  void (*availableCallback)(char c);
 
 public:
   // public methods
@@ -83,6 +84,7 @@ public:
   /* Extend API provide by RTK */
 public:
   void setBufferSize(uint32_t buffer_size);
+  void setAvailableCallback(void (*callback)(char c));
 };
 
 #endif

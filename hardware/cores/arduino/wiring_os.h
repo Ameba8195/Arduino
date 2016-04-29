@@ -85,6 +85,16 @@ extern uint32_t os_timer_stop (uint32_t timer_id);
 
 extern uint32_t os_timer_delete(uint32_t timer_id);
 
+//  ==== Semaphore Management Functions ====
+
+extern uint32_t os_semaphore_create(int32_t count);
+
+extern int32_t os_semaphore_wait(uint32_t semaphore_id, uint32_t millisec);
+
+extern uint32_t os_semaphore_release(uint32_t semaphore_id);
+
+extern uint32_t os_semaphore_delete(uint32_t semaphore_id);
+
 #ifdef __cplusplus
 }
 #endif

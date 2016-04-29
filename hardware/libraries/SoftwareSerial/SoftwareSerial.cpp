@@ -67,6 +67,9 @@ void handle_interrupt(uint32_t id, uint32_t event)
         } else {
             pSwSerial->_buffer_overflow = true;
         }
+        if (pSwSerial->availableCallback != NULL) {
+            pSwSerial->availableCallback(d);
+        }
     }
 }
 
@@ -107,6 +110,7 @@ SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inv
     pUART = NULL;
     _receive_buffer_size = _SS_MAX_RX_BUFF;
     _receive_buffer = (char *) malloc( _receive_buffer_size );
+    availableCallback = NULL;
 }
 
 //
@@ -195,6 +199,7 @@ int SoftwareSerial::peek()
     return _receive_buffer[_receive_buffer_head];
 }
 
+/* Extend API provide by RTK */
 void SoftwareSerial::setBufferSize(uint32_t buffer_size)
 {
     if (_receive_buffer != NULL) {
@@ -202,5 +207,10 @@ void SoftwareSerial::setBufferSize(uint32_t buffer_size)
             _receive_buffer_size = buffer_size;
         }
     }
+}
+
+void SoftwareSerial::setAvailableCallback(void (*callback)(char c))
+{
+    availableCallback = callback;
 }
 
