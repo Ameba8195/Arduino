@@ -62,7 +62,7 @@ SECTIONS
     *mem.o (.bss)
     *memp.o (.bss)
     __tcm_end__ = .;
-	end = __tcm_end__;
+    end = __tcm_end__;
   } > TCM
 
   .sdr_data : 

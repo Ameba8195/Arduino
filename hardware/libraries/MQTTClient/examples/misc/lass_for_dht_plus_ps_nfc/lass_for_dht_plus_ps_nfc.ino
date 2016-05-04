@@ -7,6 +7,10 @@
 #include "DHT.h"
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <GTimer.h>
+
+/* whole timeout for all task */
+int measurement_timeout = 30 * 1000; // 30s
 
 /* data for wifi connection */
 char ssid[] = "yourNetwork";     //  your network SSID (name)
@@ -47,20 +51,37 @@ struct _memdata *memdata;
 DHT dht(DHTPIN, DHTTYPE);
 
 /* data for NFC */
-#define NFC_TEXT_SIZE 10
+#define NFC_TEXT_SIZE 64
 char nfctext[NFC_TEXT_SIZE];
 
 /* data for time */
 const int timeZone = 8;     // Beijing Time, Taipei Time
 
 /* data for power saving */
-//int measurement_interval = 10 * 60000; // 30s
-int measurement_interval = 10000;
+int measurement_interval = 10 * 60000; // 10min
 
 #define DBG (1)
 
+uint32_t startTime = 0;
+void myTimerHandler(uint32_t data) {
+  if (millis() - startTime < measurement_timeout) {
+    wdt_reset();
+  } else {
+    // It takes too much time. Let watchdog reset system.
+  }
+}
+
 void setup() {
   int retrytime;
+
+  startTime = millis();
+
+  // enable watchdog to avoid hardfault happen
+  wdt_enable(2000);
+
+  /* Use 1s periodical timer to feed watchdog. Hardfault handler has highest IRQ priority.
+   * When hardfault happened it makes timer handler cannot feed watchdog and watchdog would restart the system. */
+  GTimer.begin(0, 1 * 1000 * 1000, myTimerHandler);
 
   setSyncProvider(RTC.get);
 
@@ -71,21 +92,12 @@ void setup() {
     strncpy(memdata->signature, DATA_SIGNATURE, 8);
     memdata->h = 20;
     memdata->t = 20;
-    memdata->timestamp = 1461728234UL;
+    memdata->timestamp = 1461728234UL; // 2016/4/27
   }
 
   dht.begin();
   float h = dht.readHumidity();
   float t = dht.readTemperature();
-
-  time_t currentTime;
-  if ( timeStatus() == timeSet) {
-    currentTime = now();
-    if (currentTime > 1461728234UL) {
-      // the current time should larger than 2016/4/27
-      memdata->timestamp = currentTime - timeZone * SECS_PER_HOUR;
-    }
-  }
 
   if ( !isnan(h) && !isnan(t) ) {
     // we got a valid data, store it.
@@ -93,10 +105,25 @@ void setup() {
     memdata->t = t;
   }
   memset(nfctext, 0, sizeof(nfctext));
-  sprintf(nfctext, "h:%.0f,t:%.0f", memdata->h, memdata->t);
+  sprintf(nfctext, "device:%s,h:%.0f,t:%.0f", clientId, memdata->h, memdata->t);
 
+  NfcTag.appendAndroidPlayApp("com.realtek.sensortag");
   NfcTag.appendRtdText(nfctext);
   NfcTag.begin();
+
+  time_t currentTime;
+  for (retrytime = 0; retrytime < 30; retrytime++) {
+    if (timeStatus() == timeSet) {
+      currentTime = now();
+      if (DBG) printf("current time:%d\r\n", currentTime);
+      if (currentTime > 1461728234UL) {
+        // the current time should larger than 2016/4/27
+        memdata->timestamp = currentTime - timeZone * SECS_PER_HOUR;
+        break;
+      }
+    }
+    delay(200);
+  }
 
   // store current content back to flash
   FlashMemory.update();
@@ -121,12 +148,14 @@ void setup() {
     if (status == WL_CONNECTED) break;
     delay(500); // delay 0.5s for retry
   }
+  if (DBG) printf("Connected to %s\r\n", ssid);
 
   if (status == WL_CONNECTED) {
     // setup MQTT
     client.setServer(server, 1883);
-    for (retrytime; retrytime<30; retrytime++) {
+    for (retrytime = 0; retrytime<30; retrytime++) {
       if (client.connect(clientId)) {
+        if (DBG) printf("Connected to MQTT %s\r\n", server);
         client.publish(topic, payload);
         delay(1000);
         break;
@@ -136,6 +165,9 @@ void setup() {
       }
     }
   }
+
+  GTimer.stop(0);
+  wdt_disable();
 
   if(!PowerManagement.safeLock()) {
     if (DBG) printf("deepsleep\r\n");
