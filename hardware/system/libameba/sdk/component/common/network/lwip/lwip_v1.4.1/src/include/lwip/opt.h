@@ -322,7 +322,7 @@
  */
 #ifndef MEMP_NUM_NETBUF
 #ifdef ARDUINO_SDK
-#define MEMP_NUM_NETBUF                 4
+#define MEMP_NUM_NETBUF                 8
 #else
 #define MEMP_NUM_NETBUF                 2
 #endif
@@ -334,7 +334,7 @@
  */
 #ifndef MEMP_NUM_NETCONN
 #ifdef ARDUINO_SDK
-#define MEMP_NUM_NETCONN                8
+#define MEMP_NUM_NETCONN                16
 #else
 #define MEMP_NUM_NETCONN                4
 #endif
