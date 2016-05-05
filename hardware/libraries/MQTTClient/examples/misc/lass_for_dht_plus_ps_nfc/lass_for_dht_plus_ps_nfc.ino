@@ -67,7 +67,19 @@ void myTimerHandler(uint32_t data) {
   if (millis() - startTime < measurement_timeout) {
     wdt_reset();
   } else {
-    // It takes too much time. Let watchdog reset system.
+    // It takes too much time. Just go to deepsleep
+    if (DBG) printf("timeout!\r\n");
+    GTimer.stop(0);
+    wdt_disable();
+  
+    if(!PowerManagement.safeLock()) {
+      if (DBG) printf("deepsleep\r\n");
+      PowerManagement.deepsleep(measurement_interval);
+    } else {
+      if (DBG) printf("delay and softreset\r\n");
+      delay(measurement_interval);
+      PowerManagement.softReset();
+    }
   }
 }
 
