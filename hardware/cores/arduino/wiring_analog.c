@@ -116,10 +116,9 @@ uint32_t analogRead(uint32_t ulPin)
 		ret = analogin_read_u16(&adc3);
 		break;
 	default:
-		DiagPrintf("%s : ulPin %d wrong\n", __FUNCTION__, ulPin);
+		printf("%s : ulPin %d wrong\n", __FUNCTION__, ulPin);
 		return 0;
   }
-
 
   ret >>= 4;
   if (ret < 674) {
@@ -133,7 +132,7 @@ uint32_t analogRead(uint32_t ulPin)
   // Arduino analogRead()
   // input : 0~5V
   // 10 bit : 0 ~1023
-  ret = round(1023.0*voltage/5.0);
+  ret = round(1023.0*voltage/3.3);
   if ( ret > 1023 ) ret = 1023;
   return ret;
 }
