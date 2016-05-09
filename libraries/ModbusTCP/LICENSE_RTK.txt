@@ -1,0 +1,1 @@
+This library is forked from "https://github.com/ductsoup/ModbusTCP". The source codes under folder "ModbusTCP" inherit the license from any license claim of "https://github.com/ductsoup/ModbusTCP".

@@ -1,0 +1,21 @@
+#######################################
+# Syntax Coloring Map for Motors
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+ModbusTCP	KEYWORD1	ModbusTCP
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+run	KEYWORD2
+setFloat	KEYWORD2
+getFloat	KEYWORD2
+setU32	KEYWORD2
+getU32	KEYWORD2
+printHex	KEYWORD2
+printMB	KEYWORD2
