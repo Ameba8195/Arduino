@@ -13,6 +13,34 @@
         {
           "name": "Realtek Ameba Boards (32-bits ARM Cortex-M3)",
           "architecture": "ameba",
+          "version": "1.0.9",
+          "category": "Contributed",
+          "help": {
+            "online": "http://www.amebaiot.com/"
+          },
+          "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-1.0.9.tar.gz",
+          "archiveFileName": "ameba-1.0.9.tar.gz",
+          "checksum": "SHA-256:ecc0bcfe0f66ddc1eba8b57fdef25dee849043295e71ed9c49ae5b65b8100301",
+          "size": "16449506",
+          "boards": [
+            {"name": "Ameba 8195AM"}
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "realtek",
+              "name": "arm-none-eabi-gcc",
+              "version": "4.8.3-2014q1"
+            },
+            {
+              "packager": "realtek",
+              "name": "ameba_tools",
+              "version": "1.0.6"
+            }
+          ]
+        },
+        {
+          "name": "Realtek Ameba Boards (32-bits ARM Cortex-M3)",
+          "architecture": "ameba",
           "version": "1.0.8",
           "category": "Contributed",
           "help": {
@@ -23,9 +51,7 @@
           "checksum": "SHA-256:97461aefbd6eb3aac960ce01608592f4c73394e4dfdd52030c693cbf265c3ac2",
           "size": "16407607",
           "boards": [
-            {"name": "Ameba 8195AM"},
-            {"name": "Ameba 8711AM"},
-            {"name": "Ameba 8711AF"}
+            {"name": "Ameba 8195AM"}
           ],
           "toolsDependencies": [
             {
@@ -53,9 +79,7 @@
           "checksum": "SHA-256:bd1379494d295a487ebfe6108436a464bb88f86375bce695c1fe9b51d7d42498",
           "size": "16394925",
           "boards": [
-            {"name": "Ameba 8195AM"},
-            {"name": "Ameba 8711AM"},
-            {"name": "Ameba 8711AF"}
+            {"name": "Ameba 8195AM"}
           ],
           "toolsDependencies": [
             {
@@ -83,9 +107,7 @@
           "checksum": "SHA-256:541977c720cd079581a90d269eb8a79c997eb4af09da0c6bb76c833ff9154ef0",
           "size": "15448625",
           "boards": [
-            {"name": "Ameba 8195AM"},
-            {"name": "Ameba 8711AM"},
-            {"name": "Ameba 8711AF"}
+            {"name": "Ameba 8195AM"}
           ],
           "toolsDependencies": [
             {
@@ -113,9 +135,7 @@
           "checksum": "SHA-256:5bb37c277940c88eff42c342991a1df64b40a19fe886e7c44a75c3d377313623",
           "size": "15450506",
           "boards": [
-            {"name": "Ameba 8195AM"},
-            {"name": "Ameba 8711AM"},
-            {"name": "Ameba 8711AF"}
+            {"name": "Ameba 8195AM"}
           ],
           "toolsDependencies": [
             {
@@ -143,9 +163,7 @@
           "checksum": "SHA-256:83c453986960405965867baee5a22760f964d2dad22116e228527a612690c165",
           "size": "15436788",
           "boards": [
-            {"name": "Ameba 8195AM"},
-            {"name": "Ameba 8711AM"},
-            {"name": "Ameba 8711AF"}
+            {"name": "Ameba 8195AM"}
           ],
           "toolsDependencies": [
             {
@@ -173,9 +191,7 @@
           "checksum": "SHA-256:1981c779613c7d7003532b6d0c08b65ae030613c33c16023bd5d51bf97acaf51",
           "size": "15416660",
           "boards": [
-            {"name": "Ameba 8195AM"},
-            {"name": "Ameba 8711AM"},
-            {"name": "Ameba 8711AF"}
+            {"name": "Ameba 8195AM"}
           ],
           "toolsDependencies": [
             {
@@ -203,9 +219,7 @@
           "checksum": "SHA-256:73d2cfff3afd0a697506534caeccae9e9f6e3391cc29ff338aca34eaf89f7cbc",
           "size": "15363137",
           "boards": [
-            {"name": "Ameba 8195AM"},
-            {"name": "Ameba 8711AM"},
-            {"name": "Ameba 8711AF"}
+            {"name": "Ameba 8195AM"}
           ],
           "toolsDependencies": [
             {
@@ -233,9 +247,7 @@
           "checksum": "SHA-256:c89f08a3fc64edee1ed9a266b7e41cc1b15241787b6860ac46e5cafe2bad8b9b",
           "size": "15363137",
           "boards": [
-            {"name": "Ameba 8195AM"},
-            {"name": "Ameba 8711AM"},
-            {"name": "Ameba 8711AF"}
+            {"name": "Ameba 8195AM"}
           ],
           "toolsDependencies": [
             {
@@ -263,9 +275,7 @@
           "checksum": "SHA-256:9beb7abc8cd7c22f4f031daf8e58e07aa5b3fc2d6449a120c54b5c899f1012fb",
           "size": "15348074",
           "boards": [
-            {"name": "Ameba 8195AM"},
-            {"name": "Ameba 8711AM"},
-            {"name": "Ameba 8711AF"}
+            {"name": "Ameba 8195AM"}
           ],
           "toolsDependencies": [
             {
