@@ -20,8 +20,8 @@
           },
           "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-1.0.9.tar.gz",
           "archiveFileName": "ameba-1.0.9.tar.gz",
-          "checksum": "SHA-256:ecc0bcfe0f66ddc1eba8b57fdef25dee849043295e71ed9c49ae5b65b8100301",
-          "size": "16449506",
+          "checksum": "SHA-256:bc664ecb48e97db7cf1fae6b5ffc43f487e6c358cf5c0e609ef26fbc099d6735",
+          "size": "16449042",
           "boards": [
             {"name": "Ameba 8195AM"}
           ],
