@@ -25,6 +25,7 @@
  **/
 
 #include <WiFi.h>
+#include <WiFiUdp.h>
 #include <Car2wd.h>
 
 char ssid[] = "mycar";        // Set the AP's SSID
@@ -32,9 +33,18 @@ char pass[] = "12345678";     // Set the AP's password
 char channel[] = "6";         // Set the AP's channel
 int status = WL_IDLE_STATUS;  // the Wifi radio's status
 
-WiFiServer server(5001);
-
 Car2wd car(8,9,10,11,12,13);
+
+int port_ctrl = 5001;
+//#define CTRL_USE_TCP
+#ifdef CTRL_USE_TCP
+WiFiServer server(port_ctrl);
+WiFiClient client;
+#else
+WiFiUDP udp;
+#endif
+
+uint8_t buffer[256];
 
 void setup() {
   car.begin();
@@ -51,20 +61,27 @@ void setup() {
     }
     delay(10000);
   }
-
   //AP MODE already started:
   Serial.println("AP mode already started");
+
+#ifdef CTRL_USE_TCP
   server.begin();
+#else
+  udp.begin(port_ctrl);
+#endif
 }
 
-uint8_t buffer[256];
-void loop() {
+#ifdef CTRL_USE_TCP
+void tcpHandler() {
   int len;
-  WiFiClient client = server.available();
+  if (!client.connected()) {
+    client = server.available();
+  }
   while (client.connected()) {
     memset(buffer, 0, 256);
     len = client.read(buffer, sizeof(buffer)-1);
     if (len > 0) {
+      printf("[TCP]:%s\r\n", buffer);
       buffer[len] = '\0';
     }
     handleData((const char *)buffer);
@@ -72,7 +89,30 @@ void loop() {
   Serial.println("control socket broken");
   memset(buffer, 0, 256);
   handleData((const char *)buffer);
-  delay(1000);
+  delay(1000);  
+}
+#else
+void udpHandler() {
+  int len;
+  while(1) {
+    memset(buffer, 0, sizeof(buffer));
+    len = udp.read(buffer, sizeof(buffer)-1);
+    if (len > 0) {
+      printf("[UDP]:%s\r\n", buffer);
+      buffer[len] = '\0';
+    }
+    handleData((const char *)buffer);
+    delay(100);
+  }
+}
+#endif
+
+void loop() {
+#ifdef CTRL_USE_TCP
+  tcpHandler();
+#else
+  udpHandler();
+#endif
 }
 
 int speedMapping(int rawspeed) {
