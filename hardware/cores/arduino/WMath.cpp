@@ -16,11 +16,20 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-extern "C" {
-  #include "stdlib.h"
-  #include "stdint.h"
-}
+#include <inttypes.h>
 #include "WMath.h"
+
+extern "C" {
+extern void rtl_srandom( uint32_t seed );
+extern uint32_t rtl_random( void );
+}
+
+#ifndef srand
+#define srand rtl_srandom
+#endif
+#ifndef rand
+#define rand rtl_random
+#endif
 
 extern void randomSeed( uint32_t dwSeed )
 {
