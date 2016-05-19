@@ -18,7 +18,11 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#ifdef ARDUINO_AMEBA
+#include <Arduino.h>
+#else
 #include <stdio.h>
+#endif
 
 char *dtostrf (double val, signed char width, unsigned char prec, char *sout) {
   char fmt[20];
