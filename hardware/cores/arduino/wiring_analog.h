@@ -82,6 +82,8 @@ extern void analogOutputInit( void ) ;
 
 extern void noTone(uint32_t ulPin);
 
+extern void analogWritePeriod(int us);
+
 #ifdef __cplusplus
 }
 #endif

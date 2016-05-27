@@ -54,6 +54,7 @@ extern void *gpio_pin_struct[];
 
 static int _readResolution = 10;
 static int _writeResolution = 8;
+static int _writePeriod = 20000;
 
 void analogReadResolution(int res) {
 	_readResolution = res;
@@ -61,6 +62,10 @@ void analogReadResolution(int res) {
 
 void analogWriteResolution(int res) {
 	_writeResolution = res;
+}
+
+void analogWritePeriod(int us) {
+    _writePeriod = us;
 }
 
 static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to) {
@@ -158,7 +163,7 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue)
             }
             gpio_pin_struct[ulPin] = malloc ( sizeof(pwmout_t) );
     	    pwmout_init( (pwmout_t *) gpio_pin_struct[ulPin], g_APinDescription[ulPin].pinname);
-            pwmout_period_us( (pwmout_t *)gpio_pin_struct[ulPin], 20000);
+            pwmout_period_us( (pwmout_t *)gpio_pin_struct[ulPin], _writePeriod);
     		g_APinDescription[ulPin].ulPinType = PIO_PWM;
             g_APinDescription[ulPin].ulPinMode = NOT_INITIAL;
     	}

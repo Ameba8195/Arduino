@@ -11,6 +11,7 @@ private:
   	uint16_t _port;
   	int _sock_ser;
 	ServerDrv serverfd;
+
 public:
   	WiFiServer(uint16_t);
 
