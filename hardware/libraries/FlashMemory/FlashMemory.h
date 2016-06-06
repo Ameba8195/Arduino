@@ -8,15 +8,20 @@
 class FlashMemoryClass
 {
 private:
-    unsigned int _base_address;
+    unsigned int base_address;
     void* pFlash;
 
 public:
-    FlashMemoryClass(unsigned int base_address, unsigned int _buf_size);
+    FlashMemoryClass(unsigned int _base_address, unsigned int _buf_size);
     ~FlashMemoryClass();
 
+    void begin(unsigned int _base_address, unsigned int _buf_size);
+
     void read();
-    void update();
+    void update(bool erase = true);
+
+    unsigned int readWord(unsigned int offset);
+    void writeWord(unsigned int offset, unsigned int data);
 
     unsigned int buf_size;
     unsigned char *buf;
