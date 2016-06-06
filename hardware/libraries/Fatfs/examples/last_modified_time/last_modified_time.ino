@@ -27,6 +27,7 @@ void setup() {
   fs.setLastModTime(absolute_filename, year, month, date, hour, minute, second);
 
   fs.getLastModTime(absolute_filename, &year, &month, &date, &hour, &minute, &second);
+  printf("filename:\"%s\"\r\n", absolute_filename);
   printf("time mod:%04d/%02d/%02d %02d:%02d:%02d\r\n", year, month, date, hour, minute, second);
 
   fs.end();
