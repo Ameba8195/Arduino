@@ -24,33 +24,69 @@ extern "C" {
 
 #include "cmsis_os.h"
 
+#ifndef portNVIC_SYSTICK_CURRENT_VALUE_REG
+#define portNVIC_SYSTICK_CURRENT_VALUE_REG	( * ( ( volatile uint32_t * ) 0xe000e018 ) )
+#endif
+
+extern uint32_t xTaskGetTickCount();
+extern uint32_t xTaskGetTickCountFromISR();
+
+__STATIC_INLINE uint32_t __get_ipsr__(void)
+{
+  volatile uint32_t __regIPSR          __ASM("ipsr");
+  return(__regIPSR);
+}
+
 void delay( uint32_t ms )
 {
 	osStatus ret;
 
 	ret = osDelay(ms);
 	if ( (ret != osEventTimeout) && (ret != osOK) ) {
-		DiagPrintf("delay : ERROR : 0x%x \n", ret);
+		//DiagPrintf("delay : ERROR : 0x%x \n", ret);
 	}
 }
 
-
 void delayMicroseconds(uint32_t us)
 {
-	rtw_udelay_os(us);
+    int i, j;
+    for (i=0; i<us; i++) {
+        for (j=0; j<27; j++) {
+            asm("nop");
+        }
+    }
 }
 
 uint32_t millis( void )
 {
-    // OS_TICK = 1000, so the same as ticks
-    return osKernelSysTick();
+    if ( __get_ipsr__() == 0 ) {
+        return xTaskGetTickCount();
+    } else {
+        return xTaskGetTickCountFromISR();
+    }
 }
 
 uint32_t micros( void ) 
 {
-	return us_ticker_read();
-}
+    uint32_t tick1, tick2;
+    uint32_t us;
 
+    if ( __get_ipsr__() == 0 ) {
+        tick1 = xTaskGetTickCount();
+        us = portNVIC_SYSTICK_CURRENT_VALUE_REG;
+        tick2 = xTaskGetTickCount();
+    } else {
+        tick1 = xTaskGetTickCountFromISR();
+        us = portNVIC_SYSTICK_CURRENT_VALUE_REG;
+        tick2 = xTaskGetTickCountFromISR();        
+    }
+
+    if (tick1 == tick2) {
+        return tick1 * 1000 - us / 167;
+    } else {
+        return tick2 * 1000 - us / 167;
+    }
+}
 
 #ifdef __cplusplus
 }
