@@ -30,6 +30,7 @@ extern "C" {
 #include "IPAddress.h"
 #include "WiFiClient.h"
 #include "WiFiServer.h"
+#include "WiFiSSLClient.h"
 
 class WiFiClass
 {
@@ -245,6 +246,7 @@ public:
 
     friend class WiFiClient;
     friend class WiFiServer;
+	friend class WiFiSSLClient;
 };
 
 extern WiFiClass WiFi;
