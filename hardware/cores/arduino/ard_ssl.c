@@ -134,6 +134,7 @@ int get_ssl_receive(sslclient_context *ssl_client, uint8_t* data, int length)
 {
     int ret = 0;
 
+	memset(data, 0, length);
     ret = ssl_read(ssl_client->ssl, data, length);
 
     return ret;

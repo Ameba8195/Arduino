@@ -22,6 +22,8 @@ public:
 
 private:    	
 	bool _available;
+	uint8_t c[1];
+	bool read_c;
 };
 
 #endif

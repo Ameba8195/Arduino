@@ -8,7 +8,6 @@ extern "C" {
 uint16_t SSLDrv::availData(sslclient_context *ssl_client)
 {
 	int ret;
-    uint8_t c;
 
 	if (ssl_client->socket < 0)		
 		return 0;
@@ -16,9 +15,10 @@ uint16_t SSLDrv::availData(sslclient_context *ssl_client)
 	if(_available) {
 		return 1;
 	} else {
-		ret = get_ssl_receive(ssl_client, &c, 1);
+		ret = get_ssl_receive(ssl_client, c, 1);
 		if ( ret == 1 ) {
 			_available = true;
+			read_c = true;
 			return 1;	
 		} 	
 		else{
@@ -31,6 +31,12 @@ bool SSLDrv::getData(sslclient_context *ssl_client, uint8_t *data)
 {
 	int ret = 0;
 
+	if(read_c){
+		memcpy(data, c, 1);
+		read_c = false;
+		return true;
+	}
+	
 	ret = get_ssl_receive(ssl_client, data, 1);
 	
 	if (ret == 1) {
@@ -84,5 +90,7 @@ int SSLDrv::startClient(sslclient_context *ssl_client, uint32_t ipAddress)
 
 sslclient_context *SSLDrv::init(void)
 {
+	_available = false;
+	read_c = false;
 	return init_ssl_client();
 }
