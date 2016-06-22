@@ -43,27 +43,31 @@ void delay( uint32_t ms )
 
 	ret = osDelay(ms);
 	if ( (ret != osEventTimeout) && (ret != osOK) ) {
-		//DiagPrintf("delay : ERROR : 0x%x \n", ret);
+		//printf("delay : ERROR : 0x%x \n", ret);
 	}
 }
 
 void delayMicroseconds(uint32_t us)
 {
     int i, j;
-    for (i=0; i<us; i++) {
-        for (j=0; j<27; j++) {
-            asm("nop");
+    uint32_t t0, tn;
+    if ( us > 100 ) {
+        t0 = micros();
+        do {
+            tn = micros();
+        } while ( tn >= t0 && tn < (t0 + us - 1) );
+    } else {
+        for (i=0; i<us; i++) {
+            for (j=0; j<27; j++) {
+                asm("nop");
+            }
         }
     }
 }
 
 uint32_t millis( void )
 {
-    if ( __get_ipsr__() == 0 ) {
-        return xTaskGetTickCount();
-    } else {
-        return xTaskGetTickCountFromISR();
-    }
+    return (__get_ipsr__() == 0) ? xTaskGetTickCount() : xTaskGetTickCountFromISR();
 }
 
 uint32_t micros( void ) 
@@ -71,20 +75,20 @@ uint32_t micros( void )
     uint32_t tick1, tick2;
     uint32_t us;
 
-    if ( __get_ipsr__() == 0 ) {
+    if (__get_ipsr__() == 0) {
         tick1 = xTaskGetTickCount();
         us = portNVIC_SYSTICK_CURRENT_VALUE_REG;
         tick2 = xTaskGetTickCount();
     } else {
         tick1 = xTaskGetTickCountFromISR();
         us = portNVIC_SYSTICK_CURRENT_VALUE_REG;
-        tick2 = xTaskGetTickCountFromISR();        
+        tick2 = xTaskGetTickCountFromISR();
     }
 
     if (tick1 == tick2) {
         return tick1 * 1000 - us / 167;
     } else {
-        return tick2 * 1000 - us / 167;
+        return tick1 * 1000;
     }
 }
 
