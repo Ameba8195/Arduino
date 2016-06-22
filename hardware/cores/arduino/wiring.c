@@ -87,6 +87,8 @@ uint32_t micros( void )
 
     if (tick1 == tick2) {
         return tick1 * 1000 - us / 167;
+    } else if( (us / 167) < 500 ) {
+        return tick1 * 1000 - us / 167;
     } else {
         return tick1 * 1000;
     }
