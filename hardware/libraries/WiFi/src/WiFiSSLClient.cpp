@@ -118,20 +118,20 @@ WiFiSSLClient::operator bool() {
   	return sslclient.socket >= 0;
 }
 
-int WiFiSSLClient::connect(const char* host, uint16_t port) {
+int WiFiSSLClient::connect(const char* host, uint16_t port, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key) {
 	IPAddress remote_addr;
 	
 	if (WiFi.hostByName(host, remote_addr))
 	{
-		return connect(remote_addr, port);
+		return connect(remote_addr, port, rootCABuff, cli_cert, cli_key);
 	}
 	return 0;
 }
 
-int WiFiSSLClient::connect(IPAddress ip, uint16_t port) {
+int WiFiSSLClient::connect(IPAddress ip, uint16_t port, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key) {
 	int ret = 0;
 	
-	ret = ssldrv.startClient(&sslclient, ip);
+	ret = ssldrv.startClient(&sslclient, ip, rootCABuff, cli_cert, cli_key);
 
     if (ret < 0) {
         _is_connected = false;

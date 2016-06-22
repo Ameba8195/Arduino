@@ -1,21 +1,20 @@
 #ifndef wifisslclient_h
 #define wifisslclient_h
 #include "Print.h"
-#include "Client.h"
 #include "IPAddress.h"
 #include "ssl_drv.h"
 
 struct ssl_context;
-class WiFiSSLClient : public Client {
+class WiFiSSLClient : public Stream {
 
 public:
-	
+
   WiFiSSLClient();
   WiFiSSLClient(uint8_t sock);
 
   uint8_t status();
-  virtual int connect(IPAddress ip, uint16_t port);
-  virtual int connect(const char *host, uint16_t port);
+  virtual int connect(IPAddress ip, uint16_t port, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key);
+  virtual int connect(const char *host, uint16_t port, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key);
   virtual size_t write(uint8_t);
   virtual size_t write(const uint8_t *buf, size_t size);
   virtual int available();

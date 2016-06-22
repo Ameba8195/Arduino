@@ -46,13 +46,52 @@ static int my_random(void *p_rng, unsigned char *output, size_t output_len)
 	get_random_bytes(output, output_len);
 	return 0;
 }
+static int my_verify( void *data, x509_crt *crt, int depth, int *flags ) 
+ { 
+     char buf[1024]; 
+     ((void) data); 
+  
+     printf( "\nVerify requested for (Depth %d):\n", depth ); 
+     x509_crt_info( buf, sizeof( buf ) - 1, "", crt ); 
+     printf( "%s", buf ); 
+  
+     if( ( (*flags) & BADCERT_EXPIRED ) != 0 ) 
+         printf( "  ! server certificate has expired\n" ); 
+  
+     if( ( (*flags) & BADCERT_REVOKED ) != 0 ) 
+         printf( "  ! server certificate has been revoked\n" ); 
+  
+     if( ( (*flags) & BADCERT_CN_MISMATCH ) != 0 ) 
+         printf( "  ! CN mismatch\n" ); 
+  
+     if( ( (*flags) & BADCERT_NOT_TRUSTED ) != 0 ) 
+         printf( "  ! self-signed or not signed by a trusted CA\n" ); 
+  
+     if( ( (*flags) & BADCRL_NOT_TRUSTED ) != 0 ) 
+         printf( "  ! CRL not trusted\n" ); 
+  
+     if( ( (*flags) & BADCRL_EXPIRED ) != 0 ) 
+         printf( "  ! CRL expired\n" ); 
+  
+     if( ( (*flags) & BADCERT_OTHER ) != 0 ) 
+         printf( "  ! other (unknown) flag\n" ); 
+  
+     if ( ( *flags ) == 0 ) 
+         printf( "  This certificate has no flags\n" ); 
+  
+     return( 0 ); 
+ } 
 
-int start_ssl_client(sslclient_context *ssl_client, uint32_t ipAddress)
+int start_ssl_client(sslclient_context *ssl_client, uint32_t ipAddress, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key)
 {
 	int ret;
 	int timeout;
 	int port = 443;
 	int enable = 1;
+	x509_crt* cacert;
+	static x509_crt* _cli_crt = NULL;
+	static pk_context* _clikey_rsa = NULL;
+
 	memset(ssl_client, 0, sizeof(sslclient_context));
 	ssl_client->socket = -1;
 	ssl_client->ssl = (ssl_context *)malloc(sizeof(ssl_context));
@@ -98,19 +137,86 @@ int start_ssl_client(sslclient_context *ssl_client, uint32_t ipAddress)
 		return -1;
 	}
 
+
 	ssl_set_endpoint(ssl_client->ssl, SSL_IS_CLIENT);
-	ssl_set_authmode(ssl_client->ssl, SSL_VERIFY_NONE);
+
+	if(rootCABuff != NULL){
+		cacert = polarssl_malloc(sizeof(x509_crt));
+		x509_crt_init(cacert);
+		ssl_set_authmode(ssl_client->ssl, SSL_VERIFY_REQUIRED);
+		x509_crt_parse(cacert, rootCABuff, strlen(rootCABuff));
+		ssl_set_ca_chain(ssl_client->ssl, cacert, NULL, NULL);
+		ssl_set_verify( ssl_client->ssl, my_verify, NULL );
+	
+	}else{
+		ssl_set_authmode(ssl_client->ssl, SSL_VERIFY_NONE);
+	}
+
+	if(cli_cert != NULL && cli_key != NULL){
+		_cli_crt = polarssl_malloc(sizeof(x509_crt));
+	
+		if(_cli_crt)
+			x509_crt_init(_cli_crt);
+		else
+			return -1;
+
+		_clikey_rsa = polarssl_malloc(sizeof(pk_context));
+
+		if(_clikey_rsa)
+			pk_init(_clikey_rsa);
+		else
+			return -1;
+		if(x509_crt_parse(_cli_crt, cli_cert, strlen(cli_cert)) != 0)
+			return -1;
+
+		if(pk_parse_key(_clikey_rsa, cli_key, strlen(cli_key), NULL, 0) != 0)
+			return -1;
+
+		ssl_set_own_cert(ssl_client->ssl, _cli_crt, _clikey_rsa);
+	}
+
 	ssl_set_rng(ssl_client->ssl, my_random, NULL);
 	ssl_set_bio(ssl_client->ssl, net_recv, &ssl_client->socket, net_send, &ssl_client->socket);
 	if((ret = ssl_handshake(ssl_client->ssl)) != 0) {
 		printf("ERROR: ssl_handshake ret(-0x%x)", -ret);
 		net_close(ssl_client->socket);
+		if(cacert) {
+			x509_crt_free(cacert);
+			polarssl_free(cacert);
+			cacert = NULL;
+		}
+		if(_cli_crt) {
+			x509_crt_free(_cli_crt);
+			polarssl_free(_cli_crt);
+			_cli_crt = NULL;
+		}
+
+		if(_clikey_rsa) {
+			pk_free(_clikey_rsa);
+			polarssl_free(_clikey_rsa);
+			_clikey_rsa = NULL;
+		}
 		ssl_free(ssl_client->ssl);
 		free(ssl_client->ssl);
 		return -1;
 	}
 	
-exit:
+	if(cacert) {
+		x509_crt_free(cacert);
+		polarssl_free(cacert);
+		cacert = NULL;
+	}
+	if(_cli_crt) {
+		x509_crt_free(_cli_crt);
+		polarssl_free(_cli_crt);
+		_cli_crt = NULL;
+	}
+
+	if(_clikey_rsa) {
+		pk_free(_clikey_rsa);
+		polarssl_free(_clikey_rsa);
+		_clikey_rsa = NULL;
+	}
 	return ssl_client->socket;
 }
 

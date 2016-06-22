@@ -8,7 +8,7 @@ typedef struct {
 	ssl_context *ssl;
 } sslclient_context;
 
-int start_ssl_client(sslclient_context *ssl_client, uint32_t ipAddress);
+int start_ssl_client(sslclient_context *ssl_client, uint32_t ipAddress, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key);
 
 void stop_ssl_socket(sslclient_context *ssl_client);
 
