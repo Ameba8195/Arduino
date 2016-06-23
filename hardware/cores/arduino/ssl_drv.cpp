@@ -15,31 +15,39 @@ uint16_t SSLDrv::availData(sslclient_context *ssl_client)
 	if(_available) {
 		return 1;
 	} else {
-		ret = get_ssl_receive(ssl_client, c, 1);
-		if ( ret == 1 ) {
-			_available = true;
-			read_c = true;
-			return 1;	
-		} 	
-		else{
-			return 0;	
-		}
+	    return getData(ssl_client, c, 1);
 	}
 }
 
-bool SSLDrv::getData(sslclient_context *ssl_client, uint8_t *data)
+bool SSLDrv::getData(sslclient_context *ssl_client, uint8_t *data, uint8_t peek)
 {
 	int ret = 0;
+	int flag = 0;
 
-	if(read_c){
-		memcpy(data, c, 1);
-		read_c = false;
-		return true;
-	}
-	
-	ret = get_ssl_receive(ssl_client, data, 1);
-	
+    if (_available) {
+        /* we already has data to read */
+        data[0] = c[0];
+        if (peek) {
+        } else {
+            /* It's not peek and the data has been taken */
+            _available = false;
+        }
+        return true;
+    }
+
+    if (peek) {
+        flag |= 1;
+    }
+
+	ret = get_ssl_receive(ssl_client, c, 1, flag);
+
 	if (ret == 1) {
+        data[0] = c[0];
+        if (peek) {
+            _available = true;
+        } else {
+            _available = false;
+        }
 		return true;
 	}
  
@@ -50,9 +58,25 @@ int SSLDrv::getDataBuf(sslclient_context *ssl_client, uint8_t *_data, uint16_t _
 {
 	int ret;
 
-    _available = false;
-
-	ret = get_ssl_receive(ssl_client, _data, _dataLen);
+    if (_available) {
+        /* there is one byte cached */
+        _data[0] = c[0];
+        _available = false;
+        _dataLen--;
+        if (_dataLen > 0) {
+            ret = get_ssl_receive(ssl_client, _data, _dataLen, 0);
+            if (ret > 0) {
+                ret++;
+                return ret;
+            } else {
+                return 1;
+            }
+        } else {
+            return 1;
+        }
+    } else {
+        ret = get_ssl_receive(ssl_client, _data, _dataLen, 0);
+    }
 
 	return ret;
 }
@@ -91,6 +115,11 @@ int SSLDrv::startClient(sslclient_context *ssl_client, uint32_t ipAddress, uint3
 sslclient_context *SSLDrv::init(void)
 {
 	_available = false;
-	read_c = false;
 	return init_ssl_client();
 }
+
+int SSLDrv::getLastErrno(sslclient_context *ssl_client)
+{
+    return get_ssl_sock_errno(ssl_client);
+}
+

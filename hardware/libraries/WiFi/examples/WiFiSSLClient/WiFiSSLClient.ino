@@ -42,7 +42,7 @@ void setup() {
 
   Serial.println("\nStarting connection to server...");
   // if you get a connection, report back via serial:
-  if (client.connect(server, 443, NULL, NULL, NULL)) { //client.connect(server, 443, test_ca_cert, test_client_cert, test_client_key)
+  if (client.connect(server, 443)) { //client.connect(server, 443, test_ca_cert, test_client_cert, test_client_key)
     Serial.println("connected to server");
     // Make a HTTP request:
     client.println("GET /search?q=realtek HTTP/1.0");

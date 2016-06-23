@@ -14,8 +14,12 @@ void stop_ssl_socket(sslclient_context *ssl_client);
 
 int send_ssl_data(sslclient_context *ssl_client, const uint8_t *data, uint16_t len);
 
-int get_ssl_receive(sslclient_context *ssl_client, uint8_t* data, int length);
+int get_ssl_receive(sslclient_context *ssl_client, uint8_t* data, int length, int flag);
 
 sslclient_context *init_ssl_client(void);
+
+int get_ssl_sock_errno(sslclient_context *ssl_client);
+
+int get_ssl_bytes_avail(sslclient_context *ssl_client);
 
 #endif

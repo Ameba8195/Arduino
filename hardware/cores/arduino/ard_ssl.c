@@ -235,12 +235,31 @@ int send_ssl_data(sslclient_context *ssl_client, const uint8_t *data, uint16_t l
     return ret;
 }
 
-int get_ssl_receive(sslclient_context *ssl_client, uint8_t* data, int length)
+int get_ssl_receive(sslclient_context *ssl_client, uint8_t* data, int length, int flag)
 {
     int ret = 0;
 
+    uint8_t has_backup_recvtimeout = 0;
+    int backup_recv_timeout, recv_timeout, len;
+
+    if (flag & 0x01) {
+        ret = lwip_getsockopt(ssl_client->socket, SOL_SOCKET, SO_RCVTIMEO, &backup_recv_timeout, &len);
+        if (ret >= 0) {
+            recv_timeout = 10;
+            ret = lwip_setsockopt(ssl_client->socket, SOL_SOCKET, SO_RCVTIMEO, &recv_timeout, sizeof(recv_timeout));
+            if (ret >= 0) {
+                has_backup_recvtimeout = 1;
+            }
+        }
+    }
+
 	memset(data, 0, length);
     ret = ssl_read(ssl_client->ssl, data, length);
+
+    if ((flag & 0x01) && (has_backup_recvtimeout == 1)) {
+        // restore receiving timeout
+        lwip_setsockopt(ssl_client->socket, SOL_SOCKET, SO_RCVTIMEO, &backup_recv_timeout, sizeof(recv_timeout));
+    }
 
     return ret;
 }
@@ -257,4 +276,15 @@ sslclient_context *init_ssl_client(void){
 	sslclient->ssl = NULL;
 	
 	return sslclient;
+}
+
+int get_ssl_sock_errno(sslclient_context *ssl_client) {
+	int so_error;
+	socklen_t len = sizeof(so_error);
+	getsockopt(ssl_client->socket, SOL_SOCKET, SO_ERROR, &so_error, &len);
+    return so_error;
+}
+
+int get_ssl_bytes_avail(sslclient_context *ssl_client) {
+    return ssl_get_bytes_avail(ssl_client);
 }

@@ -5,6 +5,7 @@ extern "C" {
   #include "wl_definitions.h"
   #include "wl_types.h"
   #include "string.h"
+  #include "errno.h"
 }
 
 WiFiSSLClient::WiFiSSLClient(){
@@ -45,42 +46,56 @@ uint8_t WiFiSSLClient::connected() {
 
 int WiFiSSLClient::available() {
 	int ret = 0;
+    int err;
+
 	if(!_is_connected)
 		return 0;
   	if (sslclient.socket >= 0)
   	{	
       	ret = ssldrv.availData(&sslclient);
-		if(ret == 0){
-			_is_connected = false;
-			return 0;
+		if (ret > 0) {
+            return 1;
+        } else {
+            err = ssldrv.getLastErrno(&sslclient);
+            if (err != EAGAIN) {
+			    _is_connected = false;
+            }
 		}
-		else{
-			return 1;
-		}
+		return 0;
   	}
 }
 
 int WiFiSSLClient::read() {
+    int ret;
+    int err;
   	uint8_t b[1];
 	
   	if (!available())
     	return -1;
 
-  	if(ssldrv.getData(&sslclient, b))
+    ret = ssldrv.getData(&sslclient, b);
+    if (ret > 0) {
   		return b[0];
-	else{
-		_is_connected = false;
+	} else {
+        err = ssldrv.getLastErrno(&sslclient);
+        if (err != EAGAIN) {
+            _is_connected = false;
+        }
 	}
 	return -1;
 }
 
 int WiFiSSLClient::read(uint8_t* buf, size_t size) {
-
   	uint16_t _size = size;
 	int ret;
+    int err;
+
 	ret = ssldrv.getDataBuf(&sslclient, buf, _size);
   	if (ret <= 0){
-		_is_connected = false;
+        err = ssldrv.getLastErrno(&sslclient);
+        if (err != EAGAIN) {
+            _is_connected = false;
+        }
   	}
   	return ret;
 }
@@ -104,15 +119,18 @@ size_t WiFiSSLClient::write(uint8_t b) {
 size_t WiFiSSLClient::write(const uint8_t *buf, size_t size) {
   	if (sslclient.socket < 0)
   	{
+  	    setWriteError();
 	  	return 0;
   	}
   	if (size == 0)
   	{
+  	    setWriteError();
       	return 0;
   	}
 
   	if (!ssldrv.sendData(&sslclient, buf, size))
   	{
+  	    setWriteError();
 		_is_connected = false;
       	return 0;
   	}
@@ -163,7 +181,7 @@ int WiFiSSLClient::peek() {
 	if (!available())
 		return -1;
 
-	ssldrv.getData(&sslclient, &b);
+	ssldrv.getData(&sslclient, &b, 1);
 
 	return b;
 }
