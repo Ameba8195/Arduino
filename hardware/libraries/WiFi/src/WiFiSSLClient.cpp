@@ -12,6 +12,9 @@ WiFiSSLClient::WiFiSSLClient(){
 	_sock = -1;
 	//memset(&sslclient, 0, sizeof(sslclient_context));
 	sslclient.socket = -1;
+    _rootCABuff = NULL;
+    _cli_cert = NULL;
+    _cli_key = NULL;
 }
 
 WiFiSSLClient::WiFiSSLClient(uint8_t sock) {
@@ -20,6 +23,9 @@ WiFiSSLClient::WiFiSSLClient(uint8_t sock) {
 	sslclient.socket = sock;
     if(sock >= 0)
         _is_connected = true;
+    _rootCABuff = NULL;
+    _cli_cert = NULL;
+    _cli_key = NULL;
 }
 
 uint8_t WiFiSSLClient::connected() {
@@ -118,6 +124,15 @@ WiFiSSLClient::operator bool() {
   	return sslclient.socket >= 0;
 }
 
+int WiFiSSLClient::connect(IPAddress ip, uint16_t port) {
+    connect(ip, port, _rootCABuff, _cli_cert, _cli_key);
+}
+
+int WiFiSSLClient::connect(const char *host, uint16_t port) {
+    connect(host, port, _rootCABuff, _cli_cert, _cli_key);
+}
+
+
 int WiFiSSLClient::connect(const char* host, uint16_t port, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key) {
 	IPAddress remote_addr;
 	
@@ -131,7 +146,7 @@ int WiFiSSLClient::connect(const char* host, uint16_t port, unsigned char* rootC
 int WiFiSSLClient::connect(IPAddress ip, uint16_t port, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key) {
 	int ret = 0;
 	
-	ret = ssldrv.startClient(&sslclient, ip, rootCABuff, cli_cert, cli_key);
+	ret = ssldrv.startClient(&sslclient, ip, port, rootCABuff, cli_cert, cli_key);
 
     if (ret < 0) {
         _is_connected = false;
@@ -156,3 +171,13 @@ void WiFiSSLClient::flush() {
 	while (available())
 		read();
 }
+
+void WiFiSSLClient::setRootCA(unsigned char *rootCA) {
+    _rootCABuff = rootCA;
+}
+
+void WiFiSSLClient::setClientCertificate(unsigned char *client_ca, unsigned char *private_key) {
+    _cli_cert = client_ca;
+    _cli_key = private_key;
+}
+

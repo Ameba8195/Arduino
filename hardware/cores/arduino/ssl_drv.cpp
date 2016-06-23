@@ -79,11 +79,11 @@ bool SSLDrv::sendData(sslclient_context *ssl_client, const uint8_t *data, uint16
     return true;
 }
 
-int SSLDrv::startClient(sslclient_context *ssl_client, uint32_t ipAddress, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key)
+int SSLDrv::startClient(sslclient_context *ssl_client, uint32_t ipAddress, uint32_t port, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key)
 {
     int ret;
 
-    ret = start_ssl_client(ssl_client, ipAddress, rootCABuff, cli_cert, cli_key);
+    ret = start_ssl_client(ssl_client, ipAddress, port, rootCABuff, cli_cert, cli_key);
 
     return ret;
 }

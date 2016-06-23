@@ -82,11 +82,10 @@ static int my_verify( void *data, x509_crt *crt, int depth, int *flags )
      return( 0 ); 
  } 
 
-int start_ssl_client(sslclient_context *ssl_client, uint32_t ipAddress, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key)
+int start_ssl_client(sslclient_context *ssl_client, uint32_t ipAddress, uint32_t port, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key)
 {
 	int ret;
 	int timeout;
-	int port = 443;
 	int enable = 1;
 	x509_crt* cacert;
 	static x509_crt* _cli_crt = NULL;

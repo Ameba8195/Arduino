@@ -1,11 +1,12 @@
 #ifndef wifisslclient_h
 #define wifisslclient_h
 #include "Print.h"
+#include "Client.h"
 #include "IPAddress.h"
 #include "ssl_drv.h"
 
 struct ssl_context;
-class WiFiSSLClient : public Stream {
+class WiFiSSLClient : public Client {
 
 public:
 
@@ -13,8 +14,8 @@ public:
   WiFiSSLClient(uint8_t sock);
 
   uint8_t status();
-  virtual int connect(IPAddress ip, uint16_t port, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key);
-  virtual int connect(const char *host, uint16_t port, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key);
+  virtual int connect(IPAddress ip, uint16_t port);
+  virtual int connect(const char *host, uint16_t port);
   virtual size_t write(uint8_t);
   virtual size_t write(const uint8_t *buf, size_t size);
   virtual int available();
@@ -26,13 +27,23 @@ public:
   virtual uint8_t connected();
   virtual operator bool();
 
+  void setRootCA(unsigned char *rootCA);
+  void setClientCertificate(unsigned char *client_ca, unsigned char *private_key);
+
+  int connect(IPAddress ip, uint16_t port, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key);
+  int connect(const char *host, uint16_t port, unsigned char* rootCABuff, unsigned char* cli_cert, unsigned char* cli_key);
+
   using Print::write;
 
 private:
-	int _sock;
-	bool _is_connected;
-	sslclient_context sslclient;
-	SSLDrv ssldrv;
+  int _sock;
+  bool _is_connected;
+  sslclient_context sslclient;
+  SSLDrv ssldrv;
+
+  unsigned char *_rootCABuff;
+  unsigned char *_cli_cert;
+  unsigned char *_cli_key;
 };
 
 #endif
