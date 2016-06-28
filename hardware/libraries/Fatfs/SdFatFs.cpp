@@ -239,7 +239,10 @@ SdFatFile SdFatFs::open(char *absolute_path) {
     } while (0);
 
     if (ret != FR_OK) {
-        file.m_file = NULL;
+        if (file.m_file != NULL) {
+            free(file.m_file);
+            file.m_file = NULL;
+        }
     }
 
     return file;
