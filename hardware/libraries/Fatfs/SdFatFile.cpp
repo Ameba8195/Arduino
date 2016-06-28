@@ -79,7 +79,7 @@ int SdFatFile::read(void *buf, uint16_t nbyte) {
 int SdFatFile::seek(uint32_t pos) {
     FRESULT ret = FR_OK;
 
-    ret = f_lseek((FIL *)&m_file, pos);
+    ret = f_lseek((FIL *)m_file, pos);
 
     return -ret;
 }
