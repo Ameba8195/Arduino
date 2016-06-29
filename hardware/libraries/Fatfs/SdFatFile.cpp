@@ -15,10 +15,12 @@ SdFatFile::SdFatFile() {
 }
 
 SdFatFile::~SdFatFile() {
+#if 0
     if (m_file != NULL) {
         free(m_file);
         m_file = NULL;
     }
+#endif
 }
 
 size_t SdFatFile::write(uint8_t c) {
