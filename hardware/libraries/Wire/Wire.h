@@ -23,17 +23,6 @@
 
 #include "Stream.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
-// define this symbole to 2 or 3 if you need more I2C slot
-#define WIRE_COUNT 1
-
 #define BUFFER_LENGTH 32
 
 class TwoWire : public Stream {
@@ -122,14 +111,8 @@ private:
 };
 
 extern TwoWire Wire;
-
-#if WIRE_COUNT > 1
 extern TwoWire Wire1;
-#endif
-
-#if WIRE_COUNT > 2
 extern TwoWire Wire2;
-#endif
 
 #endif
 

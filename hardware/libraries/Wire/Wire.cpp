@@ -30,14 +30,8 @@ extern "C" {
 #include "i2c_api.h"
 
 i2c_t i2cwire1;
-
-#if WIRE_COUNT > 1
 i2c_t i2cwire0;
-#endif
-
-#if WIRE_COUNT > 2
 i2c_t i2cwire3;
-#endif
 
 #ifdef __cplusplus
 }
@@ -49,16 +43,12 @@ TwoWire::TwoWire(uint32_t dwSDAPin, uint32_t dwSCLPin) {
 
     if ( (dwSDAPin == PD_7 && dwSCLPin == PD_6) || (dwSDAPin == PC_4 && dwSCLPin == PC_5)) {
         this->pI2C = (void *)&i2cwire1;
-#if WIRE_COUNT > 1
     } else if (dwSDAPin == PD_4 && dwSCLPin == PD_5) {
         this->pI2C = (void *)&i2cwire0;
-#endif
-#if WIRE_COUNT > 2
     } else if (dwSDAPin == PB_3 && dwSCLPin == PB_2) {
         this->pI2C = (void *)&i2cwire3;
-#endif
     } else {
-        rtl_printf("Invalid I2C pin\r\n");
+        printf("Invalid I2C pin\r\n");
     }
 }
 
@@ -116,7 +106,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop
 
 	// i2c_read error;
 	if ( readed != quantity ) {
-		DiagPrintf("requestFrom: readed=%d, quantity=%d : ERROR\n", readed, quantity);
+		printf("requestFrom: readed=%d, quantity=%d : ERROR\n", readed, quantity);
 		return readed;
 	}
 	
@@ -250,12 +240,9 @@ void TwoWire::onRequest(void(*function)(void)) {
 TwoWire Wire  = TwoWire(PD_7, PD_6);
 //TwoWire Wire  = TwoWire(PC_4, PC_5);
 
-#if WIRE_COUNT > 1
 // HW: I2C0
 TwoWire Wire1 = TwoWire(PD_4, PD_5);
-#endif
 
-#if WIRE_COUNT > 2
 // HW: I2C3
 TwoWire Wire2 = TwoWire(PB_3, PB_2);
-#endif
+
