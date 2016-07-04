@@ -16,12 +16,12 @@
  The direction servo may drain power from low to high rapidly. So we need a 100uF capacity.
  So the whole connection is as below:
 
-	Motor power line --- Ameba 5V pin --- 100uF capacity positive side --- direction servo power line
+    Motor power line --- Ameba 5V pin --- 100uF capacity positive side --- direction servo power line
     Motor GND --- Ameba GND --- 100uF capacity negative side --- direction servo GND
 
     Ameba 3.3V pin --- PCA9685 VCC
     Ameba GND --- PCA9685 GND
-	Ameba SDA --- PCA9685 SDA
+    Ameba SDA --- PCA9685 SDA
     Ameba SCL --- PCA9685 SCL
 
     PCA9685 PWM 0 signal --- Motor signal line
