@@ -1,0 +1,1 @@
+The I2Cdev library is forked from works at "http://www.i2cdevlib.com/". The source codes under folder "I2Cdev" inherit the license from any license claim of "http://www.i2cdevlib.com/".
