@@ -139,7 +139,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   buf[length] = '\0';
   printf("Message arrived [%s] %s\r\n", topic, buf);
 
-  if (strstr(topic, "/shadow/get/accepted") != NULL) {
+  if ((strstr(topic, "/shadow/get/accepted") != NULL) || (strstr(topic, "/shadow/update/accepted") != NULL)) {
     // payload format: {"state":{"reported":{"led":1},"desired":{"led":0}},"metadata":{"reported":{"led":{"timestamp":1466996558}},"desired":{"led":{"timestamp":1466996558}}},"version":7,"timestamp":1466996558}
     pch = strstr(buf, "\"desired\":{\"led\":");
     if (pch != NULL) {
