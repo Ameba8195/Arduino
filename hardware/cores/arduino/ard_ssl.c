@@ -87,7 +87,7 @@ int start_ssl_client(sslclient_context *ssl_client, uint32_t ipAddress, uint32_t
 	int ret;
 	int timeout;
 	int enable = 1;
-	x509_crt* cacert;
+	x509_crt* cacert = NULL;
 	static x509_crt* _cli_crt = NULL;
 	static pk_context* _clikey_rsa = NULL;
 
