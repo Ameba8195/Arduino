@@ -39,6 +39,12 @@
 /* If there is no imcoming data, then the loop function would become a busy loop*/
 #define MQTT_PCN005_NON_BUSY_LOOP_If_NO_DATA
 
+/* By default it won't wait for ack. It cause un-expected behavior if subscribe and publish have sequence dependency */
+#define MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+
+/* By default publish sent with qos 0. Support qos level for publish. */
+#define MQTT_PCN007_SUPPORT_PUB_QOS
+
 #endif
 
 #ifdef MQTT_PCN001_ENLARGE_PACKET_SIZE
@@ -123,6 +129,16 @@ private:
    uint16_t port;
    Stream* stream;
    int _state;
+
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+   uint8_t waitAck;
+   uint8_t ackState;
+#endif
+
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+   uint8_t pub_qos;
+#endif
+
 public:
    PubSubClient();
    PubSubClient(Client& client);
@@ -162,6 +178,14 @@ public:
    boolean loop();
    boolean connected();
    int state();
+
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+   void waitForAck(uint8_t enable);
+#endif
+
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    uint8_t setPublishQos(uint8_t qos_level);
+#endif
 };
 
 

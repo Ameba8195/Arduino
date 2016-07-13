@@ -12,12 +12,24 @@ PubSubClient::PubSubClient() {
     this->_client = NULL;
     this->stream = NULL;
     setCallback(NULL);
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+    waitAck = ackState = 0x00;
+#endif
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    pub_qos = MQTTQOS0;
+#endif
 }
 
 PubSubClient::PubSubClient(Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setClient(client);
     this->stream = NULL;
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+    waitAck = ackState = 0x00;
+#endif
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    pub_qos = MQTTQOS0;
+#endif
 }
 
 PubSubClient::PubSubClient(IPAddress addr, uint16_t port, Client& client) {
@@ -25,12 +37,24 @@ PubSubClient::PubSubClient(IPAddress addr, uint16_t port, Client& client) {
     setServer(addr, port);
     setClient(client);
     this->stream = NULL;
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+    waitAck = ackState = 0x00;
+#endif
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    pub_qos = MQTTQOS0;
+#endif
 }
 PubSubClient::PubSubClient(IPAddress addr, uint16_t port, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(addr,port);
     setClient(client);
     setStream(stream);
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+    waitAck = ackState = 0x00;
+#endif
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    pub_qos = MQTTQOS0;
+#endif
 }
 PubSubClient::PubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
@@ -38,6 +62,12 @@ PubSubClient::PubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATUR
     setCallback(callback);
     setClient(client);
     this->stream = NULL;
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+    waitAck = ackState = 0x00;
+#endif
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    pub_qos = MQTTQOS0;
+#endif
 }
 PubSubClient::PubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
@@ -45,6 +75,12 @@ PubSubClient::PubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATUR
     setCallback(callback);
     setClient(client);
     setStream(stream);
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+    waitAck = ackState = 0x00;
+#endif
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    pub_qos = MQTTQOS0;
+#endif
 }
 
 PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, Client& client) {
@@ -52,12 +88,24 @@ PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, Client& client) {
     setServer(ip, port);
     setClient(client);
     this->stream = NULL;
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+    waitAck = ackState = 0x00;
+#endif
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    pub_qos = MQTTQOS0;
+#endif
 }
 PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(ip,port);
     setClient(client);
     setStream(stream);
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+    waitAck = ackState = 0x00;
+#endif
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    pub_qos = MQTTQOS0;
+#endif
 }
 PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
@@ -65,6 +113,12 @@ PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, 
     setCallback(callback);
     setClient(client);
     this->stream = NULL;
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+    waitAck = ackState = 0x00;
+#endif
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    pub_qos = MQTTQOS0;
+#endif
 }
 PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
@@ -72,6 +126,12 @@ PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, 
     setCallback(callback);
     setClient(client);
     setStream(stream);
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+    waitAck = ackState = 0x00;
+#endif
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    pub_qos = MQTTQOS0;
+#endif
 }
 
 PubSubClient::PubSubClient(const char* domain, uint16_t port, Client& client) {
@@ -79,12 +139,24 @@ PubSubClient::PubSubClient(const char* domain, uint16_t port, Client& client) {
     setServer(domain,port);
     setClient(client);
     this->stream = NULL;
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+    waitAck = ackState = 0x00;
+#endif
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    pub_qos = MQTTQOS0;
+#endif
 }
 PubSubClient::PubSubClient(const char* domain, uint16_t port, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(domain,port);
     setClient(client);
     setStream(stream);
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+    waitAck = ackState = 0x00;
+#endif
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    pub_qos = MQTTQOS0;
+#endif
 }
 PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
@@ -92,6 +164,12 @@ PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGN
     setCallback(callback);
     setClient(client);
     this->stream = NULL;
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+    waitAck = ackState = 0x00;
+#endif
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    pub_qos = MQTTQOS0;
+#endif
 }
 PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
@@ -99,6 +177,12 @@ PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGN
     setCallback(callback);
     setClient(client);
     setStream(stream);
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+    waitAck = ackState = 0x00;
+#endif
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+    pub_qos = MQTTQOS0;
+#endif
 }
 
 boolean PubSubClient::connect(const char *id) {
@@ -347,6 +431,20 @@ boolean PubSubClient::loop() {
                     _client->write(buffer,2);
                 } else if (type == MQTTPINGRESP) {
                     pingOutstanding = false;
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+                } else if (type == MQTTSUBACK) {
+                    if (waitAck) {
+                        ackState &= ~MQTTSUBACK;
+                    }
+                } else if (type == MQTTUNSUBACK) {
+                    if (waitAck) {
+                        ackState &= ~MQTTUNSUBACK;
+                    }
+                } else if (type == MQTTPUBACK) {
+                    if (waitAck) {
+                        ackState &= ~MQTTPUBACK;
+                    }
+#endif
                 }
             }
         }
@@ -379,6 +477,12 @@ boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigne
         // Leave room in the buffer for header and variable length field
         uint16_t length = 5;
         length = writeString(topic,buffer,length);
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+        uint16_t id_pos = length;
+        if (pub_qos >= MQTTQOS1) {
+            length+=2;
+        }
+#endif
         uint16_t i;
         for (i=0;i<plength;i++) {
             buffer[length++] = payload[i];
@@ -387,7 +491,55 @@ boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigne
         if (retained) {
             header |= 1;
         }
+
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+        header |= pub_qos;
+        if (pub_qos >= MQTTQOS1) {
+            // if publish qos >= 1, then it needs add packet id field
+            nextMsgId++;
+            if (nextMsgId == 0) {
+                nextMsgId = 1;
+            }
+            buffer[id_pos] = (nextMsgId >> 8);
+            buffer[id_pos++] = (nextMsgId & 0xFF);
+        }
+#endif
+
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+        uint8_t pub_qos_level = (header & 0x06) >> 1;
+        if (pub_qos_level >= 1) {
+            // only qos level 1 and 2 has ack
+            uint32_t timeout;
+            if (waitAck && ackState != 0) {
+                // If there is un-ack command, send another command would break sequence symmetry.
+                timeout = millis() + MQTT_SOCKET_TIMEOUT * 1000;
+                while (ackState != 0 && timeout > millis()) {
+                    loop();
+                }
+            }
+
+            boolean ret = write(header,buffer,length-5);
+            timeout = millis() + MQTT_SOCKET_TIMEOUT * 1000;
+            if (ret && waitAck) {
+                // Try to wait ack
+                ackState |= MQTTPUBACK;
+                while ((ackState & MQTTPUBACK) && timeout > millis()) {
+                    loop();
+                }
+                if (ackState & MQTTPUBACK) {
+                    // Regard it as failure if timeout for wait ack of publish
+                    ackState &= ~MQTTPUBACK;
+                    return false;
+                } else {
+                    return true;
+                }
+            } else {
+                return ret;
+            }
+        }
+#else
         return write(header,buffer,length-5);
+#endif
     }
     return false;
 }
@@ -502,7 +654,28 @@ boolean PubSubClient::subscribe(const char* topic, uint8_t qos) {
         buffer[length++] = (nextMsgId & 0xFF);
         length = writeString((char*)topic, buffer,length);
         buffer[length++] = qos;
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+        boolean ret = write(MQTTSUBSCRIBE|MQTTQOS1,buffer,length-5);
+        uint32_t timeout = millis() + MQTT_SOCKET_TIMEOUT * 1000;
+        if (ret && (waitAck)) {
+            // Try to wait ack
+            ackState |= MQTTSUBACK;
+            while ((ackState & MQTTSUBACK) && timeout > millis()) {
+                loop();
+            }
+            if (ackState & MQTTSUBACK) {
+                // Regard it as failure if timeout for wait ack of subscribe
+                ackState &= ~MQTTSUBACK;
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return ret;
+        }
+#else
         return write(MQTTSUBSCRIBE|MQTTQOS1,buffer,length-5);
+#endif
     }
     return false;
 }
@@ -521,7 +694,29 @@ boolean PubSubClient::unsubscribe(const char* topic) {
         buffer[length++] = (nextMsgId >> 8);
         buffer[length++] = (nextMsgId & 0xFF);
         length = writeString(topic, buffer,length);
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+        boolean ret = write(MQTTUNSUBSCRIBE|MQTTQOS1,buffer,length-5);
+        uint32_t timeout = millis() + MQTT_SOCKET_TIMEOUT * 1000;
+        if (ret && (waitAck)) {
+            // Try to wait ack
+            ackState |= MQTTUNSUBACK;
+            while ((ackState & MQTTUNSUBACK) && timeout > millis()) {
+                loop();
+            }
+            if (ackState & MQTTUNSUBACK) {
+                // Regard it as failure if timeout for wait ack of unsubscribe
+                ackState &= ~MQTTUNSUBACK;
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return ret;
+        }
+
+#else
         return write(MQTTUNSUBSCRIBE|MQTTQOS1,buffer,length-5);
+#endif
     }
     return false;
 }
@@ -602,3 +797,17 @@ PubSubClient& PubSubClient::setStream(Stream& stream){
 int PubSubClient::state() {
     return this->_state;
 }
+
+#ifdef MQTT_PCN006_SUPPORT_WAIT_FOR_ACK
+void PubSubClient::waitForAck(uint8_t enable){
+    waitAck = enable;
+}
+#endif
+
+#ifdef MQTT_PCN007_SUPPORT_PUB_QOS
+uint8_t PubSubClient::setPublishQos(uint8_t qos_level){
+    pub_qos = qos_level;
+    return pub_qos;
+}
+#endif
+

@@ -177,7 +177,7 @@ int start_ssl_client(sslclient_context *ssl_client, uint32_t ipAddress, uint32_t
 	ssl_set_rng(ssl_client->ssl, my_random, NULL);
 	ssl_set_bio(ssl_client->ssl, net_recv, &ssl_client->socket, net_send, &ssl_client->socket);
 	if((ret = ssl_handshake(ssl_client->ssl)) != 0) {
-		printf("ERROR: ssl_handshake ret(-0x%x)", -ret);
+		printf("ERROR: ssl_handshake ret(-0x%x)\r\n", -ret);
 		net_close(ssl_client->socket);
 		if(cacert) {
 			x509_crt_free(cacert);
