@@ -847,5 +847,8 @@ _LONG_CALL_ROM_ HAL_Status HalI2CSetCLKRtl8195aV02(IN  VOID *Data);
 HAL_Status HalI2CInit8195a_Patch(IN VOID *Data);
 HAL_Status HalI2CSendRtl8195a_Patch(IN VOID *Data);
 HAL_Status HalI2CSetCLKRtl8195a_Patch(IN VOID *Data);
+HAL_Status HalI2CEnableRtl8195a_Patch(IN  VOID    *Data);
+HAL_Status HalI2CSetTarRtl8195a(IN  VOID    *Data);
+HAL_Status HalI2CSetSarRtl8195a(IN  VOID    *Data);
 
 #endif
