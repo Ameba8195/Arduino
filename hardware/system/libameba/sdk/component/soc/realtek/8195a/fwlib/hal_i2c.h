@@ -71,6 +71,7 @@ typedef enum _I2C_DBG_LVL_ {
     #define DBG_8195A_I2C_LVL(...)
 #endif
 
+#define I2C_MTR_RTY_CNT     1024
 //======================================================
 // I2C HAL related enumeration
 // I2C Module Selection 
@@ -270,6 +271,8 @@ typedef enum _I2C_ERR_TYPE_ {
     I2C_ERR_TX_ABRT     =   0x08,           //I2C TX terminated
     I2C_ERR_SLV_TX_NACK =   0x10,           //I2C slave transmission terminated by master NACK, 
                                             //but there are data in slave TX FIFO
+    I2C_ERR_MST_A_NACK  =   0x12,
+    I2C_ERR_MST_D_NACK  =   0x13,
     I2C_ERR_USER_REG_TO =   0x20,
 
     I2C_ERR_RX_CMD_TO   =   0x21,
