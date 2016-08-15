@@ -536,6 +536,8 @@ boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigne
             } else {
                 return ret;
             }
+        } else {
+            return write(header,buffer,length-5);
         }
 #else
         return write(header,buffer,length-5);
