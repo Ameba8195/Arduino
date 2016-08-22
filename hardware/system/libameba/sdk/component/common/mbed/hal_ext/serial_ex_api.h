@@ -24,6 +24,16 @@
 extern "C" {
 #endif
 
+// Define RX FIFO Level: RX interrupt trigger, RTS de-assert trigger
+typedef enum {
+    FifoLv1Byte=0,    // 1-byte
+    FifoLvQuarter=1,  // 4-byte
+    FifoLvHalf=2,     // 8-byte
+    FifoLvFull=3      // 14-byte
+} SerialFifoLevel;
+
+void serial_clear_tx(serial_t *obj);
+void serial_clear_rx(serial_t *obj);
 void serial_send_comp_handler(serial_t *obj, void *handler, uint32_t id);
 void serial_recv_comp_handler(serial_t *obj, void *handler, uint32_t id);
 int32_t serial_recv_blocked (serial_t *obj, char *prxbuf, uint32_t len, uint32_t timeout_ms);

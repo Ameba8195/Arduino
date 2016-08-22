@@ -25,6 +25,7 @@
 #define RUART_IIR_INT_PEND              0x01
 #define RUART_IIR_INT_ID                (0x07<<1) //011(3), 010(2), 110(6), 001(1), 000(0)
 #define RUART_FIFO_CTL_REG_OFF          0x08    //[W]
+#define RUART_FIFO_CTL_REG_FIFO_ENABLE  0x01    //BIT0
 #define RUART_FIFO_CTL_REG_CLEAR_RXFIFO (1<<1)  //BIT1, 0x02, Write 1 clear
 #define RUART_FIFO_CTL_REG_CLEAR_TXFIFO (1<<2)  //BIT2, 0x04, Write 1 clear
 #define RUART_FIFO_CTL_REG_DMA_ENABLE   0x08    //BIT3
@@ -134,7 +135,8 @@ typedef struct _RUART_SPEED_SETTING_ {
     u32 BaudRate;
     u32 Ovsr;
     u32 Div;
-    u16 Ovsr_adj;
+    u32 Ovsr_adj;
+#if defined(E_CUT_ROM_DOMAIN) || (!defined(CONFIG_RELEASE_BUILD_LIBRARIES))
     u8 Ovsr_adj_max_bits;  // 9: No parity, 10: with Parity
     u8 Ovsr_adj_bits;
     u16 *Ovsr_adj_map;
@@ -144,6 +146,7 @@ typedef struct _RUART_SPEED_SETTING_ {
     u32 divisor_resolution; // 1 ~ 20: 10
     u32 jitter_lim;     // 50 ~ 100: 100
     u32 sclk;           // 83.33333 MHz
+#endif    
 }RUART_SPEED_SETTING, *PRUART_SPEED_SETTING;
 
 typedef enum _UART_RXFIFO_TRIGGER_LEVEL_ {
@@ -344,7 +347,7 @@ HalRuartGetIMRRtl8195a(
         IN VOID *Data
         );
 
-_LONG_CALL_ VOID
+_LONG_CALL_ROM_ VOID
 HalRuartSetIMRRtl8195a(
         IN VOID *Data
         );
@@ -421,6 +424,16 @@ HalRuartResetTxFifoRtl8195a(
         IN VOID *Data  ///< RUART Adapter
         );
 
+HAL_Status
+HalRuartResetRxFifoRtl8195a_Patch(
+    IN VOID *Data  ///< RUART Adapter
+);
+
+HAL_Status
+HalRuartResetTRxFifoRtl8195a(
+    IN VOID *Data  ///< RUART Adapter
+);
+
 HAL_Status 
 HalRuartSetBaudRateRtl8195a(
         IN VOID *Data
@@ -441,10 +454,41 @@ HalRuartFlowCtrlRtl8195a(
     IN VOID *Data
 );
 
+u32
+_UartTxDmaIrqHandle_Patch(
+    IN VOID *Data
+);
+
+u32
+_UartRxDmaIrqHandle_Patch(
+    IN VOID *Data
+);
+
 HAL_Status
 HalRuartDmaSendRtl8195a_Patch(
     IN VOID *Data,
     IN u8 *pTxData,
+    IN u32 Length
+);
+
+HAL_Status
+HalRuartDmaRecvRtl8195a_Patch(
+    IN VOID *Data,
+    IN u8  *pRxData,
+    IN u32 Length
+);
+
+HAL_Status
+HalRuartMultiBlkDmaSendRtl8195a(
+    IN VOID *Data,
+    IN u8 *pTxData,
+    IN u32 Length
+);
+
+HAL_Status
+HalRuartMultiBlkDmaRecvRtl8195a(
+    IN VOID *Data,
+    IN u8  *pRxData,
     IN u32 Length
 );
 
@@ -475,6 +519,21 @@ HalRuartExitCriticalRtl8195a(
 );
 
 #if CONFIG_CHIP_E_CUT
+_LONG_CALL_ HAL_Status
+HalRuartResetTxFifoRtl8195a_V04(
+        IN VOID *Data  ///< RUART Adapter
+);
+
+_LONG_CALL_ HAL_Status
+HalRuartResetRxFifoRtl8195a_V04(
+    IN VOID *Data  ///< RUART Adapter
+);
+
+_LONG_CALL_ HAL_Status
+HalRuartResetTRxFifoRtl8195a_V04(
+    IN VOID *Data  ///< RUART Adapter
+);
+
 _LONG_CALL_ HAL_Status 
 HalRuartSetBaudRateRtl8195a_V04(
     IN VOID *Data
@@ -500,10 +559,41 @@ HalRuartFlowCtrlRtl8195a_V04(
     IN VOID *Data
 );
 
+_LONG_CALL_ u32
+_UartTxDmaIrqHandle_V04(
+        IN VOID *Data
+);
+
+_LONG_CALL_ u32
+_UartRxDmaIrqHandle_V04(
+        IN VOID *Data
+);
+
 _LONG_CALL_ HAL_Status
 HalRuartDmaSendRtl8195a_V04(
     IN VOID *Data,
     IN u8 *pTxData,
+    IN u32 Length
+);
+
+_LONG_CALL_ HAL_Status
+HalRuartDmaRecvRtl8195a_V04(
+    IN VOID *Data,
+    IN u8  *pRxData,
+    IN u32 Length
+);
+
+_LONG_CALL_ HAL_Status
+HalRuartMultiBlkDmaSendRtl8195a_V04(
+    IN VOID *Data,
+    IN u8 *pTxData,
+    IN u32 Length
+);
+
+_LONG_CALL_ HAL_Status
+HalRuartMultiBlkDmaRecvRtl8195a_V04(
+    IN VOID *Data,
+    IN u8  *pRxData,
     IN u32 Length
 );
 

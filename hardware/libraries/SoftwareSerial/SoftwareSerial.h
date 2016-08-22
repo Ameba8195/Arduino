@@ -41,6 +41,17 @@ http://arduiniana.org.
 
 #define _SS_MAX_RX_BUFF 64 // RX buffer size
 
+#define PARITY_NONE    (0)
+#define PARITY_ODD     (1)
+#define PARITY_EVEN    (2)
+#define PARITY_FORCED1 (3)
+#define PARITY_FORCED0 (4)
+
+#define FLOW_CONTROL_NONE   (0)
+#define FLOW_CONTROL_RTS    (1)
+#define FLOW_CONTROL_CTS    (2)
+#define FLOW_CONTROL_RTSCTS (3)
+
 class SoftwareSerial : public Stream
 {
 private:
@@ -48,6 +59,10 @@ private:
   uint8_t receivePin;
   uint8_t transmitPin;
   long speed;
+  int data_bits;
+  int parity;
+  int stop_bits;
+  int flowctrl;
 
   // Expressed as 4-cycle delays (must never be 0!)
   bool _buffer_overflow;
@@ -85,6 +100,8 @@ public:
 public:
   void setBufferSize(uint32_t buffer_size);
   void setAvailableCallback(void (*callback)(char c));
+  void begin(long speed, int data_bits, int parity, int stop_bits);
+  void begin(long speed, int data_bits, int parity, int stop_bits, int flowctrl, int rtsPin, int ctsPin);
 };
 
 #endif

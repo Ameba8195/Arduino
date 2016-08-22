@@ -40,6 +40,7 @@ extern "C" {
 #endif
 
 #include "serial_api.h"
+#include "serial_ex_api.h"
 
 serial_t sobj;
 extern PinDescription g_APinDescription[];
@@ -81,11 +82,15 @@ bool SoftwareSerial::listen()
 
     serial_init((serial_t *)pUART, (PinName)g_APinDescription[transmitPin].pinname, (PinName)g_APinDescription[receivePin].pinname);
     serial_baud((serial_t *)pUART, speed);
-    serial_format((serial_t *)pUART, 8, ParityNone, 1);
+    serial_format((serial_t *)pUART, data_bits, (SerialParity)parity, stop_bits);
 
     serial_irq_handler((serial_t *)pUART, (uart_irq_handler)handle_interrupt, (uint32_t)this);
     serial_irq_set((serial_t *)pUART, RxIrq, 1);
     serial_irq_set((serial_t *)pUART, TxIrq, 1);
+
+    if (flowctrl) {
+        serial_set_flow_control((serial_t *)pUART, FlowControlRTSCTS, (PinName)0, (PinName)0);
+    }
 
     return ret;
 }
@@ -111,6 +116,11 @@ SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inv
     _receive_buffer_size = _SS_MAX_RX_BUFF;
     _receive_buffer = (char *) malloc( _receive_buffer_size );
     availableCallback = NULL;
+
+    data_bits = 8;
+    parity = PARITY_NONE;
+    flowctrl = FLOW_CONTROL_NONE;
+    stop_bits = 1;
 }
 
 //
@@ -214,3 +224,29 @@ void SoftwareSerial::setAvailableCallback(void (*callback)(char c))
     availableCallback = callback;
 }
 
+void SoftwareSerial::begin(long speed, int data_bits, int parity, int stop_bits)
+{
+    pUART = malloc ( sizeof(serial_t) );
+    if (pUART == NULL) {
+        rtl_printf("fail to malloc\r\n");
+    }
+    this->speed     = speed;
+    this->data_bits = data_bits;
+    this->parity    = parity;
+    this->stop_bits = stop_bits;
+    listen();
+}
+
+void SoftwareSerial::begin(long speed, int data_bits, int parity, int stop_bits, int flowctrl, int rtsPin, int ctsPin)
+{
+    pUART = malloc ( sizeof(serial_t) );
+    if (pUART == NULL) {
+        rtl_printf("fail to malloc\r\n");
+    }
+    this->speed     = speed;
+    this->data_bits = data_bits;
+    this->parity    = parity;
+    this->stop_bits = stop_bits;
+    this->flowctrl  = flowctrl;
+    listen();
+}

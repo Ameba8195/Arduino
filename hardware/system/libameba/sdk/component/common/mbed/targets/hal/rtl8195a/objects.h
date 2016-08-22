@@ -59,6 +59,8 @@ struct serial_s {
     UART_DMA_CONFIG   uart_gdma_cfg;
     HAL_GDMA_ADAPTER uart_gdma_adp_tx;
     HAL_GDMA_ADAPTER uart_gdma_adp_rx;
+    UART_DMA_MULTIBLK gdma_multiblk_list_tx;
+    UART_DMA_MULTIBLK gdma_multiblk_list_rx;
 #endif    
     uint32_t    tx_len;
     uint32_t    rx_len;

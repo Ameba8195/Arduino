@@ -17,6 +17,15 @@
  */
 #define UART_WAIT_FOREVER       0xffffffff
 
+#define UART_DMA_MBLK_NUM       16      // maximum block number for each DMA transfer, it must <= 16 
+#define UART_DMA_BLOCK_SIZE     4092    // the block size of multiple block DMA, it cann0t over 4095
+
+typedef struct _HAL_UART_DMA_MULTIBLK_ {
+    volatile GDMA_CH_LLI_ELE GdmaChLli[UART_DMA_MBLK_NUM];
+    struct GDMA_CH_LLI Lli[UART_DMA_MBLK_NUM];
+    struct BLOCK_SIZE_LIST BlockSizeList[UART_DMA_MBLK_NUM];   
+}UART_DMA_MULTIBLK, *PUART_DMA_MULTIBLK;
+
 typedef struct _UART_DMA_CONFIG_ {
     u8 TxDmaEnable;
     u8 RxDmaEnable;
@@ -27,6 +36,12 @@ typedef struct _UART_DMA_CONFIG_ {
     VOID *pRxHalGdmaAdapter;
     IRQ_HANDLE TxGdmaIrqHandle;
     IRQ_HANDLE RxGdmaIrqHandle;
+#if defined(E_CUT_ROM_DOMAIN) || (!defined(CONFIG_RELEASE_BUILD_LIBRARIES))
+    UART_DMA_MULTIBLK *pTxDmaBlkList;       // point to multi-block list
+    UART_DMA_MULTIBLK *pRxDmaBlkList;       // point to multi-block list
+    u8 TxDmaMBChnl;     // is using DMA multiple block channel
+    u8 RxDmaMBChnl;     // is using DMA multiple block channel
+#endif
 }UART_DMA_CONFIG, *PUART_DMA_CONFIG;
 
 typedef struct _HAL_RUART_ADAPTER_ {
@@ -66,6 +81,7 @@ typedef struct _HAL_RUART_ADAPTER_ {
     VOID (*EnterCritical)(void);
     VOID (*ExitCritical)(void);
 
+#if defined(E_CUT_ROM_DOMAIN) || (!defined(CONFIG_RELEASE_BUILD_LIBRARIES))
     //1 New member only can be added below: members above must be fixed for ROM code
     u32 *pDefaultBaudRateTbl;      // point to the table of pre-defined baud rate
     u8 *pDefaultOvsrRTbl;         // point to the table of OVSR for pre-defined baud rate
@@ -76,9 +92,14 @@ typedef struct _HAL_RUART_ADAPTER_ {
     u16 *pDefOvsrAdjTbl_10;       // point to the table of OVSR-Adj for pre-defined baud rate
     u16 *pDefOvsrAdjTbl_9;       // point to the table of OVSR-Adj for pre-defined baud rate
     u16 *pDefOvsrAdjTbl_8;       // point to the table of OVSR-Adj for pre-defined baud rate
+    PUART_DMA_MULTIBLK pTxDMAMBlk;  // point to the Link List Table of the DMA Multiple Block
+    PUART_DMA_MULTIBLK pRxDMAMBlk;  // point to the Link List Table of the DMA Multiple Block
     u32 BaudRateUsing;             // Current using Baud-Rate    
+    u8 WordLenUsing;             // Current using Word Length
+    u8 ParityUsing;             // Current using Parity check
+    u8 RTSCtrl;               // Software RTS Control
 
-#if CONFIG_CHIP_E_CUT
+#if 0//CONFIG_CHIP_E_CUT
     u8  TxState;
     u8  RxState;
     u32 TxInitSize;     // how many byte to TX at atart
@@ -89,6 +110,7 @@ typedef struct _HAL_RUART_ADAPTER_ {
     VOID (*TaskYield)(VOID *para);    // User Task Yield: do a context switch while waitting
     VOID *TaskYieldPara;   // the agrument (pointer) for TaskYield
 #endif    // #if CONFIG_CHIP_E_CUT
+#endif
 }HAL_RUART_ADAPTER, *PHAL_RUART_ADAPTER;
 
 typedef struct _HAL_RUART_OP_ {
@@ -139,9 +161,9 @@ HalRuartOpInit(
 
 extern HAL_Status
 HalRuartTxGdmaInit(
-    PHAL_RUART_OP pHalRuartOp,
     PHAL_RUART_ADAPTER pHalRuartAdapter,
-    PUART_DMA_CONFIG pUartGdmaConfig
+    PUART_DMA_CONFIG pUartGdmaConfig,
+    u8 IsMultiBlk    
 );
 
 extern VOID
@@ -151,9 +173,9 @@ HalRuartTxGdmaDeInit(
 
 extern HAL_Status
 HalRuartRxGdmaInit(
-    PHAL_RUART_OP pHalRuartOp,
     PHAL_RUART_ADAPTER pHalRuartAdapter,
-    PUART_DMA_CONFIG pUartGdmaConfig
+    PUART_DMA_CONFIG pUartGdmaConfig,
+    u8 IsMultiBlk    
 );
 
 extern VOID
@@ -164,6 +186,11 @@ HalRuartRxGdmaDeInit(
 extern HAL_Status
 HalRuartResetTxFifo(
     VOID *Data
+);
+
+extern HAL_Status
+HalRuartResetRxFifo(
+    IN VOID *Data
 );
 
 extern HAL_Status 
@@ -194,6 +221,30 @@ HalRuartEnable(
 HAL_Status 
 HalRuartFlowCtrl(
     IN VOID *Data
+);
+
+VOID
+HalRuartEnterCritical(
+    IN VOID *Data
+);
+
+VOID
+HalRuartExitCritical(
+    IN VOID *Data
+);
+
+HAL_Status
+HalRuartDmaSend(
+    IN VOID *Data,
+    IN u8 *pTxBuf,
+    IN u32 Length
+);
+
+HAL_Status
+HalRuartDmaRecv(
+    IN VOID *Data,
+    IN u8 *pRxBuf,
+    IN u32 Length
 );
 
 extern const HAL_RUART_OP _HalRuartOp;
