@@ -56,6 +56,7 @@ unsigned int FlashMemoryClass::readWord(unsigned int offset) {
 void FlashMemoryClass::writeWord(unsigned int offset, unsigned int data) {
     unsigned int value;
     unsigned char *tmpbuf;
+    unsigned int *tmpvalue;
     unsigned int sector;
 
     flash_write_word((flash_t *)pFlash, base_address + offset, data);
@@ -69,7 +70,8 @@ void FlashMemoryClass::writeWord(unsigned int offset, unsigned int data) {
 
         flash_erase_sector((flash_t *)pFlash, sector);
 
-        tmpbuf[ base_address + offset - sector ] = data;
+        tmpvalue = (unsigned int *) (tmpbuf + base_address + offset - sector);
+        *tmpvalue = data;
 
         flash_stream_write((flash_t *)pFlash, sector, FLASH_SECTOR_SIZE, tmpbuf);
 
