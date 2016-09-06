@@ -41,4 +41,14 @@ private:
 	uint8_t data[DATA_LENTH];
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern int update_ota_local(char *ip, int port);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

@@ -3,7 +3,7 @@ extern "C" {
   #include "wl_types.h"
   #include "string.h"
   #include "errno.h"
-
+  #include "update.h"
 }
 
 #include "WiFi.h"

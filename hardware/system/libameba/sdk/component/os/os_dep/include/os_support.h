@@ -54,7 +54,6 @@
 
 
 #ifdef CONFIG_TIMER_MODULE
-extern _LONG_CALL_ u32 HalDelayUs(u32 us);
 #define __Delay(t)                  HalDelayUs(t)
 #else
 static __inline__ u32 __Delay(u32 us)

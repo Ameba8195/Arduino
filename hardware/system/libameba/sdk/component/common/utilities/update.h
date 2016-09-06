@@ -5,6 +5,7 @@
 int update_ota_local(char *ip, int port);
 int update_ota_cloud(char *repository, char *file_path);
 void cmd_update(int argc, char **argv);
+void cmd_ota_image(bool cmd);
 
 //----------------------------------------------------------------------------
 #endif

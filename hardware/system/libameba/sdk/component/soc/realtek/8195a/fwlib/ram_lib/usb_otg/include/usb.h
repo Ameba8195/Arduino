@@ -45,7 +45,7 @@
 //#include "osdep_api.h"
 #include "hal_util.h"
 
-#include "errno.h"
+#include "usb_otg_inc/errno.h"
 #include "diag.h"
 #include "usb_ch9.h"
 #include "usb_defs.h"

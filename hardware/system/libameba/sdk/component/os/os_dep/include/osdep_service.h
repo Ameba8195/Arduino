@@ -21,6 +21,7 @@
 #define __OSDEP_SERVICE_H_
 
 /* OS dep feature enable */
+#include <autoconf.h>
 
 #define CONFIG_LITTLE_ENDIAN
 
@@ -30,6 +31,7 @@
 
 #if defined(CONFIG_PLATFORM_8195A)
 	#define CONFIG_USE_TCM_HEAP 1					/* USE TCM HEAP */
+	#define USE_MUTEX_FOR_SPINLOCK	1
 #endif
 
 #if defined(CONFIG_PLATFORM_AMEBA_X)
@@ -66,7 +68,34 @@
 #endif
 
 #include <stdio.h>
+#if defined(CONFIG_PLATFORM_8195A) || defined(CONFIG_PLATFORM_8711B)
 #include "platform_autoconf.h"
+#else
+#ifndef SUCCESS
+#define SUCCESS	0
+#endif
+#ifndef FAIL
+#define FAIL	(-1)
+#endif
+#ifndef _SUCCESS
+#define _SUCCESS	1
+#endif
+#ifndef _FAIL
+#define _FAIL	0
+#endif
+#ifndef FALSE		
+    #define FALSE   0
+#endif
+
+#ifndef TRUE
+    #define TRUE    (!FALSE)
+#endif
+		
+#define _TRUE        TRUE	
+#define _FALSE	     FALSE	
+
+#endif
+
 #if defined( PLATFORM_FREERTOS)
 #include "freertos_service.h"
 #elif defined( PLATFORM_ECOS)
