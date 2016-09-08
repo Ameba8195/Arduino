@@ -34,7 +34,7 @@ void setup() {
    * it will try connecting to server, and download the image.
    * After verified this image, the system would reboot and run this image.
    */
-  update_ota_local(OTA_SERVER, 8082);
+  update_ota_local(OTA_SERVER, OTA_PORT);
 }
 
 void loop() {
