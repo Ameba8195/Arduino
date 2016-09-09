@@ -23,6 +23,7 @@ void setup() {
 
   // attempt to connect to Wifi network:
   Serial.print("Attempting to connect to SSID: ");
+  Serial.println(ssid);
   while (WiFi.begin(ssid, pass) != WL_CONNECTED) {
     Serial.println("retry in 5s");
     delay(5000);

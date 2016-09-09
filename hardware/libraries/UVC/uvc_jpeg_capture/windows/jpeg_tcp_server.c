@@ -1,9 +1,11 @@
 /*
-Compile under windows (unsing mingw):
+Compile under windows (using mingw):
 
-    mingw32-cc.exe -o jpeg_tcp_server.c jpeg_tcp_server.c.c -lwsock32
+    mingw32-cc.exe -o jpeg_tcp_server jpeg_tcp_server.c -lwsock32 -static
 
 */
+
+#ifndef ARDUINO_SDK
 
 #include<io.h>
 #include<stdio.h>
@@ -100,3 +102,4 @@ int main(int argc , char *argv[])
      
     return 0;
 }
+#endif

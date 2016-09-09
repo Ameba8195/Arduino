@@ -1,9 +1,11 @@
 /*
-Compile under windows (unsing mingw):
+Compile under windows (using mingw):
 
     mingw32-cc.exe -o ota_server ota_server.c -lwsock32 -static
 
 */
+
+#ifndef ARDUINO_SDK
 
 #include <io.h>
 #include <stdio.h>
@@ -116,3 +118,4 @@ int main(int argc , char *argv[])
      
     return 0;
 }
+#endif
