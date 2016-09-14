@@ -5,6 +5,7 @@ struct ssl_context;
 
 typedef struct {
 	int socket;
+    int recvTimeout;
 	ssl_context *ssl;
 } sslclient_context;
 

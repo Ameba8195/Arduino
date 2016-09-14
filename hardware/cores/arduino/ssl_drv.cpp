@@ -123,3 +123,8 @@ int SSLDrv::getLastErrno(sslclient_context *ssl_client)
     return get_ssl_sock_errno(ssl_client);
 }
 
+int SSLDrv::setSockRecvTimeout(int sock, int timeout)
+{
+    return setSockRecvTimeout(sock, timeout);
+}
+

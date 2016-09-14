@@ -21,6 +21,8 @@ public:
 	sslclient_context *init(void);
     int getLastErrno(sslclient_context *ssl_client);
 
+    int setSockRecvTimeout(int sock, int timeout);
+
 private:    	
 	bool _available;
 	uint8_t c[1];

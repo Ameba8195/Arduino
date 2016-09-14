@@ -118,7 +118,7 @@ int start_ssl_client(sslclient_context *ssl_client, uint32_t ipAddress, uint32_t
 	serv_addr.sin_port = htons(port);
 
 	if(lwip_connect(ssl_client->socket, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == 0){
-		timeout = 3000;
+		timeout = ssl_client->recvTimeout;
 		lwip_setsockopt(ssl_client->socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 		lwip_setsockopt(ssl_client->socket, IPPROTO_TCP, TCP_NODELAY, &enable, sizeof(enable));
 	}
@@ -224,6 +224,7 @@ void stop_ssl_socket(sslclient_context *ssl_client)
 	net_close(ssl_client->socket);
 	ssl_free(ssl_client->ssl);
 	free(ssl_client->ssl);
+    ssl_client->socket = -1;
 }
 
 int send_ssl_data(sslclient_context *ssl_client, const uint8_t *data, uint16_t len)

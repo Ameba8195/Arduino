@@ -11,8 +11,11 @@ extern "C" {
 WiFiSSLClient::WiFiSSLClient(){
     _is_connected = false;
 	_sock = -1;
-	//memset(&sslclient, 0, sizeof(sslclient_context));
+
 	sslclient.socket = -1;
+    sslclient.ssl = NULL;
+    sslclient.recvTimeout = 3000;
+
     _rootCABuff = NULL;
     _cli_cert = NULL;
     _cli_key = NULL;
@@ -20,8 +23,11 @@ WiFiSSLClient::WiFiSSLClient(){
 
 WiFiSSLClient::WiFiSSLClient(uint8_t sock) {
     _sock = sock;
-	//memset(&sslclient, 0, sizeof(sslclient_context));
-	sslclient.socket = sock;
+
+	sslclient.socket = -1;
+    sslclient.ssl = NULL;
+    sslclient.recvTimeout = 3000;
+
     if(sock >= 0)
         _is_connected = true;
     _rootCABuff = NULL;
@@ -197,5 +203,12 @@ void WiFiSSLClient::setRootCA(unsigned char *rootCA) {
 void WiFiSSLClient::setClientCertificate(unsigned char *client_ca, unsigned char *private_key) {
     _cli_cert = client_ca;
     _cli_key = private_key;
+}
+
+int WiFiSSLClient::setRecvTimeout(int timeout) {
+    sslclient.recvTimeout = timeout;
+    if (connected()) {
+        ssldrv.setSockRecvTimeout(sslclient.socket, sslclient.recvTimeout);
+    }
 }
 

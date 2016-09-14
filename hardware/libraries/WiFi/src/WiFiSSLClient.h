@@ -35,6 +35,8 @@ public:
 
   using Print::write;
 
+  int setRecvTimeout(int timeout);
+
 private:
   int _sock;
   bool _is_connected;
