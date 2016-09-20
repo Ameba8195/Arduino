@@ -91,7 +91,7 @@ int start_ssl_client(sslclient_context *ssl_client, uint32_t ipAddress, uint32_t
 	static x509_crt* _cli_crt = NULL;
 	static pk_context* _clikey_rsa = NULL;
 
-	memset(ssl_client, 0, sizeof(sslclient_context));
+	memset(ssl_client->ssl, 0, sizeof(ssl_context));
 	ssl_client->socket = -1;
 	ssl_client->ssl = (ssl_context *)malloc(sizeof(ssl_context));
 	if(ssl_client->ssl == NULL){
