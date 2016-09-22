@@ -13,12 +13,14 @@ extern "C" {
 
 WiFiClient::WiFiClient() : _sock(MAX_SOCK_NUM) {
     _is_connected = false;
+    recvTimeout = 3000;
 }
 
 WiFiClient::WiFiClient(uint8_t sock) {
     _sock = sock;
     if(sock >= 0 && sock != 0xFF)
         _is_connected = true;
+    recvTimeout = 3000;
 }
 
 uint8_t WiFiClient::connected() {
@@ -156,6 +158,7 @@ int WiFiClient::connect(IPAddress ip, uint16_t port) {
         return 0;
     } else {
         _is_connected = true;
+        clientdrv.setSockRecvTimeout(_sock, recvTimeout);
     }
 
     return 1;
@@ -180,8 +183,9 @@ void WiFiClient::flush() {
 // extend API from RTK
 
 int WiFiClient::setRecvTimeout(int timeout) {
-    if (connected() && _sock >= 0) {
-        clientdrv.setSockRecvTimeout(_sock, timeout);
+    if (connected()) {
+        recvTimeout = timeout;
+        clientdrv.setSockRecvTimeout(_sock, recvTimeout);
     }
 }
 

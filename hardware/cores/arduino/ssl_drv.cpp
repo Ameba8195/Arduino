@@ -112,12 +112,6 @@ int SSLDrv::startClient(sslclient_context *ssl_client, uint32_t ipAddress, uint3
     return ret;
 }
 
-sslclient_context *SSLDrv::init(void)
-{
-	_available = false;
-	return init_ssl_client();
-}
-
 int SSLDrv::getLastErrno(sslclient_context *ssl_client)
 {
     return get_ssl_sock_errno(ssl_client);

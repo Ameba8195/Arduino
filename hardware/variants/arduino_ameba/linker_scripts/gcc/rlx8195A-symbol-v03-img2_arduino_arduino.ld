@@ -157,6 +157,7 @@ SECTIONS
     *(COMMON)
     *(.bdsram.data*)
     *(.bfsram.data*)
+	*(.ssl_ram_map*)
     __bss_end__ = .;
     .ram.bss$$Limit = .;
   } > BD_RAM

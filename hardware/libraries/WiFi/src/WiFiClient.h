@@ -39,6 +39,8 @@ private:
 	ServerDrv clientdrv;
 	bool _is_connected;
 	uint8_t data[DATA_LENTH];
+
+    int recvTimeout;
 };
 
 #ifdef __cplusplus
