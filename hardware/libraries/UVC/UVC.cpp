@@ -30,6 +30,7 @@ extern int format2codec_id(uvc_fmt_t fmt_type);
 
 #define REQ_END_STREAM   0x01
 #define REQ_JPEG_CAPTURE 0x02
+#define FILTER_FACTOR	5
 
 int set_video(struct uvc_context *uvc_ctx, struct stream_flow *stream)
 {
@@ -430,18 +431,20 @@ int UVCClass::getJPEG(unsigned char* buf) {
     mjpeg_buf = buf;
     mjpeg_size = 0;
 
-    osSignalSet(uvctid, REQ_JPEG_CAPTURE);
-
-    for (retry = 0; retry<10; retry++) {
-        delay(50);
-        if (mjpeg_size > 0) {
-            break;
-        }
-    }
-
-    ret = mjpeg_size;
-    mjpeg_size = 0;
-
+		for(int i = 0; i < FILTER_FACTOR; i++)
+		{
+			osSignalSet(uvctid, REQ_JPEG_CAPTURE);
+			
+			for (retry = 0; retry<10; retry++) {
+				delay(50);
+				if (mjpeg_size > 0) {
+					break;
+				}
+			}
+	
+			ret = mjpeg_size;
+			mjpeg_size = 0;
+		}
     return ret;
 }
 
