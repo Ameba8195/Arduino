@@ -9,7 +9,7 @@ class OTAClass {
 public:
     OTAClass();
 
-    int beginArduinoMdnsService(uint16_t port);
+    int beginArduinoMdnsService(char *device_name, uint16_t port);
     int endArduinoMdnsService();
 
     int beginLocal(uint16_t port, bool reboot_when_success = true);

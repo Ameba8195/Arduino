@@ -12,7 +12,7 @@
 char ssid[] = "yourNetwork";     //  your network SSID (name)
 char pass[] = "secretPassword";  // your network password
 
-MDNSService service("Arduino", "_arduino._tcp", "local", 5000);
+MDNSService service("MyAmeba", "_arduino._tcp", "local", 5000);
 
 void setup() {
   printf("Try to connect to %s\r\n", ssid);

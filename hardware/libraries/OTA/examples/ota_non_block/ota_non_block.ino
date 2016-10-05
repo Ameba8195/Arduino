@@ -59,7 +59,7 @@ void ota_thread(const void *argument) {
 #endif
 
   // Broadcast mDNS service at OTA_PORT that makes Arduino IDE find Ameba device
-  OTA.beginArduinoMdnsService(OTA_PORT);
+  OTA.beginArduinoMdnsService("MyAmeba", OTA_PORT);
 
   // Listen at OTA_PORT and wait for client (Eq. Arduino IDE). Client would send OTA image and make a update.
   while( OTA.beginLocal(OTA_PORT) < 0 ) {

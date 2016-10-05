@@ -33,7 +33,7 @@ OTAClass::OTAClass() {
     txtRecord = NULL;
 }
 
-int OTAClass::beginArduinoMdnsService(uint16_t port) {
+int OTAClass::beginArduinoMdnsService(char *device_name, uint16_t port) {
 
     int ret = -1;
 
@@ -53,7 +53,7 @@ int OTAClass::beginArduinoMdnsService(uint16_t port) {
         TXTRecordSetValue((TXTRecordRef *)txtRecord, "tcp_check",   strlen("no"),             "no");
         TXTRecordSetValue((TXTRecordRef *)txtRecord, "ssh_upload",  strlen("no"),             "no");
 
-        mdns_service_id = mDNSRegisterService("Arduino", "_arduino._tcp", "local", port, (TXTRecordRef *)txtRecord);
+        mdns_service_id = mDNSRegisterService(device_name, "_arduino._tcp", "local", port, (TXTRecordRef *)txtRecord);
 
         TXTRecordDeallocate((TXTRecordRef *)txtRecord);
 
