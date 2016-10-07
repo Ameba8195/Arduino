@@ -43,7 +43,7 @@ void setup() {
 
   // Listen at OTA_PORT and wait for client (Eq. Arduino IDE). Client would send OTA image and make a update.
   if (OTA.beginLocal(OTA_PORT) < 0) {
-	printf("OTA failed!!\r\n");
+    printf("OTA failed!!\r\n");
   }
 }
 

@@ -13,6 +13,34 @@
         {
           "name": "Realtek Ameba Boards (32-bits ARM Cortex-M3)",
           "architecture": "ameba",
+          "version": "1.1.4",
+          "category": "Contributed",
+          "help": {
+            "online": "http://www.amebaiot.com/"
+          },
+          "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-1.1.4.tar.gz",
+          "archiveFileName": "ameba-1.1.4.tar.gz",
+          "checksum": "SHA-256:4b5ef36fa619ff771cb7be5a3195252ab6e52336a89b2fd23207d2aa6cfa6843",
+          "size": "16998391",
+          "boards": [
+            {"name": "Ameba RTL8195A"}
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "realtek",
+              "name": "arm-none-eabi-gcc",
+              "version": "4.8.3-2014q1"
+            },
+            {
+              "packager": "realtek",
+              "name": "ameba_tools",
+              "version": "1.0.7"
+            }
+          ]
+        },
+        {
+          "name": "Realtek Ameba Boards (32-bits ARM Cortex-M3)",
+          "architecture": "ameba",
           "version": "1.1.3",
           "category": "Contributed",
           "help": {
@@ -438,6 +466,26 @@
                  "size":"51029223"
               }
            ]
+        },
+        {
+          "name": "ameba_tools",
+          "version": "1.0.7",
+          "systems": [
+            {
+              "host": "i686-mingw32",
+              "archiveFileName": "ameba_tools-1.0.7.tar.gz",
+              "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba_tools-1.0.7.tar.gz",
+              "checksum": "SHA-256:2e67bcfbcd31ce3cc02a8edb4f645ccb2dcd8b3b9ccb63f2d090e54225c94075",
+              "size": "5540922"
+            },
+            {
+              "host": "x86_64-apple-darwin",
+              "archiveFileName": "ameba_tools-1.0.7.tar.gz",
+              "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba_tools-1.0.7.tar.gz",
+              "checksum": "SHA-256:2e67bcfbcd31ce3cc02a8edb4f645ccb2dcd8b3b9ccb63f2d090e54225c94075",
+              "size": "5540922"
+            }
+          ]
         },
         {
           "name": "ameba_tools",
