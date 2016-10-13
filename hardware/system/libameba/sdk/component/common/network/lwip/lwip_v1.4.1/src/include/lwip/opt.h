@@ -322,7 +322,7 @@
  */
 #ifndef MEMP_NUM_NETBUF
 #ifdef ARDUINO_SDK
-#define MEMP_NUM_NETBUF                 8
+#define MEMP_NUM_NETBUF                 16
 #else
 #define MEMP_NUM_NETBUF                 2
 #endif
@@ -334,7 +334,7 @@
  */
 #ifndef MEMP_NUM_NETCONN
 #ifdef ARDUINO_SDK
-#define MEMP_NUM_NETCONN                16
+#define MEMP_NUM_NETCONN                32
 #else
 #define MEMP_NUM_NETCONN                4
 #endif
@@ -1465,7 +1465,7 @@
  * SO_SNDTIMEO processing.
  */
 #ifndef LWIP_SO_SNDTIMEO
-#define LWIP_SO_SNDTIMEO                0
+#define LWIP_SO_SNDTIMEO                1
 #endif
 
 /**

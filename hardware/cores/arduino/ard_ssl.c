@@ -117,7 +117,10 @@ int start_ssl_client(sslclient_context *ssl_client, uint32_t ipAddress, uint32_t
     	if(lwip_connect(ssl_client->socket, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == 0) {
     		timeout = ssl_client->recvTimeout;
     		lwip_setsockopt(ssl_client->socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+			timeout = 30000;
+            lwip_setsockopt(ssl_client->socket, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
     		lwip_setsockopt(ssl_client->socket, IPPROTO_TCP, TCP_NODELAY, &enable, sizeof(enable));
+            lwip_setsockopt(ssl_client->socket, SOL_SOCKET, SO_KEEPALIVE, &enable, sizeof(enable));
     	}
     	else{
     		printf("\r\nConnect to Server failed!\r\n");
