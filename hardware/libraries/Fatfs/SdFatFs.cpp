@@ -15,7 +15,7 @@ extern "C" {
 char WRBuf[TEST_SIZE];
 char RDBuf[TEST_SIZE];
 
-int sdioInitErr = 0;
+int sdioInitErr = FR_OK;
 
 SdFatFs::SdFatFs() {
     m_fs = NULL;
@@ -45,7 +45,7 @@ int SdFatFs::begin() {
         }
 
         if(sdioInitErr == FR_DISK_ERR)
-        	break;
+            break;
 
         drv_num = FATFS_RegisterDiskDriver(&SD_disk_Driver);
         if (drv_num < 0) {

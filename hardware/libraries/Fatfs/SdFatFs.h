@@ -9,7 +9,7 @@ class SdFatFs
 {
 public:
     SdFatFs();
-		~SdFatFs();
+    ~SdFatFs();
 		
     int begin();
     int end();
