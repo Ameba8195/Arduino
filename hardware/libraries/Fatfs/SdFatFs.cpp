@@ -15,6 +15,8 @@ extern "C" {
 char WRBuf[TEST_SIZE];
 char RDBuf[TEST_SIZE];
 
+int sdioInitErr = 0;
+
 SdFatFs::SdFatFs() {
     m_fs = NULL;
     drv_num = -1;
@@ -22,6 +24,14 @@ SdFatFs::SdFatFs() {
     logical_drv[1] = ':';
     logical_drv[2] = '/';
     logical_drv[3] = '\0';
+    if( sdio_init_host() != 0 ){
+    	printf("SDIO host init fail.\n");
+    	sdioInitErr = FR_DISK_ERR;      
+    }
+}
+
+SdFatFs::~SdFatFs() {
+    sdio_deinit_host();
 }
 
 int SdFatFs::begin() {
@@ -34,11 +44,8 @@ int SdFatFs::begin() {
             break;
         }
 
-        if( sdio_init_host() != 0 ){
-            printf("SDIO host init fail.\n");
-            ret = FR_DISK_ERR;
-            break;
-        }
+        if(sdioInitErr == FR_DISK_ERR)
+        	break;
 
         drv_num = FATFS_RegisterDiskDriver(&SD_disk_Driver);
         if (drv_num < 0) {
@@ -51,7 +58,7 @@ int SdFatFs::begin() {
 
         ret = f_mount((FATFS *)m_fs, logical_drv, 1);
         if( ret != FR_OK ){
-            printf("FATFS mount logical drive fail.\n");
+            printf("FATFS mount logical drive fail:%d\n",ret);
             break;
         }
 
@@ -66,7 +73,7 @@ int SdFatFs::begin() {
 
 int SdFatFs::end() {
     FRESULT ret = FR_OK;
-
+		printf("FR_OK : %d\n",FR_OK);
     ret = f_mount(NULL, logical_drv, 1);
     if( ret != FR_OK ) {
         printf("FATFS unmount logical drive fail.\n");
@@ -81,8 +88,6 @@ int SdFatFs::end() {
         free(m_fs);
         m_fs = NULL;
     }
-
-    sdio_deinit_host();
 
     drv_num = -1;
 
