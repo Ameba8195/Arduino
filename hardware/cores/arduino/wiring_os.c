@@ -13,7 +13,8 @@ uint32_t os_thread_create( void (*task)(const void *argument), void *argument, i
 
     thread_def.pthread = task;
     thread_def.tpriority = (osPriority)priority;
-    thread_def.stacksize = stack_size;
+    // the underlying freertos implementation on cmsis os divide stack size by 4
+    thread_def.stacksize = stack_size * 4;
     thread_def.name = "ARDUINO";
 
     return (uint32_t)osThreadCreate(&thread_def, argument);
