@@ -1,0 +1,199 @@
+# GDB script for loading ram.bin process
+
+#===============================================================================
+#set GDB connection 
+set remotetimeout 100000
+target remote :2331
+
+#===============================================================================
+#set file path
+set $BINFILE = "./application/Debug/bin/ram_all.bin"
+
+#===============================================================================
+#Message display setting
+#disable all messages
+
+set verbose off
+set complaints 0
+set confirm off
+set exec-done-display off
+show exec-done-display
+set trace-commands off
+#set debug aix-thread off
+#set debug dwarf2-die 0
+set debug displaced off 
+set debug expression 0
+set debug frame 0
+set debug infrun 0
+set debug observer 0
+set debug overload 0
+set debugvarobj 0
+set pagination off
+set print address off
+set print symbol-filename off
+set print symbol off
+set print pretty off
+set print object off
+#set debug notification off
+set debug parser off
+set debug remote 0
+
+#===============================================================================
+#set JTAG and external SRAM
+monitor reset 1
+monitor sleep 20
+monitor clrbp
+#===============================================================================
+#Variables declaration (1)
+#binary file size
+set $RamFileSize = 0x0000
+source fwsize.gdb
+printf "-------------------------------\n"
+printf "RamFileSize: %x\n",$RamFileSize
+printf "-------------------------------\n"
+
+#===============================================================================
+set $FLASHDATBUFSIZE = 0x800
+
+#===============================================================================
+#define PERI_ON_BASE 0x40000000
+set $PERI_ON_BASE = 0x40000000
+#define REG_SOC_PERI_FUNC0_EN 0x0218
+set $REG_SOC_PERI_FUNC0_EN = 0x0210
+
+#define SPI_FLASH_BASE 0x4000000
+set $SPI_FLASH_BASE = 0x98000000
+
+#------------------------------------------------------------------
+set $Temp = 0x0
+
+#===============================================================================
+#Load flash download file
+file ../../../component/soc/realtek/8195a/misc/gcc_utility/target_NORMAL.axf
+
+#Load the file
+lo
+
+printf "Load flash controller.\n"
+
+#===============================================================================
+#Set for executing flash controller funciton
+set $Temp = {int}($PERI_ON_BASE+$REG_SOC_PERI_FUNC0_EN)
+p /x $Temp
+
+set $Temp = ($Temp | (0x01 << 27))
+p /x $Temp
+
+set {int}($PERI_ON_BASE+$REG_SOC_PERI_FUNC0_EN) = $Temp
+printf "....\n"
+printf "wakeup bit(%x):%x\n", ($PERI_ON_BASE+$REG_SOC_PERI_FUNC0_EN), {int}($PERI_ON_BASE+$REG_SOC_PERI_FUNC0_EN)
+#===============================================================================
+#Direct the startup wake function to  flash program function
+#the function pointer address
+#set $testpointer = 0x200006b4
+#set $testpointer2 = 0x200006b8
+#set $FuntionPointer = 0x200006c4
+#set $FPTemp = 0x200a08e9
+#set {int}($FuntionPointer) = $FPTemp
+#printf "testpointer(%x):%x\n", $testpointer, {int}$testpointer
+#printf "testpointer2(%x):%x\n", $testpointer2, {int}$testpointer2
+#printf "FuntionPointer(%x):%x\n", $FuntionPointer, {int}$FuntionPointer 
+
+#===============================================================================
+#Load file
+#    restore filename [binary] bias start end
+#	Restore the contents of file filename into memory. 
+#	The restore command can automatically recognize any known bfd file format, except for raw binary. 
+#	To restore a raw binary file you must specify the optional keyword binary after the filename.
+#=============================================================================== 
+                                                  
+set $LoopNum = ($RamFileSize / $FLASHDATBUFSIZE)
+printf "LoopNum = %x\n", $LoopNum
+set $TailSize = ($RamFileSize % $FLASHDATBUFSIZE)
+printf "TailSize = %x\n", $TailSize
+
+printf "global variables\n"
+
+set $FLASHDATSRC = 0x0
+set $FILESTARTADDR = 0X0
+set $FILEENDADDR = $FILESTARTADDR + $FLASHDATBUFSIZE
+
+#b RtlFlashProgram:StartOfFlashBlockWrite
+b rtl_flash_download.c:489
+b rtl_flash_download.c:524
+#b Rtl_flash_control.c:RtlFlashProgram
+
+#continue to 489
+c
+
+# Mode 0: erase full chip, Mode 1: skip calibration section and erase to firmware size
+set EraseMode=1
+print EraseMode
+set FirmwareSize=$RamFileSize
+print FirmwareSize
+
+#continue to 524
+c
+
+#printf "...\n"
+set $FLASHDATSRC = FlashDatSrc
+printf "FlashDatSrc:%x\n", $FLASHDATSRC
+                     
+printf  "FlashBlockWriteSize "
+set FlashBlockWriteSize = $FLASHDATBUFSIZE
+#p /x FlashBlockWriteSize
+printf "FlashBlockWriteSize:%x\n", FlashBlockWriteSize
+
+printf  "FlashAddrForWrite" 
+set FlashAddrForWrite = 0x0
+
+
+
+printf  "Flash write start...\n"
+set $LoopCnt = 0
+while  ($LoopCnt < $LoopNum)
+	p /x FlashAddrForWrite
+    restore ./application/Debug/bin/ram_all.bin binary ($FLASHDATSRC-$FILESTARTADDR) $FILESTARTADDR $FILEENDADDR
+    c
+    
+    printf "FILEENDADDR"
+    p /x $FILEENDADDR
+    set FlashBlockWriteSize = $FLASHDATBUFSIZE
+    set FlashAddrForWrite = $FILEENDADDR
+    set $FILESTARTADDR = $FILEENDADDR
+    set $FILEENDADDR = $FILESTARTADDR + $FLASHDATBUFSIZE   
+    
+    set $LoopCnt = $LoopCnt + 0x01
+end
+
+#set FlashBlockWriteSize = $FLASHDATBUFSIZE
+#set FlashAddrForWrite = $FILEENDADDR
+#set $FILESTARTADDR = $FILEENDADDR
+set $FILEENDADDR = $FILESTARTADDR + $TailSize
+restore ./application/Debug/bin/ram_all.bin binary ($FLASHDATSRC-$FILESTARTADDR) $FILESTARTADDR $FILEENDADDR
+c
+
+#Set complete flas
+set FlashWriteComplete = 0x1
+
+printf "dump for check\n"
+
+set $LoopCnt = 0
+set $dumpaddr = 0
+
+set $dumpstartaddr = $SPI_FLASH_BASE
+set $dumpendaddr = $SPI_FLASH_BASE + $RamFileSize
+printf "start addr of dumping"
+p /x $dumpstartaddr
+printf "end addr of dumping"
+p /x $dumpendaddr 
+dump binary memory  ./application/Debug/bin/dump.bin $dumpstartaddr $dumpendaddr
+
+
+delete
+b rtl_flash_download.c:556
+c
+
+quit
+#===============================================================================
+

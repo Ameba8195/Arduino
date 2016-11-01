@@ -1,0 +1,37 @@
+#######################################
+# Syntax Coloring Map For NFC
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+NfcTag	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+end	KEYWORD2
+appendRtdText	KEYWORD2
+appendRtdUri	KEYWORD2
+appendVcard	KEYWORD2
+appendAndroidPlayApp	KEYWORD2
+clearNdefMessage	KEYWORD2
+isUidValid	KEYWORD2
+convertNdefToRaw	KEYWORD2
+convertRawToNdef	KEYWORD2
+getLastUpdateTimestamp	KEYWORD2
+setWriteProtect	KEYWORD2
+getNdefSize	KEYWORD2
+getNdefData	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+

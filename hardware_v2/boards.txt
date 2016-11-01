@@ -1,0 +1,36 @@
+
+ameba_rtl8195a.name=Ameba RTL8195A
+ameba_rtl8195a.vid.0=0x2341
+ameba_rtl8195a.pid.0=0x003d
+ameba_rtl8195a.upload.tool=ameba_tools
+ameba_rtl8195a.upload.protocol=mbed_dap
+ameba_rtl8195a.upload.maximum_size=2499639
+ameba_rtl8195a.upload.use_1200bps_touch=false
+ameba_rtl8195a.upload.wait_for_upload_port=false
+ameba_rtl8195a.upload.native_usb=false
+ameba_rtl8195a.build.mcu=cortex-m3
+ameba_rtl8195a.build.f_cpu=166000000L
+ameba_rtl8195a.build.usb_product="Ameba RTL8195A"
+ameba_rtl8195a.build.board=AMEBA
+ameba_rtl8195a.build.core=arduino
+ameba_rtl8195a.build.extra_flags=-mthumb -DBOARD_RTL8195A {build.usb_flags}
+ameba_rtl8195a.build.ldscript=linker_scripts/gcc/rtl8195a-symbol-v03-img2_arduino_arduino.ld
+ameba_rtl8195a.build.variant=rtl8195a
+
+#ameba_rtl8710.name=Ameba RTL8710
+#ameba_rtl8710.vid.0=0x2341
+#ameba_rtl8710.pid.0=0x003d
+#ameba_rtl8710.upload.tool=ameba_tools
+#ameba_rtl8710.upload.protocol=mbed_dap
+#ameba_rtl8710.upload.maximum_size=2499639
+#ameba_rtl8710.upload.use_1200bps_touch=false
+#ameba_rtl8710.upload.wait_for_upload_port=false
+#ameba_rtl8710.upload.native_usb=false
+#ameba_rtl8710.build.mcu=cortex-m3
+#ameba_rtl8710.build.f_cpu=166000000L
+#ameba_rtl8710.build.usb_product="Ameba RTL8710"
+#ameba_rtl8710.build.board=AMEBA
+#ameba_rtl8710.build.core=arduino
+#ameba_rtl8710.build.extra_flags=-mthumb -DBOARD_RTL8710 {build.usb_flags}
+#ameba_rtl8710.build.ldscript=linker_scripts/gcc/rtl8710-symbol-v03-img2_arduino_arduino.ld
+#ameba_rtl8710.build.variant=rtl8710

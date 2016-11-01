@@ -1,0 +1,114 @@
+
+# Realtek Ameba Core and platform.
+# ------------------------------
+#
+# For more info:
+# https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5-3rd-party-Hardware-specification
+
+name=Ameba ARM (32-bits) Boards
+version=1.1.3
+
+# Ameba project settings
+# ----------------------
+
+ameba.sdkpath={build.system.path}/libameba/sdk
+ameba.project=realtek_ameba1_va0_example
+
+# Ameba compile variables
+# ----------------------
+
+compiler.path={runtime.tools.arm-none-eabi-gcc.path}/bin/
+compiler.c.cmd=arm-none-eabi-gcc
+compiler.c.flags=-c -g -w -mcpu=cortex-m3 -mthumb -Os -std=c++11 -fno-short-enums -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-short-enums -MMD
+compiler.c.elf.cmd=arm-none-eabi-gcc
+compiler.c.elf.flags= -mcpu=cortex-m3 -Os -Wl,--gc-sections -mcpu=cortex-m3 -mthumb --specs=nano.specs
+compiler.S.flags=-c -g -x assembler-with-cpp
+compiler.cpp.cmd=arm-none-eabi-g++
+compiler.cpp.flags=-c -g -w -Os -std=gnu++11 -mcpu=cortex-m3 -mthumb -fno-short-enums -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-rtti -fno-short-enums -MMD
+compiler.ar.cmd=arm-none-eabi-ar
+compiler.ar.flags=rcs
+compiler.strip.cmd=arm-none-eabi-strip
+compiler.nm.cmd=arm-none-eabi-nm
+compiler.objcopy.cmd=arm-none-eabi-objcopy
+compiler.objcopy.eep.flags=-O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0
+compiler.elf2hex.flags=-O binary
+compiler.elf2hex.cmd=arm-none-eabi-objcopy
+compiler.ldflags=
+compiler.size.cmd=arm-none-eabi-size
+compiler.define=-DARDUINO=
+
+# this can be overriden in boards.txt
+build.extra_flags=
+
+# These can be overridden in platform.local.txt
+compiler.c.extra_flags=
+#compiler.c.elf.extra_flags= -Wl,--cref -Wl,--gc-sections  -Wl,--entry=InfraStart -Wl,--no-enum-size-warning -Wl,--no-wchar-size-warning
+compiler.c.elf.extra_flags= -Wl,--cref -Wl,--gc-sections  -Wl,--entry=Reset_Handler -Wl,--no-enum-size-warning -Wl,--no-wchar-size-warning -Wl,--undefined=InfraStart
+compiler.cpp.extra_flags=
+compiler.ar.extra_flags=
+compiler.elf2hex.extra_flags=
+
+# Ameba include path
+# ------------------
+
+compiler.ameba.c.include="-I{ameba.sdkpath}/project/{ameba.project}/inc" "-I{ameba.sdkpath}/component/soc/realtek/common/bsp" "-I{ameba.sdkpath}/component/os/freertos" "-I{ameba.sdkpath}/component/os/freertos/freertos_v8.1.2/Source/include" "-I{ameba.sdkpath}/component/os/freertos/freertos_v8.1.2/Source/portable/GCC/ARM_CM3" "-I{ameba.sdkpath}/component/os/os_dep/include" "-I{ameba.sdkpath}/component/soc/realtek/8195a/misc/driver" "-I{ameba.sdkpath}/component/common/api/network/include" "-I{ameba.sdkpath}/component/common/api" "-I{ameba.sdkpath}/component/common/api/platform" "-I{ameba.sdkpath}/component/common/api/wifi" "-I{ameba.sdkpath}/component/common/api/wifi/rtw_wpa_supplicant/src" "-I{ameba.sdkpath}/component/common/application" "-I{ameba.sdkpath}/component/common/media/framework" "-I{ameba.sdkpath}/component/common/example" "-I{ameba.sdkpath}/component/common/example/wlan_fast_connect" "-I{ameba.sdkpath}/component/common/mbed/api" "-I{ameba.sdkpath}/component/common/mbed/hal" "-I{ameba.sdkpath}/component/common/mbed/hal_ext" "-I{ameba.sdkpath}/component/common/mbed/targets/hal/rtl8195a" "-I{ameba.sdkpath}/component/common/network" "-I{ameba.sdkpath}/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos" "-I{ameba.sdkpath}/component/common/network/lwip/lwip_v1.4.1/src/include" "-I{ameba.sdkpath}/component/common/network/lwip/lwip_v1.4.1/src/include/lwip" "-I{ameba.sdkpath}/component/common/network/lwip/lwip_v1.4.1/src/include/ipv4" "-I{ameba.sdkpath}/component/common/network/lwip/lwip_v1.4.1/port/realtek" "-I{ameba.sdkpath}/component/common/test" "-I{ameba.sdkpath}/component/soc/realtek/8195a/cmsis" "-I{ameba.sdkpath}/component/soc/realtek/8195a/cmsis/device" "-I{ameba.sdkpath}/component/soc/realtek/8195a/fwlib" "-I{ameba.sdkpath}/component/soc/realtek/8195a/fwlib/rtl8195a" "-I{ameba.sdkpath}/component/soc/realtek/8195a/misc/rtl_std_lib/include" "-I{ameba.sdkpath}/component/common/drivers/wlan/realtek/include" "-I{ameba.sdkpath}/component/common/drivers/wlan/realtek/src/osdep" "-I{ameba.sdkpath}/component/common/drivers/wlan/realtek/src/hci" "-I{ameba.sdkpath}/component/common/drivers/wlan/realtek/src/hal" "-I{ameba.sdkpath}/component/common/drivers/wlan/realtek/src/hal/OUTSRC" "-I{ameba.sdkpath}/component/soc/realtek/8195a/fwlib/ram_lib/wlan/realtek/wlan_ram_map/rom" "-I{ameba.sdkpath}/component/common/network/ssl/polarssl-1.3.8/include" "-I{ameba.sdkpath}/component/common/network/ssl/ssl_ram_map/rom" "-I{ameba.sdkpath}/component/common/utilities" "-I{ameba.sdkpath}/component/soc/realtek/8195a/misc/rtl_std_lib/include" "-I{ameba.sdkpath}/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include" "-I{ameba.sdkpath}/component/common/video/v4l2/inc" "-I{ameba.sdkpath}/component/common/media/codec" "-I{ameba.sdkpath}/component/common/drivers/usb_class/host/uvc/inc" "-I{ameba.sdkpath}/component/common/drivers/usb_class/device" "-I{ameba.sdkpath}/component/common/drivers/usb_class/device/class" "-I{ameba.sdkpath}/component/common/file_system/fatfs" "-I{ameba.sdkpath}/component/common/file_system/fatfs/r0.10c/include" "-I{ameba.sdkpath}/component/common/drivers/sdio/realtek/sdio_host/inc" "-I{ameba.sdkpath}/component/common/audio" "-I{ameba.sdkpath}/component/common/drivers/i2s" "-I{ameba.sdkpath}/component/common/application/xmodem" "-I{ameba.sdkpath}/component/common/network/mdns"
+compiler.arduino.c.include="-I{build.core.path}"
+
+compiler.ameba.c.flags= -DCONFIG_PLATFORM_8195A -DARDUINO_SDK {compiler.arduino.c.include} {compiler.ameba.c.include}
+
+# Ameba archieve list
+# -------------------
+compiler.ameba.ar.list="{build.variant.path}/lib_ameba.a" "{build.variant.path}/lib_mmf.a" "{build.variant.path}/lib_p2p.a" "{build.variant.path}/lib_platform.a" "{build.variant.path}/lib_rtlstd.a" "{build.variant.path}/lib_rtsp.a" "{build.variant.path}/lib_sdcard.a" "{build.variant.path}/lib_usbd.a" "{build.variant.path}/lib_usbh.a" "{build.variant.path}/lib_websocket.a" "{build.variant.path}/lib_wlan.a" "{build.variant.path}/lib_wlan_mp.a" "{build.variant.path}/lib_wps.a" "{build.variant.path}/lib_xmodem.a" "{build.variant.path}/lib_mdns.a"
+
+# USB Flags
+# ---------
+build.usb_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid} -DUSBCON '-DUSB_MANUFACTURER={build.usb_manufacturer}' '-DUSB_PRODUCT={build.usb_product}'
+
+# Default usb manufacturer will be replaced at compile time using
+# numeric vendor ID if available or by board's specific value. 
+build.usb_manufacturer="Unknown"
+
+
+# Ameba compile patterns
+# ---------------------
+
+## Compile c files
+recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -mcpu={build.mcu} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.c.extra_flags} {build.extra_flags} {compiler.ameba.c.flags} {includes} "{source_file}" -o "{object_file}"
+
+## Compile c++ files
+recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -mcpu={build.mcu} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.cpp.extra_flags} {build.extra_flags} {compiler.ameba.c.flags} {includes} "{source_file}" -o "{object_file}"
+
+## Create archives
+recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{archive_file_path}" "{object_file}"
+
+## Combine gc-sections, archives, and objects
+recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} "-L{build.variant.path}/linker_scripts/gcc" "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map={build.path}/application.map" {compiler.c.elf.extra_flags} -o "{build.path}/application.axf" "-L{build.path}" -Wl,--start-group {object_files} -Wl,--end-group -Wl,--start-group "{build.path}/{archive_file}" {compiler.ameba.ar.list} -Wl,--end-group -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+
+## Create nm map
+recipe.nm.pattern=cp "{build.path}/{build.project_name}.axf" "{build.path}/application.axf"
+
+## Create strip
+recipe.strip.pattern="{compiler.path}{compiler.strip.cmd}" "{build.path}/{build.project_name}.axf"
+
+## Create image
+recipe.objcopy.hex.cmd=postbuild_img2_arduino_windows.exe
+recipe.objcopy.hex.cmd.windows=postbuild_img2_arduino_windows.exe
+recipe.objcopy.hex.cmd.macosx=postbuild_img2_arduino_mac
+recipe.objcopy.hex.imagepath={build.path}\application.axf
+recipe.objcopy.hex.imagepath.macosx="{build.path}/application.axf"
+recipe.objcopy.hex.pattern="{runtime.tools.ameba_tools.path}/{recipe.objcopy.hex.cmd}" "{runtime.tools.ameba_tools.path}" "{recipe.objcopy.hex.imagepath}" "{compiler.path}"
+
+## Compute size
+recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/application.axf"
+#recipe.size.regex=\.text\s+([0-9]+).*
+recipe.size.regex=^(?:\.ram_image1.text|\.ram_image2.text|\.image3)\s+([0-9]+).*
+
+
+# Ameba Uploader tools
+# -------------------
+
+tools.ameba_tools.upload.params.verbose=
+tools.ameba_tools.upload.params.quiet=
+tools.ameba_tools.upload.pattern="{runtime.tools.ameba_tools.path}/upload_dap.sh" {upload.verbose}
+tools.ameba_tools.upload.pattern.windows="{runtime.tools.ameba_tools.path}/upload_dap.exe" "{runtime.tools.ameba_tools.path}\ram_all.bin"{upload.verbose}
+tools.ameba_tools.upload.pattern.macosx="{runtime.tools.ameba_tools.path}/upload_dap_mac" "{runtime.tools.ameba_tools.path}/ram_all.bin"{upload.verbose}
