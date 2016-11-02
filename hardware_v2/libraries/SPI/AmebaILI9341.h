@@ -89,6 +89,8 @@
 #define ILI9341_GREENYELLOW 0xAFE5      /* 173, 255,  47 */
 #define ILI9341_PINK        0xF81F
 
+#define ILI9341_SPI_BUF 128
+
 class AmebaILI9341 : public Print {
 
 public:
@@ -100,6 +102,7 @@ public:
 
     void writecommand(uint8_t command);
     void writedata(uint8_t data);
+    void writedata(uint8_t *data, size_t datasize);
 
     void setRotation(uint8_t m);
 
@@ -138,6 +141,11 @@ private:
     int _csPin;
     int _dcPin;
     int _resetPin;
+
+    uint8_t lcdbuf[ ILI9341_SPI_BUF ];
+
+    uint32_t _dcPort;
+    uint32_t _dcMask;
 
     int16_t _width;
     int16_t _height;

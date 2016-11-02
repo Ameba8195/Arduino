@@ -11,6 +11,8 @@ AmebaILI9341::AmebaILI9341(int csPin, int dcPin, int resetPin)
     _dcPin = dcPin;
     _resetPin = resetPin;
 
+    _dcPort = _dcMask = 0;
+
     _width = ILI9341_TFTWIDTH;
     _height = ILI9341_TFTHEIGHT;
 
@@ -29,6 +31,8 @@ void AmebaILI9341::begin(void)
     digitalWrite(_resetPin, LOW);
 
     pinMode(_dcPin, OUTPUT);
+    _dcPort = digitalPinToPort(_dcPin);
+    _dcMask = digitalPinToBitMask(_dcPin);
 
     SPI.begin();
 
@@ -164,31 +168,48 @@ void AmebaILI9341::setAddress(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1
         h = y0 - y1;
     }
 
-    writecommand(ILI9341_CASET);
-    writedata(x >> 8);
-    writedata(x & 0xFF);
-    writedata((x+w) >> 8);
-    writedata((x+w) & 0xFF);
+    uint8_t d[4];
 
-    writecommand(ILI9341_PASET);
-    writedata(y >> 8);
-    writedata(y & 0xFF);
-    writedata((y+h) >> 8);
-    writedata((y+h) & 0xFF);
+    *portOutputRegister(_dcPort) &= ~(_dcMask);
+    SPI.transfer(ILI9341_CASET);
 
-    writecommand(ILI9341_RAMWR);
+    d[0] = x >> 8;
+    d[1] = x & 0xFF;
+    d[2] = (x+w) >> 8;
+    d[3] = (x+w) & 0xFF;
+    *portOutputRegister(_dcPort) |=  (_dcMask);
+    SPI.transfer(d, 4);
+
+    *portOutputRegister(_dcPort) &= ~(_dcMask);
+    SPI.transfer(ILI9341_PASET);
+
+    d[0] = y >> 8;
+    d[1] = y & 0xFF;
+    d[2] = (y+h) >> 8;
+    d[3] = (y+h) & 0xFF;
+    *portOutputRegister(_dcPort) |=  (_dcMask);
+    SPI.transfer(d, 4);
+
+    *portOutputRegister(_dcPort) &= ~(_dcMask);
+    SPI.transfer(ILI9341_RAMWR);
 }
 
 void AmebaILI9341::writecommand(uint8_t command)
 {
-    digitalWrite(_dcPin, LOW);
+    *portOutputRegister(_dcPort) &= ~(_dcMask);
     SPI.transfer(command);
 }
 
 void AmebaILI9341::writedata(uint8_t data)
 {
-    digitalWrite(_dcPin, HIGH);
+    *portOutputRegister(_dcPort) |=  (_dcMask);
     SPI.transfer(data);
+}
+
+void AmebaILI9341::writedata(uint8_t *data, size_t datasize)
+{
+    *portOutputRegister(_dcPort) |=  (_dcMask);
+    SPI.transfer(data, datasize);
 }
 
 void AmebaILI9341::setRotation(uint8_t m)
@@ -246,14 +267,23 @@ void AmebaILI9341::fillRectangle(int16_t x, int16_t y, int16_t w, int16_t h, uin
     }
 
     setAddress(x, y, x+w-1, y+h-1);
+
+    uint32_t pixelCount = h * w;
+    uint32_t i;
     color_hi = color >> 8;
     color_lo = color & 0xFF;
 
-    digitalWrite(_dcPin, HIGH);
-    for (y=h; y>0; y--) {
-        for (x=w; x>0; x--) {
-            SPI.transfer(color_hi);
-            SPI.transfer(color_lo);
+    memset(lcdbuf, color_hi, ILI9341_SPI_BUF);
+    for (i=1; i<ILI9341_SPI_BUF; i+=2) {
+        lcdbuf[i] = color_lo;
+    }
+
+    *portOutputRegister(_dcPort) |=  (_dcMask);
+    for (i=0; i < pixelCount; i += (ILI9341_SPI_BUF/2) ) {
+        if ( i + ILI9341_SPI_BUF/2 < pixelCount) {
+            SPI.transfer(lcdbuf, ILI9341_SPI_BUF);
+        } else {
+            SPI.transfer(lcdbuf, (pixelCount - i)*2);
         }
     }
 }
@@ -265,7 +295,7 @@ void AmebaILI9341::drawPixel(int16_t x, int16_t y, uint16_t color)
     }
 
     setAddress(x, y, x+1, y+1);
-    digitalWrite(_dcPin, HIGH);
+    *portOutputRegister(_dcPort) |=  (_dcMask);
     SPI.transfer(color >> 8);
     SPI.transfer(color & 0xFF);
 }
@@ -273,10 +303,11 @@ void AmebaILI9341::drawPixel(int16_t x, int16_t y, uint16_t color)
 void AmebaILI9341::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
 {
     int16_t temp;
+    size_t idx;
     uint8_t color_hi;
     uint8_t color_lo;
     bool exchange_xy;
-    int16_t dx, dy, err, ystep;
+    int16_t dx, dy, linelen, err, ystep;
 
     if (x0 > x1) {
         temp = x0; x0 = x1; x1 = temp;
@@ -302,10 +333,20 @@ void AmebaILI9341::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint
         }
 
         setAddress(x0, y0, x1, y1);
-        digitalWrite(_dcPin, HIGH);
-        for (temp = 0; temp < abs(y1-y0); temp++) {
-            SPI.transfer(color_hi);
-            SPI.transfer(color_lo);
+        *portOutputRegister(_dcPort) |=  (_dcMask);
+
+        memset(lcdbuf, color_hi, ILI9341_SPI_BUF);
+        for (temp = 1; temp < ILI9341_SPI_BUF; temp+=2) lcdbuf[temp] = color_lo;
+
+        // now we need transfer data size equals abs(y1-y0)*2
+        idx = 0;
+        linelen = abs(y1-y0);
+        for (idx = 0; idx < linelen; idx += ILI9341_SPI_BUF/2) {
+            if (idx + ILI9341_SPI_BUF/2 < linelen) {
+                SPI.transfer(lcdbuf, ILI9341_SPI_BUF);
+            } else {
+                SPI.transfer(lcdbuf, (linelen-idx)*2);
+            }
         }
     } else if (y0 == y1) {
         // draw horizontal line
@@ -323,10 +364,20 @@ void AmebaILI9341::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint
         }
 
         setAddress(x0, y0, x1, y1);
-        digitalWrite(_dcPin, HIGH);
-        for (temp = 0; temp < abs(x1-x0); temp++) {
-            SPI.transfer(color_hi);
-            SPI.transfer(color_lo);
+        *portOutputRegister(_dcPort) |=  (_dcMask);
+
+        memset(lcdbuf, color_hi, ILI9341_SPI_BUF);
+        for (temp = 1; temp < ILI9341_SPI_BUF; temp+=2) lcdbuf[temp] = color_lo;
+
+        // now we need transfer data size equals abs(y1-y0)*2
+        idx = 0;
+        linelen = abs(x1-x0);
+        for (idx = 0; idx < linelen; idx += ILI9341_SPI_BUF/2) {
+            if (idx + ILI9341_SPI_BUF/2 < linelen) {
+                SPI.transfer(lcdbuf, ILI9341_SPI_BUF);
+            } else {
+                SPI.transfer(lcdbuf, (linelen-idx)*2);
+            }
         }
     } else {
         // Bresenham's line algorithm
