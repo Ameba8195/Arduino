@@ -9,7 +9,7 @@ SdFatFs fs;
 
 #define CAPTURE_INTERVAL (3 * 1000)
 
-unsigned char jpegbuf[20 * 1024];
+unsigned char jpegbuf[40 * 1024];
 
 void setup() {
 

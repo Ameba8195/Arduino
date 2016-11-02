@@ -14,7 +14,7 @@ char ssid[] = "yourNetwork";     // your network SSID (name)
 char pass[] = "password";        // your network password
 int status = WL_IDLE_STATUS;     // the Wifi radio's status
 
-unsigned char jpegbuf[20 * 1024];
+unsigned char jpegbuf[40 * 1024];
 
 WiFiClient client;
 char serverIP[] = "192.168.1.65"; // The remote server IP to receive jpeg file

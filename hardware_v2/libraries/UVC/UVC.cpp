@@ -112,6 +112,7 @@ void uvcThread(void const *argument) {
         case JPEG_CAPTURE: {
             ret = 0;
             exch_buf_t exbuf;
+            uint32_t exbuf_len_avg = 0;
             memset(&exbuf, 0, sizeof(exch_buf_t));
 
             do {
@@ -139,12 +140,24 @@ void uvcThread(void const *argument) {
                         } else if (evt.value.signals & REQ_JPEG_CAPTURE) {
                             for ( i=0; i<FILTER_FACTOR; i++) {
                                 mmf_source_get_frame((msrc_context *)(pUVC->msrc_ctx), &exbuf);
+                                if (exbuf.data != NULL && exbuf.len > 0) {
+                                    exbuf_len_avg += exbuf.len;
+                                }
+                                exbuf.state = STAT_USED;
+                            }
+                            exbuf_len_avg /= FILTER_FACTOR;
+
+                            while (pUVC->mjpeg_size == 0) {
+                                mmf_source_get_frame((msrc_context *)(pUVC->msrc_ctx), &exbuf);
+
                                 if(exbuf.data != NULL) {
-                                    if (i == FILTER_FACTOR - 1) {
+                                    // check if current jpeg size fall between 60%~140% of previous 5 jpeg average
+                                    if (exbuf.len > (exbuf_len_avg * 6 / 10) && exbuf.len < exbuf_len_avg * 14 / 10) {
                                         memcpy(pUVC->mjpeg_buf, exbuf.data, exbuf.len);
                                         pUVC->mjpeg_size = exbuf.len;
                                     }
                                 }
+
                                 exbuf.state = STAT_USED;
                             }
                         }
