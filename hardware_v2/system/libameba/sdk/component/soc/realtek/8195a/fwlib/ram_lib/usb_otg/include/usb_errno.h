@@ -1,5 +1,5 @@
-#ifndef _GENERIC_ERRNO_H
-#define _GENERIC_ERRNO_H
+#ifndef _USB_ERRNO_H
+#define _USB_ERRNO_H
 
 #define	EPERM		 1	/* Operation not permitted */
 #define	ENOENT		 2	/* No such file or directory */

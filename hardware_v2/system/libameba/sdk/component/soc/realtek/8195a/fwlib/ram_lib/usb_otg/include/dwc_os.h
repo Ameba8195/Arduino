@@ -72,7 +72,7 @@ DiagPrintf(
 #define DWC_OS_PORTING   1
 #endif
 
-#include "errno.h"
+#include "usb_errno.h"
 
 /** @name Primitive Types and Values */
 
