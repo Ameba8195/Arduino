@@ -29,6 +29,10 @@
 #define TOTAL_GPIO_PIN_NUM	(19)
 #define TOTAL_PWM_PIN_NUM   ( 4)
 
+#define LED_BUILTIN 13
+
+#define SS 10
+
 #ifdef __cplusplus
 extern "C"{
 #endif // __cplusplus
