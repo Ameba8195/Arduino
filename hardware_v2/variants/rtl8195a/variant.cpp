@@ -84,9 +84,6 @@ void init( void )
     uint8_t *regionAddr;
     size_t regionSize;
 
-    // Initialize C library
-    __libc_init_array();
-
     /* Add non-allocated memory in SRAM into heap */
     regionAddr = (uint8_t *)&__HeapLimit;
     if ( 0x10070000 > (size_t)(&__HeapLimit) ) {
@@ -100,6 +97,9 @@ void init( void )
         regionSize = 0x30200000 - (size_t)(&__sdram_bss_end__);
         vPortAddHeapRegion(regionAddr, regionSize);
     }
+
+    // Initialize C library
+    __libc_init_array();
 }
 
 // ----------------------------------------------------------------------------
