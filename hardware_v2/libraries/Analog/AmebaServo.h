@@ -51,10 +51,6 @@
 #ifndef _AMEBA_SERVO_H_
 #define _AMEBA_SERVO_H_
 
-#if defined(BOARD_RTL8710)
-#error "RTL8710 do not support pwm"
-#endif
-
 #define Servo_VERSION           2     // software version of this library
 
 #define MIN_PULSE_WIDTH       544     // the shortest pulse sent to a servo  

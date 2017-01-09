@@ -19,9 +19,6 @@
 #ifndef _WIRING_ANALOG_
 #define _WIRING_ANALOG_
 
-// RTL8710 module do not support ADC/DAC
-#if !defined(BOARD_RTL8710)
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -50,6 +47,7 @@ extern void analogReference( eAnalogReference ulMode ) ;
  */
 extern void analogWrite( uint32_t ulPin, uint32_t ulValue ) ;
 
+#ifdef FEATURE_ADC
 /*
  * \brief Reads the value from the specified analog pin.
  *
@@ -65,6 +63,7 @@ extern uint32_t analogRead( uint32_t ulPin ) ;
  * \param res
  */
 extern void analogReadResolution(int res);
+#endif // #ifdef FEATURE_ADC
 
 /*
  * \brief Set the resolution of analogWrite parameters. Default is 8 bits (range from 0 to 255).
@@ -81,8 +80,6 @@ extern void analogWritePeriod(int us);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif
 
 #endif /* _WIRING_ANALOG_ */

@@ -1,5 +1,3 @@
-#if !defined(BOARD_RTL8710)
-
 #include "Arduino.h"
 
 #ifdef __cplusplus
@@ -13,5 +11,3 @@ void tone(uint32_t ulPin, unsigned int frequency, unsigned long duration)
 {
     _tone(ulPin, frequency, duration);
 }
-
-#endif
