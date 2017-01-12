@@ -13,16 +13,16 @@ An [Arduino](http://arduino.cc/) library for sending and receiving data using [L
 
 ### Semtech SX1276/77/78/79 wiring
 
-| Semtech SX1276/77/78/79 | Arduino |
-| :---------------------: | :------:|
-| VCC | 3.3V |
-| GND | GND |
-| SCK | SCK |
-| MISO | MISO |
-| MOSI | MOSI |
-| NSS | 10 |
-| NRESET | 9 |
-| DIO0 | 2 |
+| Semtech SX1276/77/78/79 | Arduino | Ameba |
+| :---------------------: | :------:| :----:|
+| VCC | 3.3V | 3.3V |
+| GND | GND | GND |
+| SCK | SCK | SCK |
+| MISO | MISO | MISO |
+| MOSI | MOSI | MOSI |
+| NSS | 10 | 0 | 
+| NRESET | 9 | 9 |
+| DIO0 | 2 | 3 |
 
 
 `NSS`, `NRESET`, and `DIO0` pins can be changed by using `LoRa.setPins(ss, reset, dio0)`. `DIO0` pin is optional, it is only needed for receive callback mode.
