@@ -13,6 +13,35 @@
         {
           "name": "Realtek Ameba Boards (32-bits ARM Cortex-M3)",
           "architecture": "ameba",
+          "version": "2.0.0",
+          "category": "Contributed",
+          "help": {
+            "online": "http://www.amebaiot.com/"
+          },
+          "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-2.0.0.tar.gz",
+          "archiveFileName": "ameba-2.0.0.tar.gz",
+          "checksum": "SHA-256:b2c7edcf50bddce06cbd6c43cc6f6954c32ab9117b5eca25d1a0fded0f1ea647",
+          "size": "27062841",
+          "boards": [
+            {"name": "Ameba RTL8195A"},
+            {"name": "Ameba RTL8710"}
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "realtek",
+              "name": "arm-none-eabi-gcc",
+              "version": "4.8.3-2014q1"
+            },
+            {
+              "packager": "realtek",
+              "name": "ameba_tools",
+              "version": "1.0.8"
+            }
+          ]
+        },
+        {
+          "name": "Realtek Ameba Boards (32-bits ARM Cortex-M3)",
+          "architecture": "ameba",
           "version": "1.1.5",
           "category": "Contributed",
           "help": {
@@ -494,6 +523,26 @@
                  "size":"51029223"
               }
            ]
+        },
+        {
+          "name": "ameba_tools",
+          "version": "1.0.8",
+          "systems": [
+            {
+              "host": "i686-mingw32",
+              "archiveFileName": "ameba_tools-1.0.8.tar.gz",
+              "url": "https://dl.dropboxusercontent.com/u/22098892/ameba_tools-1.0.8.tar.gz",
+              "checksum": "SHA-256:8f2f84ee52862c101e61e3eabae7f20384e02d8640451d96a5357fa260df82c7",
+              "size": "5527556"
+            },
+            {
+              "host": "x86_64-apple-darwin",
+              "archiveFileName": "ameba_tools-1.0.8.tar.gz",
+              "url": "https://dl.dropboxusercontent.com/u/22098892/ameba_tools-1.0.8.tar.gz",
+              "checksum": "SHA-256:8f2f84ee52862c101e61e3eabae7f20384e02d8640451d96a5357fa260df82c7",
+              "size": "5527556"
+            }
+          ]
         },
         {
           "name": "ameba_tools",
