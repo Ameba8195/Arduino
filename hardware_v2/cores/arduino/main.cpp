@@ -61,7 +61,7 @@ int main( void )
  
     initVariant();
 
-    osThreadDef(main_task, osPriorityRealtime, 1, 4096*4);
+    osThreadDef(main_task, osPriorityRealtime, 1, MAIN_THREAD_STACK_SIZE);
     main_tid = osThreadCreate (osThread (main_task), NULL);
 
     osKernelStart();

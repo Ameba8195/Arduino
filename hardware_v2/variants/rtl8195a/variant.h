@@ -25,6 +25,8 @@
 #include "LOGUARTClass.h"
 #endif
 
+#define MAIN_THREAD_STACK_SIZE (4096*4)
+
 #define TOTAL_GPIO_PIN_NUM	(19)
 #define TOTAL_PWM_PIN_NUM   ( 4)
 
