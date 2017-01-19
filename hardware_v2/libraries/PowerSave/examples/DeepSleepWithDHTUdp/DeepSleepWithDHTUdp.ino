@@ -69,6 +69,7 @@ void loop()
   Udp.beginPacket(udpSrvIp, udpSrvPort);
   Udp.write(databuf);
   Udp.endPacket();
+  delay(10);
 
   if (!PowerManagement.safeLock()) {
     Serial.println("deepsleep 60s");
