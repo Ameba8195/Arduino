@@ -148,15 +148,12 @@ int SdFatFs::readDir(char *path, char *result_buf, unsigned int bufsize) {
 #endif
             {
                 fn = fno.fname;
-                fnlen = fno.fsize;
+                fnlen = strlen(fn);
             }            
 
-            if (fno.fattrib & AM_DIR) {
-            } else {
-                if (bufidx + fnlen + 1 < bufsize) {
-                    bufidx += sprintf(result_buf + bufidx, "%s", fn);
-                    bufidx++;
-                }
+            if (bufidx + fnlen + 1 < bufsize) {
+                bufidx += sprintf(result_buf + bufidx, "%s", fn);
+                bufidx++;
             }
         }
     } while (0);
