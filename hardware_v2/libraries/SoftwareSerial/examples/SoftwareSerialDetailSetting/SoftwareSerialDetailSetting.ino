@@ -10,7 +10,7 @@
  * RTS is digital pin 6 (connect to CTS of other device)
  * CTS is digital pin 2 (connect to RTS of other device)
 
- The circuit: (BOARD RTL8195A)
+ The circuit: (BOARD RTL8710)
  * RX is digital pin 17 (connect to TX of other device)
  * TX is digital pin 5 (connect to RX of other device)
  * RTS is digital pin 7 (connect to CTS of other device)
