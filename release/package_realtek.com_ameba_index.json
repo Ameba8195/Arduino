@@ -531,14 +531,14 @@
             {
               "host": "i686-mingw32",
               "archiveFileName": "ameba_tools-1.0.8.tar.gz",
-              "url": "https://dl.dropboxusercontent.com/u/22098892/ameba_tools-1.0.8.tar.gz",
+	      "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-1.0.8.tar.gz",
               "checksum": "SHA-256:8f2f84ee52862c101e61e3eabae7f20384e02d8640451d96a5357fa260df82c7",
               "size": "5527556"
             },
             {
               "host": "x86_64-apple-darwin",
               "archiveFileName": "ameba_tools-1.0.8.tar.gz",
-              "url": "https://dl.dropboxusercontent.com/u/22098892/ameba_tools-1.0.8.tar.gz",
+	      "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-1.0.8.tar.gz",
               "checksum": "SHA-256:8f2f84ee52862c101e61e3eabae7f20384e02d8640451d96a5357fa260df82c7",
               "size": "5527556"
             }
