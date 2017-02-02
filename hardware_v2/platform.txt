@@ -112,3 +112,6 @@ tools.ameba_tools.upload.params.quiet=
 tools.ameba_tools.upload.pattern="{runtime.tools.ameba_tools.path}/upload_dap.sh" {upload.verbose}
 tools.ameba_tools.upload.pattern.windows="{runtime.tools.ameba_tools.path}/upload_dap.exe" "{runtime.tools.ameba_tools.path}\ram_all.bin"{upload.verbose}
 tools.ameba_tools.upload.pattern.macosx="{runtime.tools.ameba_tools.path}/upload_dap_mac" "{runtime.tools.ameba_tools.path}/ram_all.bin"{upload.verbose}
+tools.ameba_tools.upload.network_pattern="{runtime.tools.ameba_tools.path}/upload_ota.exe" -i "{serial.port}" -p "{network.port}" -f "{runtime.tools.ameba_tools.path}\ota.bin"
+tools.ameba_tools.upload.network_pattern.windows="{runtime.tools.ameba_tools.path}/upload_ota.exe" -i "{serial.port}" -p "{network.port}" -f "{runtime.tools.ameba_tools.path}\ota.bin"
+tools.ameba_tools.upload.network_pattern.macosx="{runtime.tools.ameba_tools.path}/upload_ota_mac" -i "{serial.port}" -p "{network.port}" -f "{runtime.tools.ameba_tools.path}/ota.bin"
