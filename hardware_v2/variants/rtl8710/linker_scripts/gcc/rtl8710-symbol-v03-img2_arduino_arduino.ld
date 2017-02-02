@@ -100,6 +100,7 @@ SECTIONS
     *(.p2p.bss*)
     *(.wps.bss*)
     *(.websocket.bss*)
+    *(.uvc.ram.bss*)
     __sdram_bss_end__ = .;
   } > SDRAM_RAM
 
@@ -155,7 +156,8 @@ SECTIONS
     __data_start__ = .;
     *(.data*)
     __data_end__ = .;
-  	__ram_image2_text_end__ = .;    
+    . = ALIGN(4);
+    __ram_image2_text_end__ = .;    
   } > BD_RAM
   
   .ram.bss :
