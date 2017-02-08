@@ -93,7 +93,7 @@ recipe.strip.pattern="{compiler.path}{compiler.strip.cmd}" "{build.path}/{build.
 ## Create image
 recipe.objcopy.hex.cmd=postbuild_img2_arduino_windows.exe
 recipe.objcopy.hex.cmd.windows=postbuild_img2_arduino_windows.exe
-recipe.objcopy.hex.cmd.macosx=postbuild_img2_arduino_mac
+recipe.objcopy.hex.cmd.macosx=postbuild_img2_arduino_macosx
 recipe.objcopy.hex.cmd.linux=postbuild_img2_arduino_linux
 recipe.objcopy.hex.imagepath={build.path}\application.axf
 recipe.objcopy.hex.imagepath.macosx="{build.path}/application.axf"
@@ -101,10 +101,10 @@ recipe.objcopy.hex.imagepath.linux="{build.path}/application.axf"
 recipe.objcopy.hex.pattern="{runtime.tools.ameba_tools.path}/{recipe.objcopy.hex.cmd}" "{runtime.tools.ameba_tools.path}" "{recipe.objcopy.hex.imagepath}" "{compiler.path}"
 
 ## Compute size
-recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/application.axf"
-#recipe.size.regex=\.text\s+([0-9]+).*
-recipe.size.regex=^(?:\.ram_image1.text|\.ram_image2.text|\.image3)\s+([0-9]+).*
-
+recipe.size.pattern.windows="{runtime.tools.ameba_tools.path}/amebasize.exe" "{runtime.tools.ameba_tools.path}"
+recipe.size.pattern.macosx="{runtime.tools.ameba_tools.path}/amebasize" "{runtime.tools.ameba_tools.path}"
+recipe.size.pattern.linux="{runtime.tools.ameba_tools.path}/amebasize" "{runtime.tools.ameba_tools.path}"
+recipe.size.regex=^(?:bootloader|image2|image3)\s+([0-9]+).*
 
 # Ameba Uploader tools
 # -------------------
@@ -113,9 +113,9 @@ tools.ameba_tools.upload.params.verbose=
 tools.ameba_tools.upload.params.quiet=
 tools.ameba_tools.upload.pattern="{runtime.tools.ameba_tools.path}/upload_dap.sh" {upload.verbose}
 tools.ameba_tools.upload.pattern.windows="{runtime.tools.ameba_tools.path}/upload_dap.exe" "{runtime.tools.ameba_tools.path}\ram_all.bin"{upload.verbose}
-tools.ameba_tools.upload.pattern.macosx="{runtime.tools.ameba_tools.path}/upload_dap_mac" "{runtime.tools.ameba_tools.path}/ram_all.bin"{upload.verbose}
+tools.ameba_tools.upload.pattern.macosx="{runtime.tools.ameba_tools.path}/upload_dap_macosx" "{runtime.tools.ameba_tools.path}/ram_all.bin"{upload.verbose}
 tools.ameba_tools.upload.pattern.linux="{runtime.tools.ameba_tools.path}/upload_dap_linux" "{runtime.tools.ameba_tools.path}/ram_all.bin"{upload.verbose}
 tools.ameba_tools.upload.network_pattern="{runtime.tools.ameba_tools.path}/upload_ota.exe" -i "{serial.port}" -p "{network.port}" -f "{runtime.tools.ameba_tools.path}\ota.bin"
 tools.ameba_tools.upload.network_pattern.windows="{runtime.tools.ameba_tools.path}/upload_ota.exe" -i "{serial.port}" -p "{network.port}" -f "{runtime.tools.ameba_tools.path}\ota.bin"
-tools.ameba_tools.upload.network_pattern.macosx="{runtime.tools.ameba_tools.path}/upload_ota_mac" -i "{serial.port}" -p "{network.port}" -f "{runtime.tools.ameba_tools.path}/ota.bin"
+tools.ameba_tools.upload.network_pattern.macosx="{runtime.tools.ameba_tools.path}/upload_ota_macosx" -i "{serial.port}" -p "{network.port}" -f "{runtime.tools.ameba_tools.path}/ota.bin"
 tools.ameba_tools.upload.network_pattern.linux="{runtime.tools.ameba_tools.path}/upload_ota_linux" -i "{serial.port}" -p "{network.port}" -f "{runtime.tools.ameba_tools.path}/ota.bin"
