@@ -94,7 +94,6 @@
 *asn1parse.o(.text*)
 *asn1write.o(.text*)
 *base64.o(.text*)
-*bignum.o(.text*)
 *blowfish.o(.text*)
 *camellia.o(.text*)
 *ccm.o(.text*)
