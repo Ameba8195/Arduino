@@ -47,8 +47,8 @@ public:
     /**
      * @brief Check if system is allowed enter any power save state
      *
-     * The pin 18 (GPIOE_5) is designed as safe lock.
-     * If pin 18 is HIGH, then we prevent Ameba enter any power save state.\n\n
+     * The safe pin is designed as safe lock. (By default RTL8195A use pin 18, and RTL8710 use pin 15)
+     * If safe pin is HIGH, then we prevent Ameba enter any power save state.\n\n
      * Under any power save state, we are not able to flash image to Ameba.
      * Thus if user misuse deepsleep and make Ameba enter deepsleep immediately after boot up,
      * then he would find it's hard to flash image.
@@ -57,6 +57,13 @@ public:
      * @return true if system not allowed enter any power save state, and false vise versa
      */
     static bool safeLock();
+
+    /*
+     * @brief Change safe pin
+     *
+     * Change the default safe pin. It needs configure every time in boot up.
+     */
+    static bool setSafeLockPin(int ulPin);
 
     /**
      * @brief Reboot system
@@ -67,6 +74,7 @@ public:
 
 private:
     static bool reservePLL;
+    static int safeLockPin;
 };
 
 extern PowerManagementClass PowerManagement;

@@ -8,6 +8,8 @@ extern "C" {
 
 #include "wiring_digital.h"
 
+extern void log_uart_disable_printf(void);
+
 }
 #endif
 
@@ -22,6 +24,7 @@ extern "C" {
 #endif
 
 bool PowerManagementClass::reservePLL = true;
+bool PowerManagementClass::safeLockPin = SAVE_LOCK_PIN;
 
 void PowerManagementClass::setPllReserved(bool reserve) {
     pmu_set_pll_reserved(reserve);
@@ -39,13 +42,24 @@ void PowerManagementClass::active() {
 
 void PowerManagementClass::deepsleep(uint32_t duration_ms) {
     if (!safeLock()) {
+        log_uart_disable_printf();
         deepsleep_ex(DSLEEP_WAKEUP_BY_TIMER, duration_ms);
     }
 }
 
 bool PowerManagementClass::safeLock() {
-    pinMode(SAVE_LOCK_PIN, INPUT_PULLUP);
-    return (digitalRead(SAVE_LOCK_PIN) == 1) ? false : true;
+    pinMode(safeLockPin, INPUT_PULLUP);
+    return (digitalRead(safeLockPin) == 1) ? false : true;
+}
+
+bool PowerManagementClass::setSafeLockPin(int ulPin) {
+    if ( ulPin < 0 || ulPin > TOTAL_GPIO_PIN_NUM || (g_APinDescription[ulPin].pinname == NC) ) {
+        // Invalid pin
+        return false;
+    }
+
+    safeLockPin = pin;
+    return true;
 }
 
 void PowerManagementClass::softReset() {
