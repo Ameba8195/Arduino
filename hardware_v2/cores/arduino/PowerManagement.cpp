@@ -24,7 +24,7 @@ extern void log_uart_disable_printf(void);
 #endif
 
 bool PowerManagementClass::reservePLL = true;
-bool PowerManagementClass::safeLockPin = SAVE_LOCK_PIN;
+int PowerManagementClass::safeLockPin = SAVE_LOCK_PIN;
 
 void PowerManagementClass::setPllReserved(bool reserve) {
     pmu_set_pll_reserved(reserve);
@@ -58,7 +58,7 @@ bool PowerManagementClass::setSafeLockPin(int ulPin) {
         return false;
     }
 
-    safeLockPin = pin;
+    safeLockPin = ulPin;
     return true;
 }
 
