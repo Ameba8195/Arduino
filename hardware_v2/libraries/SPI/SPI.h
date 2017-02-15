@@ -81,6 +81,7 @@ public:
     void endTransaction(void);
 
     void begin(void);
+    void begin(int ss);
     void end(void);
 
     void setBitOrder(uint8_t _pin, BitOrder _bitOrder);

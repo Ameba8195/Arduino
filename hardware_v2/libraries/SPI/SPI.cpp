@@ -78,6 +78,19 @@ void SPIClass::begin(void)
 	spi_frequency((spi_t *)pSpiMaster, defaultFrequency);
 }
 
+void SPIClass::begin(int ss)
+{
+    spi_init(
+        (spi_t *)pSpiMaster, 
+        (PinName)g_APinDescription[pinMOSI].pinname, 
+        (PinName)g_APinDescription[pinMISO].pinname, 
+        (PinName)g_APinDescription[pinCLK].pinname, 
+        (PinName)g_APinDescription[ss].pinname
+    );
+    spi_format((spi_t *)pSpiMaster, 8, 0, 0);
+	spi_frequency((spi_t *)pSpiMaster, defaultFrequency);
+}
+
 void SPIClass::end(void)
 {
     spi_free((spi_t *)pSpiMaster);
@@ -86,13 +99,21 @@ void SPIClass::end(void)
 byte SPIClass::transfer(byte _pin, uint8_t _data, SPITransferMode _mode)
 {
     byte d;
+    u8 spi_Index;
+    u32 spi_addr;
+
+    spi_Index = ((spi_t *)pSpiMaster)->spi_adp.Index;
+    spi_addr = 0x40042000 + (spi_Index * SSI_REG_OFF);
 
     if (_pin != pinSS) {
         pinMode(_pin, OUTPUT);
         digitalWrite(_pin, 0);
     }
 
-    d = (byte) spi_master_write( (spi_t *)pSpiMaster, _data );
+    while (!(HAL_READ32(spi_addr, 0x28) & 0x0000002));
+    HAL_WRITE32(spi_addr, 0x60, _data & 0xFFFF);
+    while (!(HAL_READ32(spi_addr, 0x28) & 0x0000008));
+    d = HAL_READ32(spi_addr, 0x60);
 
     if (_pin != pinSS && _mode == SPI_LAST) {
         digitalWrite(_pin, 1);
@@ -103,7 +124,19 @@ byte SPIClass::transfer(byte _pin, uint8_t _data, SPITransferMode _mode)
 
 byte SPIClass::transfer(uint8_t _data, SPITransferMode _mode)
 {
-    return transfer(pinSS, _data, _mode);
+    byte d;
+    u8 spi_Index;
+    u32 spi_addr;
+
+    spi_Index = ((spi_t *)pSpiMaster)->spi_adp.Index;
+    spi_addr = 0x40042000 + (spi_Index * SSI_REG_OFF);
+
+    while (!(HAL_READ32(spi_addr, 0x28) & 0x0000002));
+    HAL_WRITE32(spi_addr, 0x60, _data & 0xFFFF);
+    while (!(HAL_READ32(spi_addr, 0x28) & 0x0000008));
+    d = HAL_READ32(spi_addr, 0x60);
+
+    return d;
 }
 
 void SPIClass::transfer(byte _pin, void *_buf, size_t _count, SPITransferMode _mode)
