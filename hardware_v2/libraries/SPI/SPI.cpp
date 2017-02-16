@@ -20,6 +20,9 @@ extern "C" {
 #include "PinNames.h"
 #include "cmsis_os.h"
 
+extern void log_uart_enable_printf(void);
+extern void log_uart_disable_printf(void);
+
 #ifdef __cplusplus
 }
 #endif
@@ -47,9 +50,13 @@ void SPIClass::beginTransaction(uint8_t pin, SPISettings settings)
     spi_format((spi_t *)pSpiMaster, 8, settings._dataMode, 0);
 	spi_frequency((spi_t *)pSpiMaster, settings._clock);
 
+    log_uart_disable_printf();
+
     pinUserSS = pin;
     pinMode(pinUserSS, OUTPUT);
     digitalWrite(pinUserSS, 0);
+
+    log_uart_enable_printf();
 }
 
 void SPIClass::beginTransaction(SPISettings settings)
