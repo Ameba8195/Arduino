@@ -71,8 +71,6 @@ void handle_interrupt(uint32_t id, uint32_t event)
         if (pSwSerial->availableCallback != NULL) {
             pSwSerial->availableCallback(d);
         }
-    }else if( (SerialIrq)event == TxIrq ) {    		
-    		pSwSerial->irpt_txcount++;
     }
 }
 
@@ -184,10 +182,11 @@ int SoftwareSerial::available()
 
 size_t SoftwareSerial::write(uint8_t b)
 {
-    serial_putc((serial_t *)pUART, b);
-  	txcount = txcount + 2;
-  
-    return 1;
+		int ret = 0;
+    
+  	ret = serial_send_blocked((serial_t *)pUART, (char *)&b, 1, 10);  	
+  	
+    return ret;
 }
 
 void SoftwareSerial::flush()
@@ -197,13 +196,6 @@ void SoftwareSerial::flush()
 
     _receive_buffer_head = _receive_buffer_tail = 0;
     _buffer_overflow = false;
-    
-    while(txcount != irpt_txcount)
-    {
-    		delayMicroseconds(10);
-    }    
-    txcount = 0;
-    irpt_txcount = 0;
 }
 
 int SoftwareSerial::peek()

@@ -63,8 +63,6 @@ private:
   int parity;
   int stop_bits;
   int flowctrl;
-  int txcount = 0;
-  int irpt_txcount = 0;
 
   // Expressed as 4-cycle delays (must never be 0!)
   bool _buffer_overflow;
