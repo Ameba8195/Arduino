@@ -30,6 +30,7 @@ int32_t  WiFiDrv::_networkRssi[WL_NETWORKS_LIST_MAXNUM] = { 0 };
 uint32_t WiFiDrv::_networkEncr[WL_NETWORKS_LIST_MAXNUM] = { 0 };
 
 static bool init_wlan = false;
+static int wifi_mode = NULL;
 
 static rtw_network_info_t wifi = {0};
 static rtw_ap_info_t ap = {0};
@@ -55,10 +56,20 @@ static void init_wifi_struct(void)
 
 void WiFiDrv::wifiDriverInit()
 {
-    if (init_wlan == false) {
-        init_wlan = true;
-        LwIP_Init();
-        wifi_on(RTW_MODE_STA);
+
+    if (init_wlan == false) {    		
+			init_wlan = true;
+			LwIP_Init();        
+			wifi_on(RTW_MODE_STA);
+			wifi_mode = RTW_MODE_STA;      
+    }else if (init_wlan == true) {
+    	if (wifi_mode != RTW_MODE_STA){    		
+				dhcps_deinit();				
+				wifi_off();				
+				vTaskDelay(20);
+				wifi_on(RTW_MODE_STA);
+				wifi_mode = RTW_MODE_STA;
+    	}
     }
 }
 
@@ -282,7 +293,7 @@ int8_t WiFiDrv::apActivate()
 		if(wext_get_ssid(WLAN0_NAME, (unsigned char *) essid) > 0) {
 			if(strcmp((const char *) essid, (const char *)ap.ssid.val) == 0) {
 				printf("\n\r%s started\n", ap.ssid.val);
-				ret = WL_SUCCESS;
+				ret = WL_SUCCESS;				
 				break;
 			}
 		}
@@ -303,6 +314,9 @@ int8_t WiFiDrv::apActivate()
 
 exit:
 	init_wifi_struct( );
+	if(ret == WL_SUCCESS){
+		wifi_mode = RTW_MODE_AP;		
+	}
 	return ret;
 }
 int8_t WiFiDrv::disconnect()
