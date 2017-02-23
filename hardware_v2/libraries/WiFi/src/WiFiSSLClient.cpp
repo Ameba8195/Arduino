@@ -1,3 +1,7 @@
+#if defined(BOARD_RTL8710)
+#error "RTL8710 do not support SSL"
+#endif
+
 #include "WiFi.h"
 #include "WiFiSSLClient.h"
 
