@@ -45,9 +45,10 @@ SoftwareSerial mySerial(0, 1); // RX, TX
 
 SoftwareSerial mySerial(17, 5); // RX, TX
 
-#define TFT_RESET 14
-#define TFT_DC    15
-#define TFT_CS    10
+// IMPORTANT: Due to limit pin, we do not connect TFT_RESET pin.
+#define TFT_RESET  0xFFFFFFFF
+#define TFT_DC              2
+#define TFT_CS             10
 
 #endif
 

@@ -18,8 +18,8 @@
 #define TFT_DC     9
 #define TFT_CS    10
 #elif defined(BOARD_RTL8710)
-#define TFT_RESET 14
-#define TFT_DC    15
+#define TFT_RESET  5
+#define TFT_DC     2
 #define TFT_CS    10
 #endif
 
