@@ -98,7 +98,7 @@ recipe.objcopy.hex.cmd.linux=postbuild_img2_arduino_linux
 recipe.objcopy.hex.imagepath={build.path}\application.axf
 recipe.objcopy.hex.imagepath.macosx="{build.path}/application.axf"
 recipe.objcopy.hex.imagepath.linux="{build.path}/application.axf"
-recipe.objcopy.hex.pattern="{runtime.tools.ameba_tools.path}/{recipe.objcopy.hex.cmd}" "{runtime.tools.ameba_tools.path}" "{recipe.objcopy.hex.imagepath}" "{compiler.path}"
+recipe.objcopy.hex.pattern="{runtime.tools.ameba_tools.path}/{recipe.objcopy.hex.cmd}" "{runtime.tools.ameba_tools.path}" "{recipe.objcopy.hex.imagepath}" "{compiler.path}" "{build.variant.path}/{build.sym_bklist}"
 
 ## Compute size
 recipe.size.pattern.windows="{runtime.tools.ameba_tools.path}/amebasize.exe" "{runtime.tools.ameba_tools.path}"

@@ -12,7 +12,6 @@ Compile command:
 #include <fstream>
 #include <unistd.h>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
@@ -39,12 +38,15 @@ void replaceAll( string& source, const string& from, const string& to )
 
 int main(int argc, char *argv[]) {
 
+	int ret = 0;
     stringstream cmdss;
-    string cmd, line;
+    string cmd, line, msg;
 	vector<string> lines;
 	vector<string>::iterator iter;
     string path_tool;
     string path_arm_none_eabi_gcc;
+	string path_symbol_black_list;
+	string bksym;
     ifstream fin;
     ofstream fout;
 
@@ -82,7 +84,7 @@ int main(int argc, char *argv[]) {
     replaceAll(path_arm_none_eabi_gcc, "/", "\\");
 
     cmdss.clear();
-    cmdss << "\"" <<path_arm_none_eabi_gcc << "arm-none-eabi-nm.exe\" application.axf > application.map";
+    cmdss << "\"" <<path_arm_none_eabi_gcc << "arm-none-eabi-nm.exe\" --numeric-sort application.axf > application.map";
     getline(cmdss, cmd);
     cout << cmd << endl;
     system(cmd.c_str());
@@ -92,13 +94,39 @@ int main(int argc, char *argv[]) {
         lines.push_back(line);
     }
     fin.close();
-    sort(lines.begin(), lines.end());
 
     cmdss.clear();
     cmdss << "\"" <<path_arm_none_eabi_gcc << "arm-none-eabi-objdump.exe\" -d application.axf > application.asm";
     getline(cmdss, cmd);
     cout << cmd << endl;
     system(cmd.c_str());
+
+	// 3.1 check if any forbidden symbols
+	path_symbol_black_list.assign(argv[4]);
+	replaceAll(path_symbol_black_list, "/", "\\");
+	fin.open(path_symbol_black_list.c_str(), ifstream::in);
+	cout << path_symbol_black_list << endl;
+	ret = 0;
+	if (fin) {
+		while ( !fin.eof() && ret == 0) {
+			fin >> bksym;
+			getline(fin, msg);
+
+			// check if this symbole appears in the map file
+			for (iter = lines.begin(); iter != lines.end(); ++iter) {
+				if ( (iter->find(bksym)) != string::npos ) {
+					cerr << "ERROR: " << msg << endl;
+					ret = -1;
+					break;
+				}
+			}
+		}
+	}
+	fin.close();
+
+	if (ret != 0) {
+		return -1;
+	}
 
     // 4. grep sram and sdram information
 	fout.open("application.map");

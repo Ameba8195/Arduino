@@ -20,8 +20,8 @@
           },
           "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-2.0.1.tar.gz",
           "archiveFileName": "ameba-2.0.1.tar.gz",
-          "checksum": "SHA-256:7f7c0568571918dcd0a6691d627ae3dea551a308d00824b3e610470a75404a88",
-          "size": "27067543",
+          "checksum": "SHA-256:dce608c19ea8890ef2ce68136d9717a690cc606b326146b06146ec42549b642c",
+          "size": "27067210",
           "boards": [
             {"name": "Ameba RTL8195A"},
             {"name": "Ameba RTL8710"}
@@ -561,8 +561,8 @@
               "host": "i686-mingw32",
               "archiveFileName": "ameba_tools_windows-1.0.9.tar.gz",
               "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba_tools_windows-1.0.9.tar.gz",
-              "checksum": "SHA-256:80664d3e30da5810e7110099962d675d0db1d29647f0e96d2d095fe4cc34e7f0",
-              "size": "786667"
+              "checksum": "SHA-256:ccb795361cf20a69d41ef97466ee127c4721cd0068f9569b72fdb965356db3ec",
+              "size": "784212"
             },
             {
               "host": "x86_64-apple-darwin",

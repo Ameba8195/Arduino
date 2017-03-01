@@ -33,4 +33,5 @@ ameba_rtl8710.build.board=AMEBA
 ameba_rtl8710.build.core=arduino
 ameba_rtl8710.build.extra_flags=-mthumb -DBOARD_RTL8710 {build.usb_flags}
 ameba_rtl8710.build.ldscript=linker_scripts/gcc/rtl8710-symbol-v03-img2_arduino_arduino.ld
+ameba_rtl8710.build.sym_bklist=linker_scripts/gcc/symbol_black_list.txt
 ameba_rtl8710.build.variant=rtl8710
