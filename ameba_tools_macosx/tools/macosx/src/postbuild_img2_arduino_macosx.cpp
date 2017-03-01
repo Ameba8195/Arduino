@@ -11,15 +11,21 @@ Compile command:
 #include <cstdlib>
 #include <fstream>
 #include <unistd.h>
+#include <vector>
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
 
+	int ret = 0;
     stringstream cmdss;
-    string cmd, line;
+    string cmd, line, msg;
+	vector<string> lines;
+	vector<string>::iterator iter;
     string path_tool;
     string path_arm_none_eabi_gcc;
+	string path_symbol_black_list;
+	string bksym;
     ifstream fin;
 
     bool has_sdram = false;
@@ -55,10 +61,16 @@ int main(int argc, char *argv[]) {
     path_arm_none_eabi_gcc.assign(argv[3]);
 
     cmdss.clear();
-    cmdss << path_arm_none_eabi_gcc << "arm-none-eabi-nm application.axf | sort > application.map";
+    cmdss << path_arm_none_eabi_gcc << "arm-none-eabi-nm --numeric-sort application.axf > application.map";
     getline(cmdss, cmd);
     cout << cmd << endl;
     system(cmd.c_str());
+
+    fin.open("application.map");
+    while( getline(fin, line) ) {
+        lines.push_back(line);
+    }
+    fin.close();
 
     cmdss.clear();
     cmdss << path_arm_none_eabi_gcc << "arm-none-eabi-objdump -d application.axf > application.asm";
@@ -66,9 +78,35 @@ int main(int argc, char *argv[]) {
     cout << cmd << endl;
     system(cmd.c_str());
 
+	// 3.1 check if any forbidden symbols
+	path_symbol_black_list.assign(argv[4]);
+	fin.open(path_symbol_black_list.c_str(), ifstream::in);
+	cout << path_symbol_black_list << endl;
+	ret = 0;
+	if (fin) {
+		while ( !fin.eof() && ret == 0) {
+			fin >> bksym;
+			getline(fin, msg);
+
+			// check if this symbole appears in the map file
+			for (iter = lines.begin(); iter != lines.end(); ++iter) {
+				if ( (iter->find(bksym)) != string::npos ) {
+					cerr << endl << "ERROR: " << msg << endl << endl;
+					ret = -1;
+					break;
+				}
+			}
+		}
+	}
+	fin.close();
+
+	if (ret != 0) {
+		return -1;
+	}
+
     // 4. grep sram and sdram information
-    fin.open("application.map");
-    while ( getline(fin, line) ) {
+    for (iter = lines.begin(); iter != lines.end(); ++iter) {
+        line = *iter;
         pos = line.find("__ram_image2_text_start__");
         if ( pos != string::npos ) {
             sram_start_st = line.substr(0, pos-3);
@@ -90,7 +128,6 @@ int main(int argc, char *argv[]) {
             sdram_end = strtol(sdram_end_st.c_str(), NULL, 16);
         }
     }
-    fin.close();
 
     if (sdram_start > 0 && sdram_end > 0) {
         has_sdram = true;

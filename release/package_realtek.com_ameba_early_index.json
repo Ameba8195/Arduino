@@ -568,8 +568,8 @@
               "host": "x86_64-apple-darwin",
               "archiveFileName": "ameba_tools_macosx-1.0.9.tar.gz",
               "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba_tools_macosx-1.0.9.tar.gz",
-              "checksum": "SHA-256:9046e0a1319640699b905f64eef232656b83add10c9388c620a93f49dfb5a9fa",
-              "size": "58861"
+              "checksum": "SHA-256:d4b938b34140d8bab16efc538f482bf61c22795ad690c9114215286e37ab7fdd",
+              "size": "64855"
             },
             {
                "host":"x86_64-pc-linux-gnu",
