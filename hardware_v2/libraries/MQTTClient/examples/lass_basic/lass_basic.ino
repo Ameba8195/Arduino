@@ -51,7 +51,14 @@ byte ntpRecvBuffer[ NTP_PACKET_SIZE ];
 static  const uint8_t monthDays[]={31,28,31,30,31,30,31,31,30,31,30,31}; // API starts months from 1, this array starts from 0
 uint32_t epochSystem = 0; // timestamp of system boot up
 
+#if defined(BOARD_RTL8195A)
 SoftwareSerial mySerial(0, 1); // RX, TX
+#elif defined(BOARD_RTL8710)
+SoftwareSerial mySerial(17, 5); // RX, TX
+#else
+SoftwareSerial mySerial(0, 1); // RX, TX
+#endif
+
 #define pmsDataLen 32
 uint8_t serialBuf[pmsDataLen];
 int pm10 = 0;

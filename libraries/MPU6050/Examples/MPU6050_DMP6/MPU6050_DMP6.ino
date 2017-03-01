@@ -212,6 +212,13 @@ void setup() {
         // enable Arduino interrupt detection
         Serial.println(F("Enabling interrupt detection (Ameba D3 pin)..."));
         attachInterrupt(3, dmpDataReady, RISING);
+#if defined(BOARD_RTL8195A)
+        attachInterrupt(3, dmpDataReady, RISING);
+#elif defined(BOARD_RTL8710)
+        attachInterrupt(12, dmpDataReady, RISING);
+#else
+        attachInterrupt(3, dmpDataReady, RISING);
+#endif
         mpuIntStatus = mpu.getIntStatus();
 
         // set our DMP Ready flag so the main loop() function knows it's okay to use it

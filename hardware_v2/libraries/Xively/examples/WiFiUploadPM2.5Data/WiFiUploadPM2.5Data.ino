@@ -42,7 +42,14 @@ char data3_rw[] = "R";          //APP's permission type("R" : readonly; "W" : re
 char data3_name[] = "pm10";     //Displayed name on APP
 /******************************************************************************************************/
 
+#if defined(BOARD_RTL8195A)
 SoftwareSerial mySerial(0, 1); // RX, TX
+#elif defined(BOARD_RTL8710)
+SoftwareSerial mySerial(17, 5); // RX, TX
+#else
+SoftwareSerial mySerial(0, 1); // RX, TX
+#endif
+
 #define pmsDataLen 64
 uint8_t buf[pmsDataLen];
 int idx = 0;

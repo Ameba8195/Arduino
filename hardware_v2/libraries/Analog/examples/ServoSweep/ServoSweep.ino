@@ -17,7 +17,13 @@ AmebaServo myservo;  // create servo object to control a servo
 int pos = 0;    // variable to store the servo position
 
 void setup() {
-  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+#if defined(BOARD_RTL8195A)
+  myservo.attach(9); // attaches the servo on pin 9 to the servo object
+#elif defined(BOARD_RTL8710)
+  myservo.attach(13); // attaches the servo on pin 13 to the servo object
+#else
+  myservo.attach(9); // attaches the servo on pin 9 to the servo object
+#endif
 }
 
 void loop() {
