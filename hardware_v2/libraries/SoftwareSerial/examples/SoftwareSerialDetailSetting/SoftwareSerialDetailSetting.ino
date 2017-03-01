@@ -11,18 +11,17 @@
  * CTS is digital pin 2 (connect to RTS of other device)
 
  The circuit: (BOARD RTL8710)
- * RX is digital pin 17 (connect to TX of other device)
- * TX is digital pin 5 (connect to RX of other device)
- * RTS is digital pin 7 (connect to CTS of other device)
- * CTS is digital pin 16 (connect to RTS of other device)
-
+ * RX is digital pin 10 (connect to TX of other device)
+ * TX is digital pin 12 (connect to RX of other device)
+ * RTS is digital pin 11 (connect to CTS of other device)
+ * CTS is digital pin 13 (connect to RTS of other device)
  */
 #include <SoftwareSerial.h>
 
 #if defined(BOARD_RTL8195A)
 SoftwareSerial mySerial(0, 1); // RX, TX
 #elif defined(BOARD_RTL8710)
-SoftwareSerial mySerial(17, 5); // RX, TX
+SoftwareSerial mySerial(10, 12); // RX, TX
 #else
 SoftwareSerial mySerial(0, 1); // RX, TX
 #endif
