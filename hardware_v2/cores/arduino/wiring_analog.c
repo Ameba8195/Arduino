@@ -27,7 +27,6 @@ extern "C" {
 #include "pwmout_api.h"
 #include "gpio_ex_api.h"
 
-#ifdef FEATURE_ADC
 /* ADC */
 analogin_t   adc1;
 analogin_t   adc2;
@@ -39,7 +38,6 @@ static const float ADC_slope2 = (3.3-3.12)/(3454.0-3410.0);
 bool g_adc_enabled[] = {
     false, false, false
 };
-#endif
 
 #ifdef FEATURE_DAC
 dac_t dac0;
@@ -48,20 +46,18 @@ bool g_dac_enabled[] = {
     false
 };
 
-static int _readResolution = 10;
-
 #endif
+
+static int _readResolution = 10;
 
 extern void *gpio_pin_struct[];
 
 static int _writeResolution = 8;
 static int _writePeriod = 20000;
 
-#ifdef FEATURE_ADC
 void analogReadResolution(int res) {
     _readResolution = res;
 }
-#endif
 
 void analogWriteResolution(int res) {
     _writeResolution = res;
@@ -87,7 +83,6 @@ void analogReference(eAnalogReference ulMode)
     analog_reference = ulMode;
 }
 
-#ifdef FEATURE_ADC
 uint32_t analogRead(uint32_t ulPin)
 {
     uint32_t ulValue = 0;
@@ -138,7 +133,6 @@ uint32_t analogRead(uint32_t ulPin)
     return ret;
 
 }
-#endif
 
 void analogOutputInit(void) {
     // nop
@@ -152,7 +146,7 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue)
 {
     pwmout_t *obj;
 
-#ifdef FEATURE_ADC
+#ifdef FEATURE_DAC
     if (ulPin == DAC0)
     {
         if (g_dac_enabled[0] == false) {
@@ -163,7 +157,7 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue)
         analogout_write(&dac0, ulValue * 1.0 / (1<<_writeResolution) );       
     }
     else
-#endif // #ifdef FEATURE_ADC
+#endif // #ifdef FEATURE_DAC
     {
         if ((g_APinDescription[ulPin].ulPinAttribute & PIO_PWM) == PIO_PWM) {
             /* Handle */

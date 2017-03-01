@@ -47,7 +47,6 @@ extern void analogReference( eAnalogReference ulMode ) ;
  */
 extern void analogWrite( uint32_t ulPin, uint32_t ulValue ) ;
 
-#ifdef FEATURE_ADC
 /*
  * \brief Reads the value from the specified analog pin.
  *
@@ -63,7 +62,6 @@ extern uint32_t analogRead( uint32_t ulPin ) ;
  * \param res
  */
 extern void analogReadResolution(int res);
-#endif // #ifdef FEATURE_ADC
 
 /*
  * \brief Set the resolution of analogWrite parameters. Default is 8 bits (range from 0 to 255).

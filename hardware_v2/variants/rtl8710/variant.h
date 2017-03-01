@@ -32,6 +32,11 @@
 
 #define LED_BUILTIN 13
 
+/* Analog pin mapping */
+#define A0 1
+#define A1 2
+#define A2 3
+
 #define SS 10
 
 #ifdef __cplusplus
