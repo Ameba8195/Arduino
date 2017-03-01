@@ -214,6 +214,9 @@ SECTIONS
 	/* Check if data + heap + stack exceeds RAM limit */
 	ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
 
+	
+	PROVIDE(__ssl_feature = rom_ssl_ram_map);
+	ASSERT(__ssl_feature==0, "RTL8710 do not support SSL")
 }
 
 

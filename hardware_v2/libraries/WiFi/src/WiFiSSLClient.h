@@ -1,10 +1,6 @@
 #ifndef wifisslclient_h
 #define wifisslclient_h
 
-#if defined(BOARD_RTL8710)
-#error "RTL8710 do not support SSL"
-#endif
-
 #include "Print.h"
 #include "Client.h"
 #include "IPAddress.h"
