@@ -222,5 +222,9 @@ void SPIClass::setDefaultFrequency(int _frequency)
     defaultFrequency = _frequency;
 }
 
+#if defined(BOARD_RTL8710)
+SPIClass SPI((void *)(&spi_obj), 13, 9, 10, 8);
+#else
 SPIClass SPI((void *)(&spi_obj), 11, 12, 13, 10);
+#endif
 
