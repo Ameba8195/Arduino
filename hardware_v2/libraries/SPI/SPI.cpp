@@ -39,9 +39,13 @@ SPIClass::SPIClass(void *pSpiObj, int mosi, int miso, int clk, int ss)
     pinCLK = clk;
     pinSS = ss;
 
-    pinUserSS == -1;
+    pinUserSS = -1;
 
+#if defined(BOARD_RTL8710)
+    defaultFrequency = 10416666;
+#else
     defaultFrequency = 20000000;
+#endif
 }
 
 void SPIClass::beginTransaction(uint8_t pin, SPISettings settings)
