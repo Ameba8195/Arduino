@@ -17,7 +17,14 @@ char pass[] = "secretPassword";  // your network password
 
 #define MY_VERSION_NUMBER 1
 #define OTA_PORT 5000
+
+#if defined(BOARD_RTL8195A)
 #define RECOVER_PIN 18
+#elif defined(BOARD_RTL8710)
+#define RECOVER_PIN 2
+#else
+#define RECOVER_PIN 18
+#endif
 
 void setup() {
   printf("This is version %d\r\n\r\n", MY_VERSION_NUMBER);
