@@ -198,6 +198,10 @@ void retrievePM25Value() {
   pm10 = ( serialBuf[10] << 8 ) | serialBuf[11];
   pm25 = ( serialBuf[12] << 8 ) | serialBuf[13];
   pm100 = ( serialBuf[14] << 8 ) | serialBuf[15];
+
+  Serial.print("pm2.5: ");
+  Serial.print(pm25);
+  Serial.println(" ug/m3");
 }
 
 void initializeWiFi() {
