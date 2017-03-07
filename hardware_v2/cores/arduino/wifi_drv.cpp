@@ -56,7 +56,8 @@ static void init_wifi_struct(void)
 
 void WiFiDrv::wifiDriverInit()
 {
-
+	struct netif * pnetif = &xnetif[0];
+	
     if (init_wlan == false) {    		
 			init_wlan = true;
 			LwIP_Init();        
@@ -66,8 +67,9 @@ void WiFiDrv::wifiDriverInit()
     	if (wifi_mode != RTW_MODE_STA){    		
 				dhcps_deinit();				
 				wifi_off();				
-				vTaskDelay(20);
+				vTaskDelay(20);				
 				wifi_on(RTW_MODE_STA);
+				dhcps_init(pnetif);
 				wifi_mode = RTW_MODE_STA;
     	}
     }
