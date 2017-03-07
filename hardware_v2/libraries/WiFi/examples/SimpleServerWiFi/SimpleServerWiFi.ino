@@ -43,6 +43,9 @@ void loop() {
     memset(buffer, 0, 256);
     int n = client.read((uint8_t*)(&buffer[0]), sizeof(buffer));
     if (n > 0) {
+      for (int i=0; i<n; i++) {
+        Serial.print(buffer[i]);
+      }
       n = client.write(buffer, n);
       if (n <= 0) break;
     }
