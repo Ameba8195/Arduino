@@ -13,6 +13,10 @@ in some other point in space and time).
 Other than that, enjoy... =D
 */
 
+#if defined(BOARD_RTL8710)
+#error "RTL8710 do not support this library"
+#endif
+
 #ifndef	LCD12864_h
 #define LCD12864_h
 #include <avr/pgmspace.h>
