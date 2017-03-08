@@ -10,6 +10,10 @@
  * is under deepsleep between 2 measurements.
  *
  * Please refer example "DHT11Tester" for DHT11 pin connection
+ *
+ * If you accidentally put deepsleep at the beginning,
+ * you can connect D18(For RTL8710, it's D2) to GND. It's a software lock of power save
+ * which prevent Ameba enter any power save state.
  **/
 
 // Example testing sketch for various DHT humidity/temperature sensors

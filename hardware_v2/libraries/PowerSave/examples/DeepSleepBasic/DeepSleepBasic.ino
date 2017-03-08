@@ -7,7 +7,7 @@
  * because Ameba is always under deepsleep.
  *
  * If you accidentally put deepsleep at the beginning,
- * you can connect D18(For RTL8710, it's D15) to GND. It's a software lock of power save
+ * you can connect D18(For RTL8710, it's D2) to GND. It's a software lock of power save
  * which prevent Ameba enter any power save state.
  *
  * When Ameba resume from deepsleep, it starts from beginning 
@@ -19,6 +19,13 @@
 #include <PowerManagement.h>
 
 void setup() {
+
+#if defined(BOARD_RTL8710)
+  /*
+   *  Choose you own safe lock pin. It's pin 2 by default
+   */
+  PowerManagement.setSafeLockPin(2);
+#endif
 
   /*  Make a safe delay before enter deepsleep
    *  if Ameba is under deepsleep, it's not able to upload image.

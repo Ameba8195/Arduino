@@ -7,6 +7,10 @@
  *
  * You can find more information of LASS at this site:
  *     https://lass.hackpad.com/LASS-README-DtZ5T6DXLbu
+ *
+ * If you accidentally put deepsleep at the beginning,
+ * you can connect D18(For RTL8710, it's D2) to GND. It's a software lock of power save
+ * which prevent Ameba enter any power save state.
  */
 
 #include <WiFi.h>

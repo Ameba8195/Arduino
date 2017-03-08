@@ -18,7 +18,7 @@ extern void log_uart_disable_printf(void);
 #if defined(BOARD_RTL8195A)
 #define SAVE_LOCK_PIN 18
 #elif defined(BOARD_RTL8710)
-#define SAVE_LOCK_PIN 15
+#define SAVE_LOCK_PIN 2
 #else
 #define SAVE_LOCK_PIN 18
 #endif

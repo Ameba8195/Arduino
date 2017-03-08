@@ -4,6 +4,9 @@
  * This sketch make wifi connection, read DHTxx results, send out
  * results, and the make a deepsleep or delay for 60s.
  *
+ * If you accidentally put deepsleep at the beginning,
+ * you can connect D18(For RTL8710, it's D2) to GND. It's a software lock of power save
+ * which prevent Ameba enter any power save state.
  */
 
 #include <WiFi.h>
