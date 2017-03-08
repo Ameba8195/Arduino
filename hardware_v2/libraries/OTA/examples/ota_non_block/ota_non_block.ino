@@ -17,7 +17,7 @@ char pass[] = "secretPassword";  // your network password
 #if defined(BOARD_RTL8195A)
 #define RECOVER_PIN 18
 #elif defined(BOARD_RTL8710)
-#define RECOVER_PIN 2
+#define RECOVER_PIN 17
 #else
 #define RECOVER_PIN 18
 #endif
