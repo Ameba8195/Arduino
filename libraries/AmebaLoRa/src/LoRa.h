@@ -4,9 +4,20 @@
 #include <Arduino.h>
 #include <SPI.h>
 
+#if defined(BOARD_RTL8195A)
+
 #define LORA_DEFAULT_SS_PIN    0	//for realtek ameba 
 #define LORA_DEFAULT_RESET_PIN 9
 #define LORA_DEFAULT_DIO0_PIN  3	//for realtek ameba
+
+#elif defined(BOARD_RTL8710)
+
+#define LORA_DEFAULT_SS_PIN    5	//for realtek ameba 
+#define LORA_DEFAULT_RESET_PIN 2
+#define LORA_DEFAULT_DIO0_PIN  17	//for realtek ameba
+
+#else
+#endif
 
 class LoRaClass : public Stream {
 public:
