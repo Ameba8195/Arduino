@@ -210,13 +210,14 @@ void setup() {
         mpu.setDMPEnabled(true);
 
         // enable Arduino interrupt detection
-        Serial.println(F("Enabling interrupt detection (Ameba D3 pin)..."));
-        attachInterrupt(3, dmpDataReady, RISING);
 #if defined(BOARD_RTL8195A)
+        Serial.println(F("Enabling interrupt detection (Ameba RTL8195A D3 pin)..."));
         attachInterrupt(3, dmpDataReady, RISING);
 #elif defined(BOARD_RTL8710)
+        Serial.println(F("Enabling interrupt detection (Ameba RTL8710 D12 pin)..."));
         attachInterrupt(12, dmpDataReady, RISING);
 #else
+        Serial.println(F("Enabling interrupt detection (D3 pin)..."));
         attachInterrupt(3, dmpDataReady, RISING);
 #endif
         mpuIntStatus = mpu.getIntStatus();
