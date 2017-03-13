@@ -45,7 +45,7 @@
 #if defined(BOARD_RTL8195A)
 const int pinRecv = 3;              // ir receiver connect to D3
 #elif defined(BOARD_RTL8710)
-const int pinRecv = 13;             // ir receiver connect to D13
+const int pinRecv = 12;             // ir receiver connect to D13
 #else
 const int pinRecv = 3;              // ir receiver connect to D3
 #endif
