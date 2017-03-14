@@ -17,8 +17,8 @@
 #include <WiFiUdp.h>
 #include <PMS3003.h>
 
-char ssid[] = "mynetwork";      // your network SSID (name)
-char pass[] = "mypassword";     // your network password
+char ssid[] = "yourNetwork";    // your network SSID (name)
+char pass[] = "secretPassword"; // your network password
 int keyIndex = 0;               // your network key Index number (needed only for WEP)
 
 char gps_lat[] = "24.7814033";   // device's gps latitude
@@ -157,14 +157,17 @@ void sendMQTT() {
   Serial.print(pm25);
   Serial.println(" ug/m3");
 
-  if (mqttClient.connected()) {
-      sprintf(payload, "|ver_format=3|FAKE_GPS=1|app=PM25|ver_app=%s|device_id=%s|date=%4d-%02d-%02d|time=%02d:%02d:%02d|s_d0=%d|gps_lon=%s|gps_lat=%s",
-        "live", clientId, year, month, day, hour, minute, second, pm25, gps_lon, gps_lat);
-      mqttClient.publish(outTopic, payload);
-  } else {
+  if (!mqttClient.connected()) {
     Serial.println("Attempting MQTT connection");
     mqttClient.connect(clientId);
   }
+
+  if (mqttClient.connected()) {
+    sprintf(payload, "|ver_format=3|FAKE_GPS=1|app=PM25|ver_app=%s|device_id=%s|date=%4d-%02d-%02d|time=%02d:%02d:%02d|s_d0=%d|gps_lon=%s|gps_lat=%s",
+      "live", clientId, year, month, day, hour, minute, second, pm25, gps_lon, gps_lat);
+    mqttClient.publish(outTopic, payload);
+  }
+
 }
 
 void setup() {

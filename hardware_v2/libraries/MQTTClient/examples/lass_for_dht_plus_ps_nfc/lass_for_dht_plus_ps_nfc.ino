@@ -19,7 +19,7 @@
 	(a) The first one is for android applicaton. This NDEF record will trigger event and lunch
         application accordingly.
     (b) The second one is text data with this format:
-			device:FT1_9999,h:34.0,t:27.0
+			device:FT_LIVE_12345678,h:34.0,t:27.0
 	When Android phone with NFC enabled it will lunch application and bring the text data to it.
     The sequence of 2 NDEF messages cannot exchange. Otherwise it won't lunch application.
  6. Get current time from RTC:
@@ -58,8 +58,8 @@ char server[]         = "gpssensor.ddns.net"; // the MQTT server of LASS
 char *gps_location[2] = {"24.465003", "120.593594"}; // position of RTK (latitude & longitude)
 //char *gps_location[2] = {"25.05740", "121.31000"}; // position of position of National Taiwan Science Education Center
 
-char clientId[]       = "FT1_9999"; // Fill in your Field Try ID
-char topic[]          = "LASS/Test/PM25";
+char clientId[] = "FT_LIVE_12345678";      // Fill in your Field Try ID
+char topic[20] = "LASS/Test/PM25/live";    // MQTT publish topic
 char payload[512];
 
 WiFiClient wifiClient;
@@ -170,14 +170,12 @@ void setup() {
   FlashMemory.update();
 
   /* prepare LASS data */
-  memset(payload, 0, sizeof(payload));
-  sprintf(payload, "|ver_format=3|fmt_opt=0|app=PM25|ver_app=0.0.1|device_id=%s|tick=%d|date=%4d-%02d-%02d|time=%02d:%02d:%02d|device=Ameba|s_h0=%.1f|s_t0=%.1f|gps_lat=%s|gps_lon=%s|gps_fix=1|gps_num=9|gps_alt=2",
-    clientId,
-    millis(),
-    year(memdata->timestamp), month(memdata->timestamp), day(memdata->timestamp),
-    hour(memdata->timestamp), minute(memdata->timestamp), second(memdata->timestamp),
-    memdata->h, memdata->t,
-    gps_location[0], gps_location[1]
+  sprintf(payload, "|ver_format=3|FAKE_GPS=1|app=PM25|ver_app=%s|device_id=%s|date=%4d-%02d-%02d|time=%02d:%02d:%02d|s_t0=%3.1f|s_h0=%2.1f|gps_lon=%s|gps_lat=%s",
+          "live", clientId,
+          year(memdata->timestamp), month(memdata->timestamp), day(memdata->timestamp),
+          hour(memdata->timestamp), minute(memdata->timestamp), second(memdata->timestamp),
+          memdata->h, memdata->t,
+          gps_location[0], gps_location[1]
   );
   if (DBG) printf("%s\r\n", payload);
 
