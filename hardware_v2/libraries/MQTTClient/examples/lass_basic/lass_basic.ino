@@ -15,26 +15,21 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <WiFiUdp.h>
-#include <SoftwareSerial.h>
+#include <PMS3003.h>
 
 char ssid[] = "mynetwork";      // your network SSID (name)
 char pass[] = "mypassword";     // your network password
 int keyIndex = 0;               // your network key Index number (needed only for WEP)
 
-char gps_lat[] = "24.7805647";  // device's gps latitude
-char gps_lon[] = "120.9933177"; // device's gps longitude
+char gps_lat[] = "24.7814033";   // device's gps latitude
+char gps_lon[] = "120.9933676"; // device's gps longitude
 
-char server[] = "gpssensor.ddns.net"; // the MQTT server of LASS
-
-#define MAX_CLIENT_ID_LEN 10
-#define MAX_TOPIC_LEN     50
-char clientId[MAX_CLIENT_ID_LEN];
-char outTopic[MAX_TOPIC_LEN];
+char server[] = "gpssensor.ddns.net";      // the MQTT server of LASS
+char clientId[17] = "";                    // client id for MQTT
+char outTopic[20] = "LASS/Test/PM25/live"; // MQTT publish topic
 
 WiFiClient wifiClient;
-PubSubClient client(wifiClient);
-
-int status = WL_IDLE_STATUS;
+PubSubClient mqttClient(wifiClient);
 
 WiFiUDP Udp;
 const char ntpServer[] = "pool.ntp.org";
@@ -52,48 +47,49 @@ static  const uint8_t monthDays[]={31,28,31,30,31,30,31,31,30,31,30,31}; // API 
 uint32_t epochSystem = 0; // timestamp of system boot up
 
 #if defined(BOARD_RTL8195A)
-SoftwareSerial mySerial(0, 1); // RX, TX
+PMS3003 pms(0, 1);  // SoftwareSerial RX/TX
 #elif defined(BOARD_RTL8710)
-SoftwareSerial mySerial(17, 5); // RX, TX
+PMS3003 pms(17, 5); // SoftwareSerial RX/TX
 #else
-SoftwareSerial mySerial(0, 1); // RX, TX
+PMS3003 pms(0, 1);  // SoftwareSerial RX/TX
 #endif
 
-#define pmsDataLen 32
-uint8_t serialBuf[pmsDataLen];
-int pm10 = 0;
-int pm25 = 0;
-int pm100 = 0;
+void reconnectWiFi() {
+  // attempt to connect to Wifi network:
+  if ( WiFi.status() != WL_CONNECTED ) {
+    Serial.print("Try connect to wifi ssid: ");
+    Serial.println(ssid);
+    while (WiFi.begin(ssid, pass) != WL_CONNECTED) {
+      delay(1000);
+    }
+    Serial.println("Connected to wifi");
 
-void callback(char* topic, byte* payload, unsigned int length) {
-  Serial.print("Message arrived [");
-  Serial.print(topic);
-  Serial.print("] ");
-  for (int i=0;i<length;i++) {
-    Serial.print((char)payload[i]);
+    Udp.begin(2390); // local port to listen for UDP packets
   }
-  Serial.println();
 }
 
 // send an NTP request to the time server at the given address
 void retrieveNtpTime() {
-  Serial.println("Send NTP packet");
-
-  Udp.beginPacket(ntpServer, 123); //NTP requests are to port 123
-  Udp.write(nptSendPacket, NTP_PACKET_SIZE);
-  Udp.endPacket();
-
-  if(Udp.parsePacket()) {
-    Serial.println("NTP packet received");
-    Udp.read(ntpRecvBuffer, NTP_PACKET_SIZE); // read the packet into the buffer
-    
-    unsigned long highWord = word(ntpRecvBuffer[40], ntpRecvBuffer[41]);
-    unsigned long lowWord = word(ntpRecvBuffer[42], ntpRecvBuffer[43]);
-    unsigned long secsSince1900 = highWord << 16 | lowWord;
-    const unsigned long seventyYears = 2208988800UL;
-    unsigned long epoch = secsSince1900 - seventyYears;
-
-    epochSystem = epoch - millis() / 1000;
+  for (int retry = 0; retry < 5; retry ++) {
+    Serial.println("Send NTP packet");
+    Udp.beginPacket(ntpServer, 123); //NTP requests are to port 123
+    Udp.write(nptSendPacket, NTP_PACKET_SIZE);
+    Udp.endPacket();
+  
+    delay(3000);
+    if(Udp.parsePacket()) {
+      Serial.println("NTP packet received");
+      Udp.read(ntpRecvBuffer, NTP_PACKET_SIZE); // read the packet into the buffer
+      
+      unsigned long highWord = word(ntpRecvBuffer[40], ntpRecvBuffer[41]);
+      unsigned long lowWord = word(ntpRecvBuffer[42], ntpRecvBuffer[43]);
+      unsigned long secsSince1900 = highWord << 16 | lowWord;
+      const unsigned long seventyYears = 2208988800UL;
+      unsigned long epoch = secsSince1900 - seventyYears;
+  
+      epochSystem = epoch - millis() / 1000;
+      break;
+    }
   }
 }
 
@@ -135,128 +131,54 @@ void getCurrentTime(unsigned long epoch, int *year, int *month, int *day, int *h
   (*month)++;
 }
 
-void reconnectMQTT() {
-  // Loop until we're reconnected
-  char payload[300];
-
-  unsigned long epoch = epochSystem + millis() / 1000;
-  int year, month, day, hour, minute, second;
-  getCurrentTime(epoch, &year, &month, &day, &hour, &minute, &second);
-
-  while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
-    // Attempt to connect
-    if (client.connect(clientId)) {
-      Serial.println("connected");
-
-      sprintf(payload, "|ver_format=3|fmt_opt=1|app=Pm25Ameba|ver_app=0.0.1|device_id=%s|tick=%d|date=%4d-%02d-%02d|time=%02d:%02d:%02d|device=Ameba|s_d0=%d|gps_lat=%s|gps_lon=%s|gps_fix=1|gps_num=9|gps_alt=2",
-        clientId,
-        millis(),
-        year, month, day,
-        hour, minute, second,
-        pm25,
-        gps_lat, gps_lon
-      );
-
-      // Once connected, publish an announcement...
-      client.publish(outTopic, payload);
-    } else {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-      delay(5000);
-    }
-  }
-}
-
-void retrievePM25Value() {
-  uint8_t c = 0;
-  int idx = 0;
-  memset(serialBuf, 0, pmsDataLen);
-  
-  while (true) {
-  while (c != 0x42) {
-    while (!mySerial.available());
-    c = mySerial.read();
-  }
-  while (!mySerial.available());
-  c = mySerial.read();
-  if (c == 0x4d) {
-    // now we got a correct header)
-    serialBuf[idx++] = 0x42;
-    serialBuf[idx++] = 0x4d;
-    break;
-  }
-  }
-  
-  while (idx != pmsDataLen) {
-  while(!mySerial.available());
-  serialBuf[idx++] = mySerial.read();
-  }
-  
-  pm10 = ( serialBuf[10] << 8 ) | serialBuf[11];
-  pm25 = ( serialBuf[12] << 8 ) | serialBuf[13];
-  pm100 = ( serialBuf[14] << 8 ) | serialBuf[15];
-
-  Serial.print("pm2.5: ");
-  Serial.print(pm25);
-  Serial.println(" ug/m3");
-}
-
-void initializeWiFi() {
-  while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to SSID: ");
-    Serial.println(ssid);
-    // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-    status = WiFi.begin(ssid, pass);
-
-    // wait 10 seconds for connection:
-    delay(10000);
-  }
-
-  // local port to listen for UDP packets
-  Udp.begin(2390);
-}
-
 void initializeMQTT() {
   byte mac[6];
+
   WiFi.macAddress(mac);
-  memset(clientId, 0, MAX_CLIENT_ID_LEN);
-  sprintf(clientId, "FT1_0%02X%02X", mac[4], mac[5]);
-  sprintf(outTopic, "LASS/Test/Pm25Ameba/%s", clientId);
+  sprintf(clientId, "FT_LIVE_%02X%02X%02X%02X", mac[2], mac[3], mac[4], mac[5]);
 
   Serial.print("MQTT client id:");
   Serial.println(clientId);
   Serial.print("MQTT topic:");
   Serial.println(outTopic);
 
-  client.setServer(server, 1883);
-  client.setCallback(callback);
+  mqttClient.setServer(server, 1883);
 }
 
-void setup()
-{
-  Serial.begin(38400);
+void sendMQTT() {
+  char payload[300];
+  int pm25;
+  unsigned long epoch = epochSystem + millis() / 1000;
+  int year, month, day, hour, minute, second;
+  getCurrentTime(epoch, &year, &month, &day, &hour, &minute, &second);
 
-  initializeWiFi();
+  pm25 = pms.get_pm2p5_air();
+  Serial.print("pm2.5: ");
+  Serial.print(pm25);
+  Serial.println(" ug/m3");
+
+  if (mqttClient.connected()) {
+      sprintf(payload, "|ver_format=3|FAKE_GPS=1|app=PM25|ver_app=%s|device_id=%s|date=%4d-%02d-%02d|time=%02d:%02d:%02d|s_d0=%d|gps_lon=%s|gps_lat=%s",
+        "live", clientId, year, month, day, hour, minute, second, pm25, gps_lon, gps_lat);
+      mqttClient.publish(outTopic, payload);
+  } else {
+    Serial.println("Attempting MQTT connection");
+    mqttClient.connect(clientId);
+  }
+}
+
+void setup() {
+  pms.begin();
+
+  reconnectWiFi();
   retrieveNtpTime();
   initializeMQTT();
-
-  mySerial.begin(9600); // PMS 3003 UART has baud rate 9600
-
-  // Allow the hardware to sort itself out
-  delay(1500);
 }
 
-void loop()
-{
-  retrievePM25Value();
 
-  if (!client.connected()) {
-    reconnectMQTT();
-  }
-  client.loop();
-
-  delay(60000); // delay 1 minute for next measurement
+void loop() {
+  reconnectWiFi();
+  sendMQTT();
+  mqttClient.loop();
+  delay(1000);
 }
