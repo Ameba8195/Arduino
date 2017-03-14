@@ -37,7 +37,13 @@ void setup() {
   Serial.println("Goodnight moon!");
 
   // set the data rate for the SoftwareSerial port
+#if defined(BOARD_RTL8195A)
   mySerial.begin(38400, 7, PARITY_EVEN, 1, FLOW_CONTROL_RTSCTS, 6, 2);
+#elif defined(BOARD_RTL8710)
+  mySerial.begin(38400, 7, PARITY_EVEN, 1, FLOW_CONTROL_RTSCTS, 11, 13);
+#else
+  mySerial.begin(38400, 7, PARITY_EVEN, 1, FLOW_CONTROL_RTSCTS, 6, 2);
+#endif
   mySerial.println("Hello, world?");
 }
 
