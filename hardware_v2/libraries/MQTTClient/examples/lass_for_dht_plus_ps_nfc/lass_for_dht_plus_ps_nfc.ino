@@ -175,7 +175,7 @@ void setup() {
           year(memdata->timestamp), month(memdata->timestamp), day(memdata->timestamp),
           hour(memdata->timestamp), minute(memdata->timestamp), second(memdata->timestamp),
           memdata->h, memdata->t,
-          gps_location[0], gps_location[1]
+          gps_location[1], gps_location[0]
   );
   if (DBG) printf("%s\r\n", payload);
 
