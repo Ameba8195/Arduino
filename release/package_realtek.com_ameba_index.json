@@ -573,17 +573,17 @@
             },
             {
                "host":"x86_64-pc-linux-gnu",
-               "archiveFileName": "ameba_tools_linux-1.0.9.tar.gz",
-               "url":"https://github.com/Ameba8195/Arduino/raw/master/release/ameba_tools_linux-1.0.9.tar.gz",
-               "checksum":"SHA-256:fd04cdea6fd80a55d8386c93237eb0c596d8c0f5da942426aae37f72baa67550",
-               "size":"3212219"
+               "archiveFileName": "ameba_tools_linux-1.0.9-v2.tar.gz",
+               "url":"https://github.com/Ameba8195/Arduino/raw/master/release/ameba_tools_linux-1.0.9-v2.tar.gz",
+               "checksum":"SHA-256:e55c49504521d4084c753983e3102fbedecf085d7aaba6fdbf3194ce52ce9ea5",
+               "size":"3212475"
             },
             {
                "host":"i686-pc-linux-gnu",
-               "archiveFileName": "ameba_tools_linux-1.0.9.tar.gz",
-               "url":"https://github.com/Ameba8195/Arduino/raw/master/release/ameba_tools_linux-1.0.9.tar.gz",
-               "checksum":"SHA-256:fd04cdea6fd80a55d8386c93237eb0c596d8c0f5da942426aae37f72baa67550",
-               "size":"3212219"
+               "archiveFileName": "ameba_tools_linux-1.0.9-v2.tar.gz",
+               "url":"https://github.com/Ameba8195/Arduino/raw/master/release/ameba_tools_linux-1.0.9-v2.tar.gz",
+               "checksum":"SHA-256:e55c49504521d4084c753983e3102fbedecf085d7aaba6fdbf3194ce52ce9ea5",
+               "size":"3212475"
             }
           ]
         },
