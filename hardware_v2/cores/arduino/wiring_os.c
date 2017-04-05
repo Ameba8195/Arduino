@@ -7,6 +7,8 @@ extern "C" {
 #include "wiring_os.h"
 #include "cmsis_os.h"
 
+extern size_t xPortGetFreeHeapSize( void );
+
 uint32_t os_thread_create( void (*task)(const void *argument), void *argument, int priority, uint32_t stack_size ) {
 
     osThreadDef_t thread_def;
@@ -110,6 +112,10 @@ uint32_t os_semaphore_release(uint32_t semaphore_id) {
 
 uint32_t os_semaphore_delete(uint32_t semaphore_id) {
     return (uint32_t)osSemaphoreDelete((osSemaphoreId)semaphore_id);
+}
+
+size_t os_get_free_heap_size() {
+    return xPortGetFreeHeapSize();
 }
 
 #ifdef __cplusplus

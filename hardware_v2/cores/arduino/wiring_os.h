@@ -301,6 +301,19 @@ extern uint32_t os_semaphore_release(uint32_t semaphore_id);
  */
 extern uint32_t os_semaphore_delete(uint32_t semaphore_id);
 
+/**
+ * @defgroup os_dep_api os_dep_api
+ * OS dependent API
+ */
+
+/**
+ * @ingroup os_dep_api
+ * @brief get current free heap size in SRAM and SDRAM
+ *
+ * @return current free heap size
+ */
+extern size_t os_get_free_heap_size();
+
 #ifdef __cplusplus
 }
 #endif
