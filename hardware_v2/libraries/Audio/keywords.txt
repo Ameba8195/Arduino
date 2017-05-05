@@ -1,0 +1,26 @@
+#######################################
+# Syntax Coloring Map For UVC
+#######################################
+
+#######################################
+# Library (KEYWORD1)
+#######################################
+
+UVC	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+end	KEYWORD2
+available	KEYWORD2
+status	KEYWORD2
+available	KEYWORD2
+turnOn	KEYWORD2
+turnOff	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+

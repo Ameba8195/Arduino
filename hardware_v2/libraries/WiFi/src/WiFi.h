@@ -244,6 +244,8 @@ public:
 
 	int apbegin(char* ssid, char* password, char* channel);
 
+    int disablePowerSave();
+
     friend class WiFiClient;
     friend class WiFiServer;
 	friend class WiFiSSLClient;

@@ -263,6 +263,8 @@ public:
 	static int8_t apSetChannel(const char *channel);
 
 	static int8_t apActivate();
+
+    static int disablePowerSave();
 };
 
 extern WiFiDrv wiFiDrv;

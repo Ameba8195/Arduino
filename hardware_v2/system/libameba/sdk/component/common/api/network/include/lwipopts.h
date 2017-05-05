@@ -221,6 +221,19 @@ a lot of data that needs to be copied, this should be set high. */
 
 #undef MEMP_NUM_NETCONN
 #define MEMP_NUM_NETCONN                16
+
+#undef TCP_WND                
+#define TCP_WND                                       	(4*TCP_MSS)
+
+#undef TCP_SND_BUF
+#define TCP_SND_BUF             (10*TCP_MSS)
+
+#undef TCP_SND_QUEUELEN
+#define TCP_SND_QUEUELEN        (4* TCP_SND_BUF/TCP_MSS)
+
+#undef MEMP_NUM_TCP_SEG
+#define MEMP_NUM_TCP_SEG        40
+
 #endif // end of #ifdef ARDUINO_SDK
 
 /* ---------- Statistics options ---------- */

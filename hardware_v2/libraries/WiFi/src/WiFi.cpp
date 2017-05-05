@@ -230,5 +230,9 @@ int WiFiClass::apbegin(char* ssid, char* password, char* channel)
 
 }
 
+int WiFiClass::disablePowerSave()
+{
+    return WiFiDrv::disablePowerSave();
+}
 
 WiFiClass WiFi;

@@ -58,7 +58,7 @@ compiler.ameba.c.flags= -DCONFIG_PLATFORM_8195A -DARDUINO_SDK {compiler.arduino.
 
 # Ameba archieve list
 # -------------------
-compiler.ameba.ar.list="{build.variant.path}/lib_ameba.a" "{build.variant.path}/lib_mmf.a" "{build.variant.path}/lib_p2p.a" "{build.variant.path}/lib_platform.a" "{build.variant.path}/lib_rtlstd.a" "{build.variant.path}/lib_rtsp.a" "{build.variant.path}/lib_sdcard.a" "{build.variant.path}/lib_usbd.a" "{build.variant.path}/lib_usbh.a" "{build.variant.path}/lib_websocket.a" "{build.variant.path}/lib_wlan.a" "{build.variant.path}/lib_wps.a" "{build.variant.path}/lib_xmodem.a" "{build.variant.path}/lib_mdns.a"
+compiler.ameba.ar.list="{build.variant.path}/lib_ameba.a" "{build.variant.path}/lib_mmf.a" "{build.variant.path}/lib_p2p.a" "{build.variant.path}/lib_platform.a" "{build.variant.path}/lib_rtlstd.a" "{build.variant.path}/lib_rtsp.a" "{build.variant.path}/lib_sdcard.a" "{build.variant.path}/lib_usbd.a" "{build.variant.path}/lib_usbh.a" "{build.variant.path}/lib_websocket.a" "{build.variant.path}/lib_wlan.a" "{build.variant.path}/lib_wps.a" "{build.variant.path}/lib_xmodem.a" "{build.variant.path}/lib_mdns.a" "{build.variant.path}/lib_http.a" "{build.variant.path}/lib_codec.a" "{build.variant.path}/lib_alexa.a"
 
 # USB Flags
 # ---------

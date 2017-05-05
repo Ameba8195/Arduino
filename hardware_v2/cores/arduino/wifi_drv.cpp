@@ -485,3 +485,8 @@ int WiFiDrv::getHostByName(const char* aHostname, IPAddress& aResult)
 		return WL_SUCCESS;
 	}
 }
+
+int WiFiDrv::disablePowerSave()
+{
+    return wifi_disable_powersave();
+}

@@ -14,12 +14,12 @@
 #elif CONFIG_PROJECT_CUSTOM
 #include "platform_stdlib.h"
 #include "ssl_config.h"
-#elif CONFIG_SSL_RSA
-#include "platform_stdlib.h"
-#include "polarssl/config_rsa.h"
 #elif ARDUINO_SDK
 #include "platform_stdlib.h"
 #include "polarssl/config_arduino.h"
+#elif CONFIG_SSL_RSA
+#include "platform_stdlib.h"
+#include "polarssl/config_rsa.h"
 #else
 #include "platform_stdlib.h"
 #include "polarssl/config_all.h"
