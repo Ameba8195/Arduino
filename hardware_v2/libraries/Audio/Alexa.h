@@ -1,6 +1,10 @@
 #ifndef _ALEXA_H_
 #define _ALEXA_H_
 
+#if defined(BOARD_RTL8710)
+#error "RTL8710 do not support I2S"
+#endif
+
 #include <inttypes.h>
 #include <AmebaSGTL5000.h>
 

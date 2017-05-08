@@ -1,6 +1,10 @@
 #ifndef _AMEBA_SGTL5000_H_
 #define _AMEBA_SGTL5000_H_
 
+#if defined(BOARD_RTL8710)
+#error "RTL8710 do not support SDIO"
+#endif
+
 #include <inttypes.h>
 
 #define AUDIO_INPUT_LINEIN  0

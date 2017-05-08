@@ -1,24 +1,46 @@
 #######################################
-# Syntax Coloring Map For UVC
+# Syntax Coloring Map for Audio
 #######################################
 
 #######################################
-# Library (KEYWORD1)
+# Datatypes (KEYWORD1)
 #######################################
 
-UVC	KEYWORD1
+FlashMemory	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
 
 begin	KEYWORD2
-end	KEYWORD2
-available	KEYWORD2
-status	KEYWORD2
-available	KEYWORD2
-turnOn	KEYWORD2
-turnOff	KEYWORD2
+muteHeadphone	KEYWORD2
+unmuteHeadphone	KEYWORD2
+muteLineout	KEYWORD2
+unmuteLineout	KEYWORD2
+inputSelect	KEYWORD2
+setVolume	KEYWORD2
+micGain	KEYWORD2
+
+setAudioTxBuffering	KEYWORD2
+getAuthLink	KEYWORD2
+isAuthComplete	KEYWORD2
+audioRecordState	KEYWORD2
+audioRecordStart	KEYWORD2
+audioRecordStop	KEYWORD2
+setAvsLwaRedirectHost	KEYWORD2
+setAvsLwaApiHost	KEYWORD2
+setAvsClientId	KEYWORD2
+setAvsClientSecret	KEYWORD2
+setAvsRedirectUri	KEYWORD2
+setAvsProductId	KEYWORD2
+setAvsProductDsn	KEYWORD2
+setLoadRefreshTokenHandler	KEYWORD2
+setStoreRefreshTokenHandler	KEYWORD2
+setHomePageGeneratorHandler	KEYWORD2
+setAuthPageGeneratorHandler	KEYWORD2
+setAvsHttp2Host	KEYWORD2
+setAudioBufferSize	KEYWORD2
+setAudioInitializeHandler	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
