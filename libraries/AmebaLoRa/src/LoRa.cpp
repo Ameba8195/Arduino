@@ -49,6 +49,7 @@
 /************For realtek ameba*************/
 #define digitalPinToInterrupt(p)  ((p) == LORA_DEFAULT_DIO0_PIN ? p : NOT_AN_INTERRUPT)	
 #define NOT_AN_INTERRUPT -1	
+#define preCalFactor (2^19)/32000000
 /******************************************/
 
 
@@ -318,7 +319,7 @@ void LoRaClass::setFrequency(long frequency)
 {
   _frequency = frequency;
 
-  uint64_t frf = ((uint64_t)frequency << 19) / 32000000;
+  uint32_t frf = frequency * preCalFactor;
 
   writeRegister(REG_FRF_MSB, (uint8_t)(frf >> 16));
   writeRegister(REG_FRF_MID, (uint8_t)(frf >> 8));
