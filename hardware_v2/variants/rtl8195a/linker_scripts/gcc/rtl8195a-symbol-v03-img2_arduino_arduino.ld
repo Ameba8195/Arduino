@@ -85,10 +85,7 @@ SECTIONS
 
   .sdr_data : 
   {
-    INCLUDE "sdram_obj_text.txt"
-    INCLUDE "sdram_obj_data.txt"
-    INCLUDE "sdram_obj_bss.txt"
-    INCLUDE "sdram_obj_rodata.txt"
+    INCLUDE "sdram_obj_list.txt"
     *(.sdram.data*)
     *(.p2p.data*)
     *(.wps.data*)

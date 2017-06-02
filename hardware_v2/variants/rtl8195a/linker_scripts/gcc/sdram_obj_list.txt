@@ -4,11 +4,6 @@
 *WMath.o(.text*)
 *WString.o(.text*)
 
-/**** from arduino library ****/
-*Alexa.o(.text*)
-*Alexa.o(.rel.text*)
-*AmebaSGTL5000.o(.text*)
-
 /**** from lib_ameba.a ****/
 *analogin_api.o(.text*)
 *analogout_api.o(.text*)
@@ -21,8 +16,6 @@
 *dhcp.o(.text*)
 *dhcps.o(.text*)
 *dns.o(.text*)
-*ecp.o(.text*)
-*ecp_curves.o(.text*)
 *err.o(.text*)
 *etharp.o(.text*)
 *ethernetif.o(.text*)
@@ -39,8 +32,6 @@
 *hal_pwm.o(.text*)
 *hal_ssi.o(.text*)
 *hal_uart.o(.text*)
-*httpc_tls.o(.text*)
-*httpd_tls.o(.text*)
 *i2c_api.o(.text*)
 *i2s_api.o(.text*)
 *icmp.o(.text*)
@@ -57,6 +48,8 @@
 *lwip_timers.o(.text*)
 *mailbox.o(.text*)
 *mDNSPlatform.o(.text*)
+*mem.o(.text*)
+*memp.o(.text*)
 *mjpeg.o(.text*)
 *netbuf.o(.text*)
 *netdb.o(.text*)
@@ -70,6 +63,7 @@
 *rtl8195a_adc.o(.text*)
 *rtl8195a_dac.o(.text*)
 *rtl8195a_i2c.o(.text*)
+*rtl8195a_i2s.o(.text*)
 *rtl8195a_it.o(.text*)
 *rtl8195a_pwm.o(.text*)
 *rtl8195a_ssi.o(.text*)
@@ -78,7 +72,6 @@
 *rtsp_api.o(.text*)
 *sdp.o(.text*)
 *serial_api.o(.text*)
-*sgtl5000.o(.text*)
 *sockets.o(.text*)
 *spi_api.o(.text*)
 *src2rtsp.o(.text*)
@@ -112,6 +105,8 @@
 *des.o(.text*)
 *device_lock.o(.text*)
 *dhm.o(.text*)
+*ecp.o(.text*)
+*ecp_curves.o(.text*)
 *ecdh.o(.text*)
 *ecdsa.o(.text*)
 *entropy.o(.text*)
@@ -163,6 +158,7 @@
 *x509write_csr.o(.text*)
 *xtea.o(.text*)
 *rom_ssl_ram_map.o(.text*)
+*ssl_ram_map.o(.text*)
 
 /**** from lib_platform.a ****/
 *hal_log_uart.o(.text*)
@@ -199,21 +195,3 @@
 *dwc_otg_hcd_ddma.o(.text*)
 *dwc_otg_hcd_intr.o(.text*)
 *dwc_otg_hcd_queue.o(.text*)
-
-/**** from lib_http.a ****/
-*httpc_core.o(.text*)
-*httpc_msg.o(.text*)
-*httpc_util.o(.text*)
-*httpd_core.o(.text*)
-*httpd_msg.o(.text*)
-*httpd_util.o(.text*)
-
-/**** from lib_codec.a ****/
-*g711_codec.o(.text*)
-
-/**** from lib_mdns.a ****/
-*DNSCommon.o(.text*)
-*mDNS.o(.text*)
-*mDNSMain.o(.text*)
-*mDNSPosix.o(.text*)
-*posix.o(.text*)
