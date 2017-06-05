@@ -174,7 +174,7 @@ int main(int argc, char *argv[]) {
 
     if (has_sdram) {
         cmdss.clear();
-        cmdss << "\"" << path_arm_none_eabi_gcc << "arm-none-eabi-objcopy.exe\" -j .image3 -j .ARM.exidx -j .sdr_data -Obinary .\\application.axf .\\sdram.bin";
+        cmdss << "\"" << path_arm_none_eabi_gcc << "arm-none-eabi-objcopy.exe\" -j .image3 -j .sdr_data -Obinary .\\application.axf .\\sdram.bin";
         getline(cmdss, cmd);
         cout << cmd << endl;
         system(cmd.c_str());
