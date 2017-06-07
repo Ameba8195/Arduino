@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 	stringstream ss;
 	string disk_caption;
 	string disk_volumename;
-	string filepath;
+	string filepath1, filepath2;
 
 	string filepath_ram_all;
 	if (argc >= 2) {
@@ -57,10 +57,13 @@ int main(int argc, char *argv[]) {
 	do {
 		// 2. check if MBED disk is accessable
 		char *puser = getenv("USER");
-		filepath = "/media/";
-		filepath.append(puser);
-		filepath.append("/MBED/mbed.htm");
-		if (!isFileExist(filepath)) {
+		filepath1 = "/media/";
+		filepath1.append(puser);
+		filepath1.append("/MBED/mbed.htm");
+		filepath2 = "/run/media/";
+		filepath2.append(puser);
+		filepath2.append("/MBED/mbed.htm");
+		if (!isFileExist(filepath1) && !isFileExist(filepath2)) {
 			cout << "ERR: Cannot access mbed driver!" << endl;
 			break;
 		}
