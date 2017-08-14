@@ -2,7 +2,7 @@
 #define _CAR2WD_H_
 
 #include <stdint.h>
-#include "wiring_os.h"
+#include "Arduino.h"
 
 // The min pwm value. If value lower than this, then the motor won't move.
 #define CAR_MIN_SPEED 150
