@@ -18,7 +18,7 @@ void main(int argc, char *argv[])
 	// argv[3] -> output file name
 	char	*unit;
 	int 	length = strtod(argv[1], &unit);
-	char	data = strtod(argv[2], NULL);
+	char	data = strtol(argv[2], NULL, 0);
 	char	*buf;
 
 	printf("total %d %s, padding data %x, name %s\n", length, unit, data&0xFF, argv[3]);
