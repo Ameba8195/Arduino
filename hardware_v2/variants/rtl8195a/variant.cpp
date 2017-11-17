@@ -88,6 +88,7 @@ void init( void )
     regionAddr = (uint8_t *)&__HeapLimit;
     if ( 0x10070000 > (size_t)(&__HeapLimit) ) {
         regionSize = 0x10070000 - (size_t)(&__HeapLimit);
+        rtl_printf("addr:%08X size:%08X\r\n", regionAddr, regionSize);
         vPortAddHeapRegion(regionAddr, regionSize);
     }
 
@@ -95,6 +96,7 @@ void init( void )
     regionAddr = (uint8_t *)&__sdram_bss_end__;
     if ( 0x30200000 > (size_t)(&__sdram_bss_end__) ) {
         regionSize = 0x30200000 - (size_t)(&__sdram_bss_end__);
+        rtl_printf("addr:%08X size:%08X\r\n", regionAddr, regionSize);
         vPortAddHeapRegion(regionAddr, regionSize);
     }
 

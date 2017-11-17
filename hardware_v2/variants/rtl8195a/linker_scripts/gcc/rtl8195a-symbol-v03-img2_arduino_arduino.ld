@@ -59,8 +59,6 @@ SECTIONS
   {
     __tcm_start__ = .;
     *(.tcm.heap)
-    *mem.o (.bss)
-    *memp.o (.bss)
     __tcm_end__ = .;
     end = __tcm_end__;
   } > TCM
@@ -85,7 +83,7 @@ SECTIONS
 
   .sdr_data : 
   {
-    INCLUDE "sdram_obj_list.txt"
+    INCLUDE "sdram_obj_text.txt"
     *(.sdram.data*)
     *(.p2p.data*)
     *(.wps.data*)
@@ -97,6 +95,8 @@ SECTIONS
   {
     __sdram_bss_start__ = .;
     *(.sdram.bss*)
+    *mem.o(.bss*)
+    *memp.o(.bss*)
     *(.p2p.bss*)
     *(.wps.bss*)
     *(.websocket.bss*)

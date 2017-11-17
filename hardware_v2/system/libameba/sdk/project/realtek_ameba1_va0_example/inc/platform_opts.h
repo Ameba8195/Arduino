@@ -440,6 +440,9 @@ in lwip_opt.h for support uart adapter*/
 // fatfs disk interface
 #define FATFS_DISK_USB	0
 #define FATFS_DISK_SD 	1
+
+#define CONFIG_USE_POLARSSL	1
+
 #endif
 
 
