@@ -5,7 +5,7 @@
 
 2. Compile this example as below
 
-	gcc -o amz_oauth_linux -c amz_oauth_linux.c -lssl -lcrypto
+	gcc -o amz_oauth_linux amz_oauth_linux.c -lssl -lcrypto
 
 3. Then run it:
 
