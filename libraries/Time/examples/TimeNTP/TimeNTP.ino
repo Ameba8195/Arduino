@@ -10,8 +10,8 @@
 #include <WiFiUdp.h>
 
 int status = WL_IDLE_STATUS;
-char ssid[] = "free_or_die";          // your network SSID (name)
-char pass[] = "0928513843";       // your network password
+char ssid[] = "YourNetwork";          // your network SSID (name)
+char pass[] = "password";       // your network password
 
 // NTP Servers:
 char timeServer[] = "time.stdtime.gov.tw";
