@@ -14,9 +14,16 @@ char ssid[] = "yourNetwork";          // your network SSID (name)
 char pass[] = "secretPassword";       // your network password
 
 // NTP Servers:
-IPAddress timeServer(132, 163, 4, 101); // time-a.timefreq.bldrdoc.gov
-// IPAddress timeServer(132, 163, 4, 102); // time-b.timefreq.bldrdoc.gov
-// IPAddress timeServer(132, 163, 4, 103); // time-c.timefreq.bldrdoc.gov
+char timeServer[] = "time.stdtime.gov.tw";
+//char timeServer[] = "clock.stdtime.gov.tw";
+//char timeServer[] = "tick.stdtime.gov.tw";
+//char timeServer[] = "tock.stdtime.gov.tw";
+//char timeServer[] = "watch.stdtime.gov.tw";
+//IPAddress timeServer(118, 163, 81, 61); // time.stdtime.gov.tw
+//IPAddress timeServer(211, 22, 103, 158); // clock.stdtime.gov.tw
+//IPAddress timeServer(118, 163, 81, 62); // tick.stdtime.gov.tw
+//IPAddress timeServer(211, 22, 103, 157); // tick.stdtime.gov.tw
+//IPAddress timeServer(118, 163, 81, 63 ); // tick.stdtime.gov.tw
 
 const int timeZone = 8;     // Beijing Time, Taipei Time
 //const int timeZone = 1;   // Central European Time
@@ -108,7 +115,7 @@ time_t getNtpTime()
 {
   Serial.println("Transmit NTP Request");
   Udp.setRecvTimeout(1500);
-  sendNTPpacket(timeServer);
+  sendNTPpacket();
   if ( Udp.read(packetBuffer, NTP_PACKET_SIZE) > 0 ) {
       unsigned long secsSince1900;
       // convert four bytes starting at location 40 to a long integer
@@ -124,7 +131,7 @@ time_t getNtpTime()
 }
 
 // send an NTP request to the time server at the given address
-void sendNTPpacket(IPAddress &address)
+void sendNTPpacket()
 {
   // set all bytes in the buffer to 0
   memset(packetBuffer, 0, NTP_PACKET_SIZE);
@@ -141,7 +148,7 @@ void sendNTPpacket(IPAddress &address)
   packetBuffer[15]  = 52;
   // all NTP fields have been given values, now
   // you can send a packet requesting a timestamp:                 
-  Udp.beginPacket(address, 123); //NTP requests are to port 123
+  Udp.beginPacket(timeServer, 123); //NTP requests are to port 123
   Udp.write(packetBuffer, NTP_PACKET_SIZE);
   Udp.endPacket();
 }
