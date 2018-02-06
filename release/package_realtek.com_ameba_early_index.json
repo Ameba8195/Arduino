@@ -20,7 +20,7 @@
           },
           "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-2.0.2-build20180206.tar.gz",
           "archiveFileName": "ameba-2.0.2-build20180206.tar.gz",
-          "checksum": "7c76f825b23c88180575895d5e020b7c11c7cd1084866357ae3cb30f4d1cded8",
+          "checksum": "SHA-256:7c76f825b23c88180575895d5e020b7c11c7cd1084866357ae3cb30f4d1cded8",
           "size": "28106918",
           "boards": [
             {"name": "Ameba RTL8195A"},
