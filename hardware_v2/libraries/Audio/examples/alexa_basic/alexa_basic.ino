@@ -30,8 +30,8 @@
 #include <Alexa.h>
 #include <FlashMemory.h>
 
-char ssid[] = "free_or_die";     // your network SSID (name)
-char pass[] = "0928513843";  // your network password (use for WPA, or use as key for WEP)
+char ssid[] = "ssid";     // your network SSID (name)
+char pass[] = "password";  // your network password (use for WPA, or use as key for WEP)
 int keyIndex = 0;                // your network key Index number (needed only for WEP)
 
 char avs_refresh_token[]     = "Atzr|IwEBIIPONbIeIbsgOXzSs557Ug8yT2yVkoXBpeMepDLQJ_9NA9SOTUuiQaHU0ZIB_rCxvIjpYlSI9SabI8WIk946zsYx6qMzFyWj7Gf6ATmCgYxldZ7imL100NfqPk0UreuUXD5m9lYc0aI2U2tMZ2YLgLHgnOZuIbtQwGWoVn_HV0lhVXfubnZ7ZFbII5l9ZLLNB9dRswQ0r_geRDyCBucP8c_ZZMcDwVadtvkAku9eqF8CI0CqviJydcvy1T0Kq3OZj_aMEinoBMWM9eU6yrTn_-Er219AAXkP1t4f4NIeZOlBgkFvvxDplvHzdbIQ_dGNvEeg3pAUGNX5E10umwJgdbr9XYVO1KWvshSweZiU6BGLn9bvsaMmdV90cB453eYSeom953Gy_5ly7U0xg0XOeQPMPTziMBwK6JxRi420LdFc2TzAWFPwwFvucAdqxPdhHDz_lJdpK-Fa2GqEVjAM1pOd1OIpTgry2nIFcOR6qwaNt_-kpCjNPYiBhqhPQzFtCjcew_em9q23fyduBFhu1H2FPJHppG7Mh9bHaCFCbBGYgQ";
