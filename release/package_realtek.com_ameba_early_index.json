@@ -10,6 +10,35 @@
       },
 
       "platforms": [
+        {
+          "name": "Realtek Ameba Boards (32-bits ARM Cortex-M3)",
+          "architecture": "ameba",
+          "version": "2.0.2-build20180206",
+          "category": "Contributed",
+          "help": {
+            "online": "http://www.amebaiot.com/"
+          },
+          "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-2.0.2-build20180206.tar.gz",
+          "archiveFileName": "ameba-2.0.2-build20180206.tar.gz",
+          "checksum": "7c76f825b23c88180575895d5e020b7c11c7cd1084866357ae3cb30f4d1cded8",
+          "size": "28106918",
+          "boards": [
+            {"name": "Ameba RTL8195A"},
+            {"name": "Ameba RTL8710"}
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "realtek",
+              "name": "arm-none-eabi-gcc",
+              "version": "4.8.3-2014q1"
+            },
+            {
+              "packager": "realtek",
+              "name": "ameba_tools",
+              "version": "1.1.0"
+            }
+          ]
+        },
       	{
           "name": "Realtek Ameba Boards (32-bits ARM Cortex-M3)",
           "architecture": "ameba",
@@ -21,7 +50,7 @@
           "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-2.0.2-build20171117.tar.gz",
           "archiveFileName": "ameba-2.0.2-build20171117.tar.gz",
           "checksum": "SHA-256:51a38f5d1afd39e9073127eede9102dded82bb3ee530bef3747affb60f6bdc51",
-          "size": "30981822",
+          "size": "28103986",
           "boards": [
             {"name": "Ameba RTL8195A"},
             {"name": "Ameba RTL8710"}

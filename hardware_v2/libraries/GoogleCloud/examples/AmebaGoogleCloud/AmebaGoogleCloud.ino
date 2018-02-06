@@ -1,67 +1,114 @@
+#include <Arduino.h>
 #include <WiFi.h>
-#include <GoogleCloud.h>
+#include <PubSubClient.h>
 
-char ssid[] = "free_or_die";     // your network SSID (name)
-char pass[] = "0928513843";  // your network password (use for WPA, or use as key for WEP)
+#define count   100
+
+extern "C"{   
+  extern char *jwt_generator(const unsigned char *private_key, char *project_id, int expiration_seconds);
+}
+
+
+WiFiSSLClient wifiClient;
+PubSubClient client(wifiClient);
+
+
+char ssid[] = "ssid";     // your network SSID (name)
+char pass[] = "pass";  // your network password (use for WPA, or use as key for WEP)
 int keyIndex = 0;                // your network key Index number (needed only for WEP)
 
+char GOOGLE_MQTT_SERVER[] = "mqtt.googleapis.com";
+int  GOOGLE_MQTT_PORT = 8883;
 
-unsigned char * project_id = ""
-unsigned char * registry_id = ""
-unsigned char * device_id = ""
+char project_id[] = "amebago-193913";
+char registry_id[] = "amebago-registry";
+char device_id[] = "amebago-rs256-device";
+
+char clientUser[] = "unused";
+char *clientPass;
+char *mqtt_id;
+char *pub_topic;
+char payload[64];
+
+
+
+/* root CA can be download here:
+ *  https://pki.google.com/GIAG2.crt
+ */
+char* rootCABuff  = \
+"-----BEGIN CERTIFICATE-----\n" \
+"MIIDujCCAqKgAwIBAgILBAAAAAABD4Ym5g0wDQYJKoZIhvcNAQEFBQAwTDEgMB4G\n" \
+"A1UECxMXR2xvYmFsU2lnbiBSb290IENBIC0gUjIxEzARBgNVBAoTCkdsb2JhbFNp\n" \
+"Z24xEzARBgNVBAMTCkdsb2JhbFNpZ24wHhcNMDYxMjE1MDgwMDAwWhcNMjExMjE1\n" \
+"MDgwMDAwWjBMMSAwHgYDVQQLExdHbG9iYWxTaWduIFJvb3QgQ0EgLSBSMjETMBEG\n" \
+"A1UEChMKR2xvYmFsU2lnbjETMBEGA1UEAxMKR2xvYmFsU2lnbjCCASIwDQYJKoZI\n" \
+"hvcNAQEBBQADggEPADCCAQoCggEBAKbPJA6+Lm8omUVCxKs+IVSbC9N/hHD6ErPL\n" \
+"v4dfxn+G07IwXNb9rfF73OX4YJYJkhD10FPe+3t+c4isUoh7SqbKSaZeqKeMWhG8\n" \
+"eoLrvozps6yWJQeXSpkqBy+0Hne/ig+1AnwblrjFuTosvNYSuetZfeLQBoZfXklq\n" \
+"tTleiDTsvHgMCJiEbKjNS7SgfQx5TfC4LcshytVsW33hoCmEofnTlEnLJGKRILzd\n" \
+"C9XZzPnqJworc5HGnRusyMvo4KD0L5CLTfuwNhv2GXqF4G3yYROIXJ/gkwpRl4pa\n" \
+"zq+r1feqCapgvdzZX99yqWATXgAByUr6P6TqBwMhAo6CygPCm48CAwEAAaOBnDCB\n" \
+"mTAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUm+IH\n" \
+"V2ccHsBqBt5ZtJot39wZhi4wNgYDVR0fBC8wLTAroCmgJ4YlaHR0cDovL2NybC5n\n" \
+"bG9iYWxzaWduLm5ldC9yb290LXIyLmNybDAfBgNVHSMEGDAWgBSb4gdXZxwewGoG\n" \
+"3lm0mi3f3BmGLjANBgkqhkiG9w0BAQUFAAOCAQEAmYFThxxol4aR7OBKuEQLq4Gs\n" \
+"J0/WwbgcQ3izDJr86iw8bmEbTUsp9Z8FHSbBuOmDAGJFtqkIk7mpM0sYmsL4h4hO\n" \
+"291xNBrBVNpGP+DTKqttVCL1OmLNIG+6KYnX3ZHu01yiPqFbQfXf5WRDLenVOavS\n" \
+"ot+3i9DAgBkcRcAtjOj4LaR0VknFBbVPFd5uRHg5h6h+u/N5GJG79G+dwfCMNYxd\n" \
+"AfvDbbnvRG15RjF+Cv6pgsH/76tuIMRQyV+dTZsXjAzlAcmgQWpzU/qlULRuJQ/7\n" \
+"TBj0/VLZjmmx6BEP3ojY+x1J96relc8geMJgEtslQIxq/H5COEBkEveegeGTLg==\n" \
+"-----END CERTIFICATE-----\n";
+
 
 /* Fill your private.pem.key with LINE ENDING */
-unsigned char *private_key = \
-"-----BEGIN PRIVATE KEY-----\r\n" \
-"MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC8AQz4dsBWnZeN\r\n" \
-"S6tATz6aZ//wAA7/Tbo6jmpIuUxvj33aSlD7MTzsvKf0yQoPDhTkFgQ6oHaCx2N/\r\n" \
-"Tl/lBk6ZFeK6im48YaXXqnqV542qQ45U9SnznmBCnvZi9jLdYGIxmlO52BzNMq9i\r\n" \
-"i2dPOvpczFTR1YAYVRk0CZ/L65vK4V5u/LrRMETfiNCYy8B+R1cWG4iSzPrsHOMY\r\n" \
-"yL35bU+YjiUGauzFHMD6PdoPIzD9DZqPINg6sZax0OyXX+DyA0yXU+9IxmYBOQ2r\r\n" \
-"F1wO2QgsWN3zR9z+WNl4+CKiHt13WeRamA0BeZgr3+K3mt5a5SGeUt8g+/rQShLs\r\n" \
-"zFodooWLAgMBAAECggEBAI6X0WmmUA2h66+cY+Ab+qSMGt/Ce52CK6x8FfrgqCu5\r\n" \
-"TsBBO5i56La6BD2yObHfgVLZrA13ZUudxUZqgGsp1HVh1xybIC8l9O5VfDK0dIte\r\n" \
-"P9cKN+5yAhqljMTUbRHhJ7jtj3FWi8nLFqEMkKfUWM4HoJGieEx8RuhkIFI/emNu\r\n" \
-"LTJaRVfFhOtCjtWHY+sWR+ccjbr7oH6HImQAZhCtRLPomU1BCnNpQQstxPthF4Mp\r\n" \
-"Fp+XG7FXo2JjsZx3cWr3atlCl6qo4Ls1AbV/z1odoSRP2NYYAO9KSg691DRqvABR\r\n" \
-"ZRGO9rN2y2AJpgDgh0sfywY5TfHOwsnQKTRTz9O1oTECgYEA23RnKPz+r9DfhmXs\r\n" \
-"norSIV4yt5ahb3chctMXsCIqYdyx4j7xVqeDgEsHQKgWWI2DwTMUlpYDp9pmnVZH\r\n" \
-"jG77TGqm/Ze4SDqMfOXsC9c2rhz3LdLZl8X0z8cO5bUfSu+gKgMszqApK7tsNogg\r\n" \
-"GQfegm3AcO2jHcW8O7LKc1YKngkCgYEA20/fvSwuGOCUhhmaikvdZJPu3l4apQGW\r\n" \
-"0zd/scP7i5ILZj0rlVH2SH65rPZP9pFvEbmLrkNumPOnPxuOGuO3aA4okcSqCojY\r\n" \
-"9zRlHAP2aBRE6HRaj31QgbBYlHuTg6lNeWnUpVsUc1i1muDOzi82CJvSowvGT98w\r\n" \
-"l2siiZGrK/MCgYBFXmotfqtTEAdYCGffRapeedQ2TBsDjPi5vxhByMr03Doudg77\r\n" \
-"gUAEEbNdMMS/gRwgufDMGOdW66Z8HYXIUlyFL0FR79+ElV1LLbKLm5/hMa7AgWHe\r\n" \
-"o+hatWV0HuihW1WZch97wQzCkiAGrMjYoLApMmAeUj+5bYOuqzlrc8svYQKBgCPu\r\n" \
-"+GfUf1EQKwW12D5ko8fA/Vht7suucPn2k/OaevKpYTjFOQjkPwgty1ptmTh7J8mt\r\n" \
-"rxdEcTCaa4LJjwUU3o4sE7WelYXYWkRWz2JBu/PdrlSwC86K58/4But9O/RMnycP\r\n" \
-"kgnt3HHxzP+tafUagy3x6hdQ7JNVrG6C3UvRFEzFAoGBANA3Lp1bHw2uEyCZp9Ua\r\n" \
-"aK4kdocE32so+wuMNZI/bX/CdPV/UEGSj2kOPvohms4U6yHnTcyjnru72ZUUunZy\r\n" \
-"R+17rZQENFRPqEgbGwvXUSAJ3mCa1hLuRBqiMMGqbv25ja3UaDo0JmBRz75LJdn0\r\n" \
-"sL/W3B8EkjtGnXC9OkD/rGtn\r\n" \
-"-----END PRIVATE KEY-----\r\n";
+char *privateKeyBuff = \
+"-----BEGIN PRIVATE KEY-----\n" \
 
-int ret = -1;
+"MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC4Zmd6c4ahWRJ1\n" \
+"OkN/BhyusnJgfOdlr9P9417q3mdEkv9d8i0uBuoDUQCBj6ue1PfJ0OEtxwyZGDkH\n" \
+"UmP88tO88s9lSZ19D+Czv002XjFn6hUyzZa3hbSpSMD90iUOxLVeMsk4RQ7cOfRG\n" \
+"ToKL2t54KUc2GFlGQ8jlvP8gLFmlDjftAGphZNmNkwXPmvwov812CdaA3mZ+YBMj\n" \
+"PLFDRYjE5bt2uf2+Cm57VRmPb8ONuAaTPgsLRRNGj+GJOTweMKV54TEPga0u7101\n" \
+"LqrofShdNMnMS4ebGzlK0RPaPxczdjHrLC9jHrG0bJDjSJRq4YaVx/zXbzbRribt\n" \
+"63NUkCT1AgMBAAECggEAXa/hqSwi3b0UjKzSeCoRzoxpYi5zno1rxpWLtwbSLtwE\n" \
+"lKWjYLwwjwjLmgf1qRgI4OeYUJrOAsZ0ywyIMo7pFxnCV3LEajLz9j8eqp3GukYL\n" \
+"CSm9BncPJ+cH7q2jGFLG1xo0c7taZnenbUUcPJQx7ZkDTi+mw/VSj66rbJw724h1\n" \
+"S+oeDbwEKv3ax1JA19iGOeL736d69EegV0+4cFC50gcxyVkwyfRapx0BYOPbUOo4\n" \
+"z0vpSeUKzBqKHmRq2O7g5F5TU2kopOVvVp9HbbG4UGah1BHDzwaiP409B/xmvAOm\n" \
+"q2rm3GuN5KX81eFkBlDjomK0GjopeX01Xla4a0VL7QKBgQDrwc2dgUO1Jdv6RU3L\n" \
+"7onbPxev6tD8I1H4toexOVg7/2x4C4WS/g7lCED2ORyKZgqpIw0IIS8OguMIm9Mg\n" \
+"AaUJQpqSpshFq2slkMPEvL8vt+BKsYKz36xFywijcG4zV3GZELTdVu0v/25++QMb\n" \
+"mOUgA5Pq9WKT+5qq5B5JQ8IdzwKBgQDIO7ezrovrT6hsbYgGu4DebeSk4s2DPLRg\n" \
+"AzzDdD2Ypl/DLhr5nzqdixmL//uW6qKQn52TErGIqkMzGtkz+TofVt+Yynh3xjRy\n" \
+"16P4NUBfsy9YMDcSWwpwWW35IFudGZ86bJZJgtRf+f0otlG6W7dcAVIqhlkXdM4e\n" \
+"/ULQU7Il+wKBgCx3ZFnFzMh4+JGuyqqhNj01HDmg94PnAYoAm31QzJSca5AE1E/S\n" \
+"PWrzcJVAVmLANliKdOXIpIB/LWUtRtftl3w0pMTuUi3Z1B7EvDf6RbExZEuSSY21\n" \
+"rV+ImPuCtDZY0uNE5GgvAhOggO3P98cXwneUVSzm1Y4F0blTx2aYMh+/AoGAEa5M\n" \
+"Q16HVmj7S0/Esit+bqWvievJD+ydVNkUVYH/KmqOjDKXCTHJQD4XLGiXM7VWU4T0\n" \
+"qhb9fD7kni+hvFgmjLvkFJ7UUmc7HGT0QqeZHpo49QWU51cIrfEHp/b2gAHSMJuE\n" \
+"DcuyqyLs+tpWjykoIMSxF7YzScHzrYLZkoHBel8CgYEAja6UGqcjC78mB4KErbCg\n" \
+"zA7EvYUmAiRdBkAxMvNDj54YIdIijP0hadJzcDwy2S8A3ckWJglMLxSJ1ghc5v/K\n" \
+"SygvyhLc5h5PTSNnElKr//7OLXPYalF/ACcwCum/Ppi6UJcHKBSW+ZGnt+Akennb\n" \
+"+BYcrelb7Sulr2Q5EBU6f1k=\n" \
+"-----END PRIVATE KEY-----\n";
 
 void setup() {
+  
   // attempt to connect to Wifi network:
   while (WiFi.begin(ssid, pass) != WL_CONNECTED) {
     delay(1000);
   }
   Serial.println("Connected to wifi");
-
-  gc_class.setPrivatekey(private_key);
   
-  while(ret != SUCCESS)
-  {
-    ret = gc_class.connect(project_id, registry_id, device_id);
-     delay(1000);
-  }
-   
+  Serial.println("Init MQTT");
+  wifiClient.setRootCA((unsigned char*)rootCABuff);      
+  wifiClient.setClientCertificate(NULL, (unsigned char*)privateKeyBuff);
+
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  boolean ret = 0;  
+  
   if (WiFi.status() != WL_CONNECTED) {
     while (WiFi.begin(ssid, pass) != WL_CONNECTED) 
     {
@@ -70,12 +117,50 @@ void loop() {
     Serial.println("Connected to wifi");
   }
 
-  if(gc_class.isconnected())
-    gc_class.publish();
-  else
-    printf("\r\nMQTT disconnect with server\r\n");
+  if(ret == 0){      
+    Serial.println("Ready for Publishing");
+  
+    mqtt_id = (char *)malloc(strlen("projects/") + strlen(project_id) + strlen("/locations/us-central1/registries/")
+      + strlen(registry_id) + strlen("/devices/") + strlen(device_id) + 1);
+    sprintf(mqtt_id, "projects/%s/locations/us-central1/registries/%s/devices/%s", project_id, registry_id, device_id);
+      
+    clientPass = jwt_generator((unsigned char*)privateKeyBuff, project_id, 3600*1);
+  
+    pub_topic = (char *)malloc(strlen("/devices/") + strlen(device_id) + strlen("/events") + 1);
+    sprintf(pub_topic, "/devices/%s/events", device_id);    
+    
+    client.setServer(GOOGLE_MQTT_SERVER, GOOGLE_MQTT_PORT);
+    client.setPublishQos(MQTTQOS1);
+    client.waitForAck(true);
+  }
+  
+  if (client.connect(mqtt_id, clientUser, clientPass) )
+  { 
+      for(int i = 0; i < count; i++){
+        Serial.println("client connecting...");
+        memset(payload, 0x0, 64);
+        sprintf(payload, "This is Ameba's %d message!!", i);                     
+        printf("Publishing the payload \"%s\" with len: %d\r\n", payload, strlen(payload));      
+        ret = client.publish(pub_topic, payload);    
+        if(ret == 1)
+          printf("client publish successfully!!! ret = %d\r\n",ret);            
+        else{
+          printf("client publish unsuccessfully!!! ret = %d\r\n",ret);
+          break;
+        }                     
+        if (!client.connected()) {
+          Serial.println("MQTT disconnect with server");
+          break;
+        }
 
-  delay(1000);
+        delay(1000);
+      }
+      client.disconnect();  
+  }
+  
+  free(mqtt_id);
+  free(pub_topic);
+  
 }
 
 

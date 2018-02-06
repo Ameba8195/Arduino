@@ -57,11 +57,12 @@ void loop() {
 
     Serial.println("connected to server");
     // Make a HTTP request:
-    client.print("POST /v2.8/" FEED_ID "/feed?access_token=");
+    client.print("POST /v2.11/" FEED_ID "/feed?access_token=");
     client.print(access_token);
     client.print("&message=");
-    client.println(message_list[message_index]);
+    client.print(message_list[message_index]);
     message_index = (message_index + 1) % MESSAGE_LIST_SIZE;
+    client.println(" HTTP/1.1");
     client.print("Host: ");
     client.println(server);
     client.println();

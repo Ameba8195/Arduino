@@ -88,7 +88,7 @@ void loop() {
   
       Serial.println("connected to server");
       // Make a HTTP request:
-      sprintf(message_buf, "POST /v2.8/%s/feed?access_token=%s&message=%s%d%s\r\nHost: %s\r\n\r\n",
+      sprintf(message_buf, "POST /v2.11/%s/feed?access_token=%s&message=%s%d%s HTTP/1.1\r\nHost: %s\r\n\r\n",
         FEED_ID,
         access_token,
         pm25msg_part1,
