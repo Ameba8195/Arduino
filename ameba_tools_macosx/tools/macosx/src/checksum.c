@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 	
 	fseek(fp,0L,SEEK_END);
 	
-	fwrite(&checksum, sizeof(int), 1, fp);
+	//fwrite(&checksum, sizeof(int), 1, fp);
 
 	printf("checksum %x\n\r", checksum);
 
