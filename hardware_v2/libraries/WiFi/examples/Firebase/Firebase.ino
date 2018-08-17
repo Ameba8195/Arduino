@@ -1,7 +1,7 @@
 #include <WiFi.h>
 
-#define ACCESS_TOKEN "dPUeCdCl0Rk:APA91bFpGQwBwKikhxe4JOUPjEbcr10pZs13WAC-sAkCVFYJN7kWcADJuUHRh__SwchuNuyoPkl79bb3l7HOicnW1UUKsMsk85zo-d7KhYCqaFFKZkFEBT82hRP77IoowZNJWBnmbDCGzSI7jPyHDatEdIcVVJTAxQ"
-#define SERVER_KEY  "AIzaSyCrmfLG8cucJfnW0mTXJpz8keW0zDJw_Sg"
+#define ACCESS_TOKEN ""
+#define SERVER_KEY  ""
 #define HOST_NAME "fcm.googleapis.com"
 
 char ssid[] = "SSID"; //  your network SSID (name)
