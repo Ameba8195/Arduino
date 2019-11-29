@@ -1,0 +1,24 @@
+This is the program and source code of the Amazon Voice Service(AVS) refresh Token generator for Ameba boards.
+
+Note:
+
+1. Program tested and proven working on Windows 10 platform using Chrome.
+	
+	1.1 No change to windows .exe and source code.
+
+
+
+2. Program tested and proven working on Ubuntu 19.04 platform using Chrome.
+	
+	2.1 Source code was edited and added with differences with windows program source code.
+	2.2 Added an alert to user to try different browser when SSL show error code 46.
+	2.3 program re-compiled.
+
+
+
+3. Program tested and proven working on MacOSX High Sierra V10.13.6 using Safari.
+	
+	3.1 There was no source code for MacOSX, thus created new source code based on Ubuntu program source code
+	3.2 Added an alert to user to try different browser when SSL show error code 46.
+	3.3 Created new compile command for MacOSX
+	3.4 Program re-compiled  

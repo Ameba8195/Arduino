@@ -5,16 +5,23 @@
 
 2. Compile this example as below
 
+	i686-w64-mingw32-gcc -o amz_oauth_windows.exe amz_oauth_windows.c -I../../tools/openssl-1.0.2l/include -L../../tools/openssl-1.0.2l/ -lssl -lcrypto  -lgdi32 -lws2_32 -static
 	gcc -o amz_oauth_linux amz_oauth_linux.c -lssl -lcrypto
+	gcc -o amz_oauth_macosx amz_oauth_macosx.c -lssl -lcrypto
 
 3. Then run it:
 
+	amz_oauth_windows.exe
 	./amz_oauth_linux
+	./amz_oauth_macosx
 
 It'll show a link to authenticate, open it and follow the instruction.
 Below is the sample log:
 
+	$ amz_oauth_windows.exe
 	$ ./amz_oauth_linux 
+	$ ./amz_oauth_macosx 
+
 	Please enter device id: alexa_on_ameba
 	Please enter device dsn: 123456
 	Please enter client id: amzn1.application-oa2-client.001e8b07053e4154889cc92be9a41a37
