@@ -79,8 +79,8 @@ bool isFileExist(string path) {
 
 int main(int argc, char *argv[]) {
 
-	int i;
-	bool mbed_disk_found = false;
+	int i , no_of_ameba_found = 0;
+	bool mbed_disk_found = false, second_ameba_found = false;
 
 	string cmd;
 	vector<string> lines;
@@ -101,28 +101,39 @@ int main(int argc, char *argv[]) {
 	}
 
 	do {
+		cout << "Note: Please connect only one Ameba board at a time." <<endl;
 		// 1. check if MBED disk driver exist
-		for (i=0; i<CHECK_DISK_RETRY; i++) {
+		for (i=0; i<CHECK_DISK_RETRY; i++) { //this for loop check 3 times until a disk with name "MBED" is found
 			mbed_disk_found = false;
-			cmd = "wmic logicaldisk get caption,volumename";
-			retrieve_system_call_result(cmd, &lines);
+			cmd = "wmic logicaldisk get caption,volumename"; //command line
+			retrieve_system_call_result(cmd, &lines); // as name suggested, this function retrieve the result of the command line
 
-			for (iter = lines.begin() + 1; iter != lines.end() - 1; iter++) {
+			for (iter = lines.begin() + 1; iter != lines.end() - 1; iter++) { //This for loop store the cmd result into disk_caption nad disk_volumename and compare result until "MBED" is found
 				ss.clear();
 				ss.str(*iter);
 				ss >> disk_caption >> disk_volumename;
 
 				if (disk_volumename.compare("MBED") == 0) {
 					mbed_disk_found = true;
-					break;
+					no_of_ameba_found++;
+
+					if (no_of_ameba_found >= 2) {
+						second_ameba_found = true;
+						break;
+					}
+					//break;  //once found, break from this for loop
 				}
 			}
 
 			if (mbed_disk_found) {
-				break;
+				break; // if found, break from this for loop
 			}
 		}
 
+		if (second_ameba_found) {
+			cout << "ERR: Multiple Ameba boards found! Unplug and only have one connected to the host!" << endl;
+			break;
+		}
 		if (!mbed_disk_found) {
 			cout << "ERR: Cannot find ameba on mbed driver! Please re-plug Ameba." << endl;
 			break;
@@ -151,7 +162,6 @@ int main(int argc, char *argv[]) {
 
 		cout << "upload finish" << endl;
 	} while (0);
-
 
 	return 0;
 }

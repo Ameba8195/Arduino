@@ -34,8 +34,6 @@ bool isFileExist(string path) {
 int main(int argc, char *argv[]) {
 
 	int i;
-	bool mbed_disk_found = false;
-
 	string cmd;
 	vector<string> lines;
 	vector<string>::iterator iter;
@@ -43,8 +41,7 @@ int main(int argc, char *argv[]) {
 	stringstream ss;
 	string disk_caption;
 	string disk_volumename;
-	string filepath1, filepath2;
-
+	string filepath1, filepath2, filepath3, filepath4;
 	string filepath_ram_all;
 	if (argc >= 2) {
 		// the path of ram_all.bin is feed from arg
@@ -56,6 +53,8 @@ int main(int argc, char *argv[]) {
 
 	do {
 		// 2. check if MBED disk is accessable
+		cout << "Note: Please connect only one Ameba board at a time!" << endl;
+
 		char *puser = getenv("USER");
 		filepath1 = "/media/";
 		filepath1.append(puser);
@@ -63,8 +62,21 @@ int main(int argc, char *argv[]) {
 		filepath2 = "/run/media/";
 		filepath2.append(puser);
 		filepath2.append("/MBED/mbed.htm");
-		if (!isFileExist(filepath1) && !isFileExist(filepath2)) {
-			cout << "ERR: Cannot access mbed driver!" << endl;
+
+		filepath3 = "/media/";
+		filepath3.append(puser);
+		filepath3.append("/MBED1/mbed.htm");
+		filepath4 = "/run/media/";
+		filepath4.append(puser);
+		filepath4.append("/MBED1/mbed.htm");
+
+		if (isFileExist(filepath1) || isFileExist(filepath2)) {
+			if (isFileExist(filepath3) || isFileExist(filepath4)) {
+				cout << "ERR: Multiple Ameba boards detected, pls unplug all and re-plug only one to the host!" << endl;
+				break;
+			}
+		} else {
+			cout << "ERR: Cannot access mbed driver! Pls re-plug ameba and try again!" << endl;
 			break;
 		}
 
