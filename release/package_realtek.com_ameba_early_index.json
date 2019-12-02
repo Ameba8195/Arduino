@@ -20,11 +20,12 @@
           },
           "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-2.0.6-build20191021v2.tar.gz",
           "archiveFileName": "ameba-2.0.6-build20191021v2.tar.gz",
-          "checksum": "SHA-256:7bee2365ab9e4b482159984daa02ab8a75c64b82f7ef08b451b718e603059c37",
-          "size": "28115118",
+          "checksum": "SHA-256:880ef53e3de8fffaf262e8d762b45e4c1fb9d77ac892261f53f72944c80549c5",
+          "size": "28108234",
           "boards": [
             {"name": "Ameba RTL8195A"},
-            {"name": "Ameba RTL8710"}
+            {"name": "Ameba RTL8710"},
+            {"name": "Ameba RTL8711AM(DSI5168)"}
           ],
           "toolsDependencies": [
             {
