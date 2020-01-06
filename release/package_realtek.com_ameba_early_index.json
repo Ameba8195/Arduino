@@ -13,6 +13,36 @@
 		{
           "name": "Realtek Ameba Boards (32-bits ARM Cortex-M3)",
           "architecture": "ameba",
+          "version": "2.0.6-build20200106v3",
+          "category": "Contributed",
+          "help": {
+            "online": "http://www.amebaiot.com/"
+          },
+          "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-2.0.6-build20200106v3.tar.gz",
+          "archiveFileName": "ameba-2.0.6-build20200106v3.tar.gz",
+          "checksum": "SHA-256:bc2fe0dbddc8553a1c8257311f0383d61b5ea5fd51bced2d33d3b81920d991c0",
+          "size": "28108989",
+          "boards": [
+            {"name": "Ameba RTL8195A"},
+            {"name": "Ameba RTL8710"},
+            {"name": "Ameba RTL8711AM"}
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "realtek",
+              "name": "arm-none-eabi-gcc",
+              "version": "4.8.3-2014q1"
+            },
+            {
+              "packager": "realtek",
+              "name": "ameba_tools",
+              "version": "1.1.1"
+            }
+          ]
+        },
+        {
+          "name": "Realtek Ameba Boards (32-bits ARM Cortex-M3)",
+          "architecture": "ameba",
           "version": "2.0.6-build20191021v2",
           "category": "Contributed",
           "help": {
@@ -25,7 +55,7 @@
           "boards": [
             {"name": "Ameba RTL8195A"},
             {"name": "Ameba RTL8710"},
-            {"name": "Ameba RTL8711AM(DSI5168)"}
+            {"name": "Ameba RTL8711AM"}
           ],
           "toolsDependencies": [
             {
