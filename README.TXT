@@ -15,7 +15,7 @@ And fill below URL in "Additional Boards Manager URLs:"
 We also suggest to enable "Show verbose output" options on "compilation" and "upload" in Preference.
 
 2. Open "Device Manager" in "Tolls" -> "Board" -> "Board Manager".
-Wait for IDE update core configuration. Schroll down the menu, you will see Realtek Ameba in the list.
+Wait for IDE update core configuration. Scroll down the menu, you will see Realtek Ameba in the list.
 Press "Install" at the right side.
 
 3. Select Ameba in "Tools" -> "Board" -> "Ameba Arduino".
