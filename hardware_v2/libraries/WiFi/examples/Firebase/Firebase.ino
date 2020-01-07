@@ -1,7 +1,7 @@
 #include <WiFi.h>
 
-#define ACCESS_TOKEN ""
-#define SERVER_KEY  ""
+#define ACCESS_TOKEN ""  //paste your instance ID from android app
+#define SERVER_KEY  "" //paste server key available on Firebase cloud messaging 
 #define HOST_NAME "fcm.googleapis.com"
 
 char ssid[] = "SSID"; //  your network SSID (name)
@@ -20,7 +20,8 @@ char const* payload = "{" \
 
 char const* message_fmt = "POST /fcm/send HTTP/1.1\nContent-Type: application/json\nAuthorization: key=" SERVER_KEY "\nHost: " HOST_NAME "\nContent-Length: ";
 
-WiFiClient client;
+WiFiSSLClient client; //Due to recent FCM update, HTTPS is needed instead of HTTP
+//WiFiClient client;
 
 void setup() {
   //Initialize serial and wait for port to open:
@@ -56,7 +57,7 @@ void setup() {
   Serial.println("\nStarting connection to server...");
   
   // if you get a connection, report back via serial:
-  if (client.connect(server, 80)) {
+  if (client.connect(server, 443)) {  //HTTPS default port 443
     Serial.println("connected to server");
     // Make a HTTP request:
     sprintf(message,"%s%s%s%s%s%d%s%s%s","POST /fcm/send HTTP/1.1\nContent-Type: application/json\nAuthorization: key=",SERVER_KEY,"\nHost: ",HOST_NAME,"\nContent-Length: ",strlen(payload),"\n\n",payload,"\n");

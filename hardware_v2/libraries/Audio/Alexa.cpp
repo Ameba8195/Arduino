@@ -1,11 +1,9 @@
 #include "Arduino.h"
 #include "Alexa.h"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 #include "wifi_conf.h"
 #include "wifi_constants.h"
@@ -22,14 +20,11 @@ extern "C" {
 /** The AVS alarm ring tone resource */
 #include "alexa/res/alexa_mp3_alarm.c"
 
-
-
 #include "device.h"
 #include "gpio_api.h"
 #include "gpio_irq_api.h"
 #include "gpio_irq_ex_api.h"
 #include "timer_api.h"
-
 
 #define YOUR_SSID "free_or_die"
 #define YOUR_PW   "0928513843"
@@ -47,11 +42,9 @@ extern "C" {
 #include "sgtl5000.h"
 #endif
 
-
 #ifdef __cplusplus
 }
 #endif
-
 
 #ifndef SDRAM_BSS_SECTION
 #define SDRAM_BSS_SECTION                        \
@@ -71,15 +64,16 @@ static i2s_t i2s_obj;
  *
  * When ALC5680 reconize the wakeup word it will toggle this pin
  */
-#define GPIO_IRQ_VOICE_PIN        PC_5
+#define GPIO_IRQ_VOICE_PIN              PC_5
 static gpio_irq_t gpio_audio;
 
 /**
  * The LED pin on ALC5680 to provide information.
  */
-#define GPIO_LED_PIN              PE_5
-#define CODEC_LED_ON  (0)
-#define CODEC_LED_OFF (1)
+#define GPIO_LED_PIN                    PE_5
+#define CODEC_LED_ON                    (0)
+#define CODEC_LED_OFF                   (1)
+
 int codec_led_state = CODEC_LED_OFF;
 static gpio_t gpio_led;
 static gtimer_t timer_led;
@@ -87,21 +81,20 @@ static gtimer_t timer_led;
 /**
  * The Alexa configuration data struct to init Alexa service
  */
-
-#define I2S_SCLK_PIN            PC_1
-#define I2S_WS_PIN              PC_0
-#define I2S_SD_PIN              PC_2
+#define I2S_SCLK_PIN                    PC_1
+#define I2S_WS_PIN                      PC_0
+#define I2S_SD_PIN                      PC_2
 
 /**
  * If we hit a i2x tx buf not available. It means all 4 buffer are used.
  * 1 frame takes 1s / 24KHz * 16 bit = 24 ms to consume.
  * So we wait 48ms to lower down the miss rate.
  */
-#define ALEXA_AUDIO_I2S_TX_BUF_DELAY (48)
+#define ALEXA_AUDIO_I2S_TX_BUF_DELAY    (48)
 
 // The mp3 download from AVS has 1152 bytes decoded in each frame
-#define ALEXA_I2S_DMA_PAGE_SIZE 1152
-#define ALEXA_I2S_DMA_PAGE_NUM     4   // Vaild number is 2~4
+#define ALEXA_I2S_DMA_PAGE_SIZE         1152
+#define ALEXA_I2S_DMA_PAGE_NUM          4   // Vaild number is 2~4
 
 // DMA buffer for I2S
 SDRAM_BSS_SECTION static uint8_t i2s_tx_buf[ALEXA_I2S_DMA_PAGE_SIZE*ALEXA_I2S_DMA_PAGE_NUM];
@@ -113,28 +106,28 @@ SDRAM_BSS_SECTION static uint8_t i2s_rx_buf[ALEXA_I2S_DMA_PAGE_SIZE*ALEXA_I2S_DM
  * @{
  */
 TaskHandle_t alexa_audio_tx_thread_handle = NULL;
-#define ALEXA_AUDIO_TX_THREAD_PRIORITY_NORMAL   ( tskIDLE_PRIORITY + 1 )
-#define ALEXA_AUDIO_TX_THREAD_PRIORITY_CRITICAL ( tskIDLE_PRIORITY + 2 )
+#define ALEXA_AUDIO_TX_THREAD_PRIORITY_NORMAL   (tskIDLE_PRIORITY + 1)
+#define ALEXA_AUDIO_TX_THREAD_PRIORITY_CRITICAL (tskIDLE_PRIORITY + 2)
 
-#define ALEXA_AUDIO_TX_HEAP_SIZE (1024)
-SDRAM_BSS_SECTION static uint8_t audio_tx_heap[ALEXA_AUDIO_TX_HEAP_SIZE * sizeof( StackType_t )];
+#define ALEXA_AUDIO_TX_HEAP_SIZE    (1024)
+SDRAM_BSS_SECTION static uint8_t audio_tx_heap[ALEXA_AUDIO_TX_HEAP_SIZE * sizeof(StackType_t)];
 
 /** semaphore to check status */
 static xSemaphoreHandle audio_tx_sema = NULL;
 
 
-#define ALEXA_CONN_HEAP_SIZE (512)
-SDRAM_BSS_SECTION static uint8_t audio_conn_heap[ALEXA_CONN_HEAP_SIZE * sizeof( StackType_t )];
+#define ALEXA_CONN_HEAP_SIZE        (512)
+SDRAM_BSS_SECTION static uint8_t audio_conn_heap[ALEXA_CONN_HEAP_SIZE * sizeof(StackType_t)];
 
 /** Current on use channel. See group alexa_res */
 static uint8_t priority_queue = ALEXA_AUDIO_CHANNEL_NONE;
 
 // The audio tx data source: dialog
-#define DIALOG_QUEUE_LENGTH (30)
+#define DIALOG_QUEUE_LENGTH         (30)
 static xQueueHandle dialog_queue;
 
 // The audio tx data source: content
-#define CONTENT_QUEUE_LENGTH (50)
+#define CONTENT_QUEUE_LENGTH        (50)
 static xQueueHandle content_queue;
 
 /**
@@ -143,12 +136,12 @@ static xQueueHandle content_queue;
  * When play mp3 data, the source data may not complete and need further data to decode.
  * We use this varaible to cache the un-decoded data
  */
-#define DIALOG_DATA_CACHE_SIZE (16384+4096)
+#define DIALOG_DATA_CACHE_SIZE      (16384+4096)
 uint32_t dialog_data_len = 0;
 
 SDRAM_BSS_SECTION uint8_t dialog_data_cache[DIALOG_DATA_CACHE_SIZE];
 
-#define CONTENT_DATA_CACHE_SIZE (16384+4096)
+#define CONTENT_DATA_CACHE_SIZE     (16384+4096)
 uint32_t content_data_len = 0;
 
 SDRAM_BSS_SECTION uint8_t content_data_cache[CONTENT_DATA_CACHE_SIZE];
@@ -158,7 +151,7 @@ uint16_t content_sample_rate = 0;
 uint8_t content_channel_number = 0;
 uint32_t content_delay_time = 24;
 
-#define BUTTON_DEBOUNCE_TIMEOUT 1000 //1s
+#define BUTTON_DEBOUNCE_TIMEOUT     1000 //1s
 static int irqtickcount = 0;
 
 /**
@@ -190,22 +183,19 @@ mp3_decoder_t alexa_mp3;
 SDRAM_BSS_SECTION static uint8_t decode_buf[4608];
 
 void gpio_audio_irq_handler (uint32_t id, gpio_irq_event event)
-{	
-	  int tickdiff = (xTaskGetTickCount() - irqtickcount);
-	  
-	  if(tickdiff < BUTTON_DEBOUNCE_TIMEOUT) 
-	  	return;
-	  else
-	  	irqtickcount = xTaskGetTickCount();
-	  	
-    {
-        printf("irq\r\n");
-        if (alexa_avs_state() && alexa_avs_upload_state() == 0) {
-            if (!alexa_audio_is_recording()) {
-                alexa_audio_record_start(8000); // timeout 8s
-            } else {
-                alexa_audio_record_stop();
-            }
+{
+    int tickdiff = (xTaskGetTickCount() - irqtickcount);
+    if (tickdiff < BUTTON_DEBOUNCE_TIMEOUT) {
+        return;
+    } else {
+        irqtickcount = xTaskGetTickCount();
+    }
+    printf("irq\r\n");
+    if (alexa_avs_state() && alexa_avs_upload_state() == 0) {
+        if (!alexa_audio_is_recording()) {
+            alexa_audio_record_start(8000); // timeout 8s
+        } else {
+            alexa_audio_record_stop();
         }
     }
 }
@@ -225,7 +215,7 @@ void timer_led_handler(uint32_t id)
 
     if (wifi_is_ready_to_transceive(RTW_STA_INTERFACE) != RTW_SUCCESS)
     {
-        gtimer_reload(&timer_led, 300 * 1000);
+        gtimer_reload(&timer_led, (300 * 1000));
     }
 }
 
@@ -242,17 +232,17 @@ static void i2s_rx_complete(void *data, char *prxbuf) {
 
 static void init_alexa_i2s()
 {
-	i2s_obj.channel_num = CH_MONO;
-	i2s_obj.sampling_rate = SR_16KHZ;
-	i2s_obj.word_length = WL_16b;
-	i2s_obj.direction = I2S_DIR_TXRX;
-	i2s_init(&i2s_obj, I2S_SCLK_PIN, I2S_WS_PIN, I2S_SD_PIN);
-	i2s_set_dma_buffer(&i2s_obj, (char*)i2s_tx_buf, (char*)i2s_rx_buf, ALEXA_I2S_DMA_PAGE_NUM, ALEXA_I2S_DMA_PAGE_SIZE);
-	i2s_tx_irq_handler(&i2s_obj, (i2s_irq_handler)i2s_tx_complete, NULL);
-	i2s_rx_irq_handler(&i2s_obj, (i2s_irq_handler)i2s_rx_complete, NULL);
+    i2s_obj.channel_num = CH_MONO;
+    i2s_obj.sampling_rate = SR_16KHZ;
+    i2s_obj.word_length = WL_16b;
+    i2s_obj.direction = I2S_DIR_TXRX;
+    i2s_init(&i2s_obj, I2S_SCLK_PIN, I2S_WS_PIN, I2S_SD_PIN);
+    i2s_set_dma_buffer(&i2s_obj, (char*)i2s_tx_buf, (char*)i2s_rx_buf, ALEXA_I2S_DMA_PAGE_NUM, ALEXA_I2S_DMA_PAGE_SIZE);
+    i2s_tx_irq_handler(&i2s_obj, (i2s_irq_handler)i2s_tx_complete, NULL);
+    i2s_rx_irq_handler(&i2s_obj, (i2s_irq_handler)i2s_rx_complete, NULL);
 
     i2s_send_page(&i2s_obj, (uint32_t*)i2s_get_tx_page(&i2s_obj));
-	i2s_recv_page(&i2s_obj);
+    i2s_recv_page(&i2s_obj);
 }
 
 /**
@@ -260,8 +250,9 @@ static void init_alexa_i2s()
  */
 static void init_audio_codec()
 {
-#if ALEXA_CODEC_ALC5680_I2C
     init_alexa_i2s();
+
+#if ALEXA_CODEC_ALC5680_I2C
     alc5680_i2c_init();
     alc5680_get_version();
     // alc5680 volume range: 0~255
@@ -270,7 +261,7 @@ static void init_audio_codec()
 #endif
 
 #if ALEXA_CODEC_SGTL5000
-	sgtl5000_enable();
+    sgtl5000_enable();
     sgtl5000_setVolume(0.3);
     sgtl5000_inputSelect(SGTL5000_AUDIO_INPUT_MIC);
     sgtl5000_micGain(40);
@@ -280,22 +271,22 @@ static void init_audio_codec()
 
 uint32_t audio_do_tx(alexa_audio_t *data, uint8_t channel, uint8_t push_head) {
     if (channel == ALEXA_AUDIO_CHANNEL_DIALOG) {
-        if ( uxQueueSpacesAvailable( dialog_queue ) > 0 ) {
+        if (uxQueueSpacesAvailable(dialog_queue) > 0) {
             if (push_head) {
-                xQueueSendToFront( dialog_queue, ( void * ) data, ( TickType_t ) 0 );
+                xQueueSendToFront(dialog_queue, (void *)data, (TickType_t)0);
             } else {
-                xQueueSend( dialog_queue, ( void * ) data, ( TickType_t ) 0 );
+                xQueueSend(dialog_queue, (void *)data, (TickType_t)0);
             }
             return 0;
         } else {
             return 1;
         }
     } else if (channel == ALEXA_AUDIO_CHANNEL_CONTENT) {
-        if ( uxQueueSpacesAvailable( content_queue ) > 0 ) {
+        if (uxQueueSpacesAvailable(content_queue) > 0) {
             if (push_head) {
-                xQueueSendToFront( content_queue, ( void * ) data, ( TickType_t ) 0 );
+                xQueueSendToFront(content_queue, (void *)data, (TickType_t)0);
             } else {
-                xQueueSend( content_queue, ( void * ) data, ( TickType_t ) 0 );
+                xQueueSend(content_queue, (void *)data, (TickType_t)0);
             }
             return 0;
         } else {
@@ -309,7 +300,7 @@ static void set_audio_codec_volume(uint32_t volume)
 #if ALEXA_CODEC_ALC5680_I2C
     // alexa volume range: 0~100, alc5680 volume range: 0~255
     // we only use alc5680 range 0~250
-    set_alc5680_volume( (volume / 2) * 5, (volume / 2) * 5 );
+    set_alc5680_volume(((volume / 2) * 5), ((volume / 2) * 5));
 #endif
 }
 
@@ -326,10 +317,10 @@ static void audio_change_channel(uint8_t channel, uint8_t enable)
 
 static void play_resource(uint32_t res_id)
 {
-    if ( res_id == ALEXA_AUDIO_RES_NONE ) {
+    if (res_id == ALEXA_AUDIO_RES_NONE) {
         alexa_res_id = ALEXA_AUDIO_RES_NONE;
         audio_change_channel(ALEXA_AUDIO_CHANNEL_ALERTS, 0);
-    } else if ( res_id == ALEXA_AUDIO_RES_ALARM ) {
+    } else if (res_id == ALEXA_AUDIO_RES_ALARM) {
         res_data = alexa_res_alarm_mp3;
         res_idx = 0;
         res_len = alexa_res_alarm_mp3_len;
@@ -351,13 +342,13 @@ static void alexa_conn_thread(void *pvParameters)
 
     // Initial a periodical timer
     gtimer_init(&timer_led, TIMER0);
-    gtimer_start_periodical(&timer_led, 300 * 1000, (void*)timer_led_handler, (uint32_t)&timer_led);
+    gtimer_start_periodical(&timer_led, (300 * 1000), (void*)timer_led_handler, (uint32_t)&timer_led);
 
     while (1) {
         if (wifi_is_ready_to_transceive(RTW_STA_INTERFACE) != RTW_SUCCESS) {
             if (wifi_last_retry_timestamp == 0 || xTaskGetTickCount() > wifi_last_retry_timestamp + 3000) {
-                ret = wifi_connect( YOUR_SSID, RTW_SECURITY_WPA2_AES_PSK, YOUR_PW, strlen(YOUR_SSID), strlen(YOUR_PW), 0, NULL );
-//                ret = wifi_connect( YOUR_SSID, RTW_SECURITY_OPEN, NULL, strlen(YOUR_SSID), 0, 0, NULL );
+                ret = wifi_connect(YOUR_SSID, RTW_SECURITY_WPA2_AES_PSK, YOUR_PW, strlen(YOUR_SSID), strlen(YOUR_PW), 0, NULL);
+//                ret = wifi_connect(YOUR_SSID, RTW_SECURITY_OPEN, NULL, strlen(YOUR_SSID), 0, 0, NULL);
                 if (ret == 0) {
                     LwIP_DHCP(0, DHCP_START);
                 }
@@ -375,7 +366,7 @@ static void do_dialog() {
     mp3_info_t info;
 
     do {
-        if (xQueueReceive( dialog_queue, &audio_data, ALEXA_AUDIO_I2S_TX_BUF_DELAY ) != pdTRUE) {
+        if (xQueueReceive(dialog_queue, &audio_data, ALEXA_AUDIO_I2S_TX_BUF_DELAY) != pdTRUE) {
             break;
         }
 
@@ -385,7 +376,7 @@ static void do_dialog() {
 
         if (audio_data.flag & ALEXA_AUDIO_FLAG_START) {
             dialog_data_len = 0;
-            if (audio_data.destructor != NULL) audio_data.destructor( &audio_data );
+            if (audio_data.destructor != NULL) audio_data.destructor(&audio_data);
             vTaskDelay(1000); // Wait 1 seconds for buffering. (Do we really need this or we can fix it in another way?)
         }
 
@@ -397,9 +388,9 @@ static void do_dialog() {
             vTaskPrioritySet(alexa_audio_tx_thread_handle, ALEXA_AUDIO_TX_THREAD_PRIORITY_CRITICAL);
 
             if (dialog_data_len > 0) {
-                memcpy( dialog_data_cache + dialog_data_len, audio_data.data, audio_data.data_len);
+                memcpy(dialog_data_cache + dialog_data_len, audio_data.data, audio_data.data_len);
                 dialog_data_len = dialog_data_len + audio_data.data_len;
-                if (audio_data.destructor != NULL) audio_data.destructor( &audio_data );
+                if (audio_data.destructor != NULL) audio_data.destructor(&audio_data);
                 audio_data.data = dialog_data_cache;
                 audio_data.data_len = dialog_data_len;
             }
@@ -430,16 +421,16 @@ static void do_dialog() {
 
             if (idx < audio_data.data_len) {
                 dialog_data_len = audio_data.data_len - idx;
-                if ( dialog_data_cache == audio_data.data) {
-                    memmove( dialog_data_cache, dialog_data_cache + idx, dialog_data_len);
+                if (dialog_data_cache == audio_data.data) {
+                    memmove(dialog_data_cache, dialog_data_cache + idx, dialog_data_len);
                 } else {
-                    _memcpy( dialog_data_cache, audio_data.data + idx, dialog_data_len);
+                    _memcpy(dialog_data_cache, audio_data.data + idx, dialog_data_len);
                 }
             } else {
                 dialog_data_len = 0;
             }
 
-            if (audio_data.destructor != NULL) audio_data.destructor( &audio_data );
+            if (audio_data.destructor != NULL) audio_data.destructor(&audio_data);
 
             vTaskPrioritySet(alexa_audio_tx_thread_handle, ALEXA_AUDIO_TX_THREAD_PRIORITY_NORMAL);
 
@@ -449,8 +440,8 @@ static void do_dialog() {
         }
 
         if (audio_data.flag & ALEXA_AUDIO_FLAG_EOF) {
-            alexa_audio_change_channel( ALEXA_AUDIO_CHANNEL_DIALOG, 0 );
-            if (audio_data.destructor != NULL) audio_data.destructor( &audio_data );
+            alexa_audio_change_channel(ALEXA_AUDIO_CHANNEL_DIALOG, 0);
+            if (audio_data.destructor != NULL) audio_data.destructor(&audio_data);
             content_data_len = 0;
         }
     } while (0);
@@ -556,7 +547,7 @@ void configure_content(uint8_t *data, uint32_t *plen, uint8_t data_type) {
             memmove(data, data+idx, *plen - idx);
             *plen = *plen - idx;
 
-            content_sample_rate = sample_rate_table[ (data[1] & 0x18) >> 3 ][ (data[2] & 0x0C) >> 2 ];
+            content_sample_rate = sample_rate_table[(data[1] & 0x18) >> 3][(data[2] & 0x0C) >> 2];
             content_channel_number = ((data[3] & 0xC0) >> 6) == 3 ? 1 : 2;
             content_delay_time = 2*576000/content_sample_rate;
             printf("SR:%d CH:%d\r\n", content_sample_rate, content_channel_number);
@@ -577,7 +568,7 @@ static void do_content() {
     mp3_info_t info;
 
     do {
-        if (xQueueReceive( content_queue, &audio_data, ALEXA_AUDIO_I2S_TX_BUF_DELAY ) != pdTRUE) {
+        if (xQueueReceive(content_queue, &audio_data, ALEXA_AUDIO_I2S_TX_BUF_DELAY) != pdTRUE) {
             break;
         }
 
@@ -585,7 +576,7 @@ static void do_content() {
 
         if (audio_data.flag & ALEXA_AUDIO_FLAG_START) {
             content_data_len = 0;
-            if (audio_data.destructor != NULL) audio_data.destructor( &audio_data );
+            if (audio_data.destructor != NULL) audio_data.destructor(&audio_data);
             audio_data.data = NULL;
             audio_data.data_len = 0;
             content_configured = 0;
@@ -596,7 +587,7 @@ static void do_content() {
 
         if (audio_data.flag & ALEXA_AUDIO_FLAG_PLAY) {
             if (audio_data.flag & ALEXA_AUDIO_FLAG_TYPE_TS) {
-                if (audio_data.destructor != NULL) audio_data.destructor( &audio_data );
+                if (audio_data.destructor != NULL) audio_data.destructor(&audio_data);
                 break;
             }
 
@@ -609,9 +600,9 @@ static void do_content() {
             vTaskPrioritySet(alexa_audio_tx_thread_handle, ALEXA_AUDIO_TX_THREAD_PRIORITY_CRITICAL);
 
             if (content_data_len > 0) {
-                memcpy( content_data_cache + content_data_len, audio_data.data, audio_data.data_len);
+                memcpy(content_data_cache + content_data_len, audio_data.data, audio_data.data_len);
                 content_data_len = content_data_len + audio_data.data_len;
-                if (audio_data.destructor != NULL) audio_data.destructor( &audio_data );
+                if (audio_data.destructor != NULL) audio_data.destructor(&audio_data);
                 audio_data.data = content_data_cache;
                 audio_data.data_len = content_data_len;
             }
@@ -655,16 +646,16 @@ static void do_content() {
 
             if (idx < audio_data.data_len) {
                 content_data_len = audio_data.data_len - idx;
-                if ( content_data_cache == audio_data.data) {
-                    memmove( content_data_cache, content_data_cache + idx, content_data_len);
+                if (content_data_cache == audio_data.data) {
+                    memmove(content_data_cache, content_data_cache + idx, content_data_len);
                 } else {
-                    _memcpy( content_data_cache, audio_data.data + idx, content_data_len);
+                    _memcpy(content_data_cache, audio_data.data + idx, content_data_len);
                 }
             } else {
                 content_data_len = 0;
             }
 
-            if (audio_data.destructor != NULL) audio_data.destructor( &audio_data );
+            if (audio_data.destructor != NULL) audio_data.destructor(&audio_data);
 
             vTaskPrioritySet(alexa_audio_tx_thread_handle, ALEXA_AUDIO_TX_THREAD_PRIORITY_NORMAL);
 
@@ -675,11 +666,11 @@ static void do_content() {
             i2s_obj.InitDat.I2SRate = SR_16KHZ;
             HalI2SSetRateRtl8195a(&(i2s_obj.InitDat));
 
-            if ( CONTENT_QUEUE_LENGTH - uxQueueSpacesAvailable(content_queue) == 0 ) {
-                alexa_audio_change_channel( ALEXA_AUDIO_CHANNEL_CONTENT, 0 );
+            if (CONTENT_QUEUE_LENGTH - uxQueueSpacesAvailable(content_queue) == 0) {
+                alexa_audio_change_channel(ALEXA_AUDIO_CHANNEL_CONTENT, 0);
             }
 
-            if (audio_data.destructor != NULL) audio_data.destructor( &audio_data );
+            if (audio_data.destructor != NULL) audio_data.destructor(&audio_data);
             audio_data.data = NULL;
             audio_data.data_len = 0;
 
@@ -720,12 +711,6 @@ static void alexa_audio_tx_thread(void *pvParameters)
 AlexaClass::AlexaClass()
 {
     memset(&alexa_context, 0, sizeof(alexa_context_t));
-
-
-
-
-
-
 }
 
 AlexaClass::~AlexaClass()
@@ -734,16 +719,31 @@ AlexaClass::~AlexaClass()
 
 void AlexaClass::begin()
 {
-
-		// little delay for wait wifi driver ready
+    // little delay for wait wifi driver ready
     vTaskDelay(1000);
-		
-		//os_thread_create(alexa_audio_tx_thread, NULL, OS_PRIORITY_REALTIME, ALEXA_AUDIO_TX_HEAP_SIZE);
-	if ( xTaskGenericCreate( alexa_audio_tx_thread, "alexaATX", ALEXA_AUDIO_TX_HEAP_SIZE, ( void * ) NULL, tskIDLE_PRIORITY + 1, &alexa_audio_tx_thread_handle, (StackType_t *)audio_tx_heap, NULL) != pdPASS )
+
+    //os_thread_create(alexa_audio_tx_thread, NULL, OS_PRIORITY_REALTIME, ALEXA_AUDIO_TX_HEAP_SIZE);
+    if (xTaskGenericCreate(alexa_audio_tx_thread,
+                           "alexaATX",
+                           ALEXA_AUDIO_TX_HEAP_SIZE,
+                           (void *)NULL,
+                           tskIDLE_PRIORITY + 1,
+                           &alexa_audio_tx_thread_handle,
+                           (StackType_t *)audio_tx_heap,
+                           NULL) != pdPASS) {
         printf("\n\r%s xTaskCreate(alexa_audio_tx_thread) failed", __FUNCTION__);
-		//os_thread_create(alexa_conn_thread, NULL, OS_PRIORITY_REALTIME, ALEXA_CONN_HEAP_SIZE);
-	if ( xTaskGenericCreate( alexa_conn_thread, "alexaConn", ALEXA_CONN_HEAP_SIZE, ( void * ) NULL, tskIDLE_PRIORITY + 3, NULL, (StackType_t *)audio_conn_heap, NULL) != pdPASS )
+    }
+    //os_thread_create(alexa_conn_thread, NULL, OS_PRIORITY_REALTIME, ALEXA_CONN_HEAP_SIZE);
+    if (xTaskGenericCreate(alexa_conn_thread,
+                           "alexaConn",
+                           ALEXA_CONN_HEAP_SIZE,
+                           (void *)NULL,
+                           tskIDLE_PRIORITY + 3,
+                           NULL,
+                           (StackType_t *)audio_conn_heap,
+                           NULL) != pdPASS) {
         printf("\n\r%s xTaskCreate(alexa_conn_thread) failed", __FUNCTION__);
+    }
 
     // 1. wait for wifi connected
     while (wifi_is_ready_to_transceive(RTW_STA_INTERFACE) != RTW_SUCCESS) {
@@ -760,21 +760,20 @@ void AlexaClass::begin()
         set_audio_codec_volume,
         play_resource
     );
-    
+
     init_alexa_avs_service(&alexa_context);
-    
-    
+
     // 6. setup and decide when to recording audio data
     gpio_irq_init(&gpio_audio, GPIO_IRQ_VOICE_PIN, gpio_audio_irq_handler, NULL);
     gpio_irq_set(&gpio_audio, IRQ_RISE, 1);
     gpio_irq_enable(&gpio_audio);
 
-		vTaskDelete(NULL);
+    vTaskDelete(NULL);
 }
 void AlexaClass::setAvsRefreshToken(char *avs_refresh_token, int len)
 {
-		alexa_context.refresh_token = (uint8_t *)avs_refresh_token;
-		alexa_context.refresh_token_len = len;
+    alexa_context.refresh_token = (uint8_t *)avs_refresh_token;
+    alexa_context.refresh_token_len = len;
 }
 
 void AlexaClass::setAvsClientId(char *avs_client_id, int len)
@@ -793,8 +792,5 @@ void AlexaClass::setAvsHttp2Host(char *avs_http2_host, int len)
     alexa_context.avs_hp2_host = avs_http2_host;
     alexa_context.avs_hp2_host_len = len;
 }
-
-
-
 
 AlexaClass Alexa;

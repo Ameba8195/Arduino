@@ -237,7 +237,9 @@ void TwoWire::onRequest(void(*function)(void)) {
 }
 
 #if defined(BOARD_RTL8195A)
-
+#if defined(BOARD_RTL8711AM)
+TwoWire Wire = TwoWire(PD_4, PD_5);
+#else
 // HW: I2C1
 TwoWire Wire  = TwoWire(PD_7, PD_6);
 //TwoWire Wire  = TwoWire(PC_4, PC_5);
@@ -247,6 +249,7 @@ TwoWire Wire1 = TwoWire(PD_4, PD_5);
 
 // HW: I2C3
 TwoWire Wire2 = TwoWire(PB_3, PB_2);
+#endif
 
 #elif defined(BOARD_RTL8710)
 
