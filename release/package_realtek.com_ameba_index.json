@@ -18,7 +18,7 @@
           "help": {
             "online": "http://www.amebaiot.com/"
           },
-          "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-2.0.6.tar.gz",
+          "url": "https://github.com/Ameba8195/Arduino/raw/master/release/ameba-2.0.6-v2.tar.gz",
           "archiveFileName": "ameba-2.0.6-v2.tar.gz",
           "checksum": "SHA-256:b063e9258400ece748d5d8498bc1d336137b6c571f4e1411343c7674fb89360a",
           "size": "28097957",
